@@ -7793,5 +7793,173 @@ window.addEventListener("DOMContentLoaded",boot);
 </script>
 <!-- /Seller Control: production plans, payments and admin -->
 
+
+<script id="seller-control-storage-online">
+/* Seller Control — private Supabase Storage sync for business documents */
+(function(){
+  const BUCKET="seller-documents";
+
+  function client(){
+    const c=window.sellerControlSupabase;
+    if(!c)throw new Error("Supabase ещё не подключён. Обновите страницу и войдите снова.");
+    return c;
+  }
+
+  async function auth(){
+    const c=client();
+    const {data,error}=await c.auth.getUser();
+    if(error)throw error;
+    if(!data?.user)throw new Error("Сначала войдите в аккаунт.");
+    return {client:c,user:data.user};
+  }
+
+  function safeName(name){
+    const clean=String(name||"file")
+      .replace(/[^\p{L}\p{N}._-]+/gu,"_")
+      .replace(/^_+|_+$/g,"");
+    return (clean||"file").slice(-180);
+  }
+
+  /* The synced workspace is the source of truth on every device. */
+  window.getDocumentMeta=function(){
+    const ws=getWorkspace();
+    if(Array.isArray(ws?.documents)){
+      try{localStorage.setItem(documentMetaKey(),JSON.stringify(ws.documents))}catch(e){}
+      return ws.documents;
+    }
+    try{
+      const saved=JSON.parse(localStorage.getItem(documentMetaKey())||"[]");
+      return Array.isArray(saved)?saved:[];
+    }catch(e){return[]}
+  };
+
+  window.saveDocumentMeta=function(rows){
+    const clean=Array.isArray(rows)?rows:[];
+    try{localStorage.setItem(documentMetaKey(),JSON.stringify(clean))}catch(e){}
+    const ws=getWorkspace();
+    if(ws){ws.documents=clean;saveWorkspace(ws)}
+  };
+
+  const oldRenderDocuments=window.renderDocuments;
+  window.renderDocuments=function(){
+    oldRenderDocuments();
+    const note=document.querySelector(".storage-note");
+    if(note)note.textContent=T(
+      "Файлы защищённо сохраняются в Supabase Storage и доступны в этом аккаунте с телефона и компьютера.",
+      "文件安全保存在 Supabase Storage 中，可通过同一账户在手机和电脑上访问。"
+    );
+  };
+
+  window.addDocument=async function(e){
+    e.preventDefault();
+    const form=e.target,file=form.file.files?.[0];
+    if(!file)return;
+
+    const submit=form.querySelector('button[type="submit"],button:not([type])');
+    const oldText=submit?.textContent||"";
+    if(submit){submit.disabled=true;submit.textContent=T("Загрузка...","上传中...")}
+
+    const d=Object.fromEntries(new FormData(form).entries());
+    const docId=id();
+    let storagePath="";
+
+    try{
+      const {client,user}=await auth();
+      storagePath=`${user.id}/${docId}/${safeName(file.name)}`;
+
+      const {error}=await client.storage.from(BUCKET).upload(storagePath,file,{
+        cacheControl:"3600",
+        upsert:false,
+        contentType:file.type||undefined
+      });
+      if(error)throw error;
+
+      const docs=getDocumentMeta().slice();
+      docs.push({
+        id:docId,
+        storagePath,
+        fileName:file.name,
+        title:(d.title||"").trim()||file.name,
+        category:d.category,
+        date:d.date||today(),
+        storeId:d.storeId||"",
+        comment:(d.comment||"").trim(),
+        size:file.size,
+        type:file.type,
+        createdAt:new Date().toISOString()
+      });
+
+      saveDocumentMeta(docs);
+      documentCategoryFilter="Все";
+      renderDocuments();
+
+      requestAnimationFrame(()=>{
+        const savedRow=document.querySelector(`[data-doc-id="${docId}"]`);
+        if(savedRow)savedRow.scrollIntoView({behavior:"smooth",block:"center"});
+      });
+
+      showSaveToast(T("✓ Документ сохранён в облаке","✓ 文件已保存到云端"));
+    }catch(err){
+      console.error("Document cloud save error",err);
+      if(storagePath){
+        try{await client().storage.from(BUCKET).remove([storagePath])}catch(e){}
+      }
+      alert(T("Не удалось загрузить файл: ","文件上传失败：")+(err?.message||String(err)));
+    }finally{
+      if(submit){submit.disabled=false;submit.textContent=oldText}
+    }
+  };
+
+  window.downloadDocument=async function(docId){
+    const d=getDocumentMeta().find(x=>x.id===docId);
+    if(!d)return;
+    try{
+      if(d.storagePath){
+        const {client}=await auth();
+        const {data,error}=await client.storage.from(BUCKET).download(d.storagePath);
+        if(error)throw error;
+        downloadBlob(d.fileName,data);
+        return;
+      }
+
+      const file=await getDocumentFile(d.fileKey);
+      if(!file)throw new Error(T(
+        "Старый файл находится только в браузере, где его загрузили.",
+        "旧文件仅保存在最初上传它的浏览器中。"
+      ));
+      downloadBlob(d.fileName,file);
+    }catch(err){
+      console.error("Document download error",err);
+      alert(T("Не удалось скачать файл: ","文件下载失败：")+(err?.message||String(err)));
+    }
+  };
+
+  window.removeDocument=async function(docId){
+    const docs=getDocumentMeta(),d=docs.find(x=>x.id===docId);
+    if(!d||!confirm(T(
+      `Удалить документ «${d.title||d.fileName}»?`,
+      `删除文件“${d.title||d.fileName}”吗？`
+    )))return;
+
+    try{
+      if(d.storagePath){
+        const {client}=await auth();
+        const {error}=await client.storage.from(BUCKET).remove([d.storagePath]);
+        if(error)throw error;
+      }else if(d.fileKey){
+        try{await deleteDocumentFile(d.fileKey)}catch(e){}
+      }
+
+      saveDocumentMeta(docs.filter(x=>x.id!==docId));
+      renderDocuments();
+      showSaveToast(T("✓ Документ удалён","✓ 文件已删除"));
+    }catch(err){
+      console.error("Document delete error",err);
+      alert(T("Не удалось удалить файл: ","文件删除失败：")+(err?.message||String(err)));
+    }
+  };
+})();
+</script>
+
 </body>
 </html>
