@@ -6967,6 +6967,18 @@ window.addEventListener("DOMContentLoaded",boot);
 
   function scValidEmail(value){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value||"").trim())}
 
+  function scFriendlyAuthError(error){
+    const raw=String(error?.message||error||"").trim();
+    const msg=raw.toLowerCase();
+    if(msg.includes("invalid login credentials"))return T("Неверный email или пароль.","邮箱或密码错误。");
+    if(msg.includes("email not confirmed"))return T("Email ещё не подтверждён.","邮箱尚未验证。");
+    if(msg.includes("user already registered")||msg.includes("already been registered"))return T("Аккаунт с этим email уже существует.","该邮箱已注册。");
+    if(msg.includes("email rate limit exceeded")||msg.includes("rate limit"))return T("Слишком много попыток. Подождите несколько минут и повторите.","尝试次数过多，请稍后再试。");
+    if(msg.includes("password should be at least")||msg.includes("weak password"))return T("Пароль должен содержать минимум 6 символов.","密码至少需要6个字符。");
+    if(msg.includes("network")||msg.includes("failed to fetch")||msg.includes("fetch"))return T("Нет соединения с сервером. Проверьте интернет.","无法连接服务器，请检查网络。");
+    return raw||T("Произошла ошибка. Повторите попытку.","发生错误，请重试。");
+  }
+
   renderAuth = function(){
     let body="";
     if(authMode==="login") body=`
@@ -7004,7 +7016,7 @@ window.addEventListener("DOMContentLoaded",boot);
     if(p.length<6) return authMessage("error",T("Пароль слишком короткий","密码太短"));
     authMessage("ok",T("Создаём аккаунт…","正在创建账户…"));
     const {data,error}=await client.auth.signUp({email,password:p,options:{data:{name}}});
-    if(error) return authMessage("error",error.message);
+    if(error) return authMessage("error",scFriendlyAuthError(error));
     if(data.session){
       await scAfterAuth(data.session);
       closeAuth();
@@ -7022,7 +7034,7 @@ window.addEventListener("DOMContentLoaded",boot);
     if(!scValidEmail(email)) return authMessage("error",T("Введите правильный email","请输入正确邮箱"));
     authMessage("ok",T("Входим…","正在登录…"));
     const {data,error}=await client.auth.signInWithPassword({email,password});
-    if(error) return authMessage("error",error.message);
+    if(error) return authMessage("error",scFriendlyAuthError(error));
     await scAfterAuth(data.session);
     closeAuth();
   };
@@ -7035,7 +7047,7 @@ window.addEventListener("DOMContentLoaded",boot);
     if(!scValidEmail(email)) return authMessage("error",T("Введите правильный email","请输入正确邮箱"));
     const redirectTo=location.origin+location.pathname;
     const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo});
-    if(error) return authMessage("error",error.message);
+    if(error) return authMessage("error",scFriendlyAuthError(error));
     authMessage("ok",T("Письмо для восстановления отправлено на email.","重置邮件已发送。"));
   };
 
@@ -7066,7 +7078,7 @@ window.addEventListener("DOMContentLoaded",boot);
     e.preventDefault();
     const password=document.getElementById("scNewPassword").value;
     const {error}=await scInitClient().auth.updateUser({password});
-    if(error)return authMessage("error",error.message);
+    if(error)return authMessage("error",scFriendlyAuthError(error));
     authMessage("ok",T("Пароль успешно изменён.","密码已成功修改。"));
     setTimeout(()=>{document.getElementById("authRoot").innerHTML="";showApp()},900);
   };
@@ -8039,6 +8051,232 @@ window.addEventListener("DOMContentLoaded",boot);
   };
 })();
 </script>
+
+
+<!-- Seller Control FINAL hardening: friendly monitoring + admin system journal -->
+<style id="seller-control-hardening-style">
+.sc-hard-admin-nav-button .ico{font-size:15px}
+.sc-hard-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.sc-hard-table table{min-width:980px}
+.sc-hard-log-action{display:inline-flex;padding:5px 9px;border-radius:999px;background:#EEF2FF;color:#254CB6;font-size:10px;font-weight:950}
+.sc-hard-error-msg{max-width:360px;white-space:normal;word-break:break-word;font-size:11px;line-height:1.45}
+.sc-hard-json{max-width:330px;white-space:pre-wrap;word-break:break-word;color:var(--muted);font-size:10px;line-height:1.4}
+.sc-hard-system-note{margin-top:12px;padding:12px 14px;border-radius:14px;background:#F4F7FB;border:1px solid #E3E9F2;color:var(--muted);font-size:12px}
+@media(max-width:760px){.sc-hard-grid{grid-template-columns:1fr}.sc-hard-table table{min-width:840px}}
+</style>
+<script id="seller-control-hardening-script">
+(function(){
+  let hardAdmin=false;
+  let hardAdminChecked=false;
+  let hardAdminBusy=false;
+  const sentErrors=new Map();
+
+  function hardClient(){return window.sellerControlSupabase||null}
+  function hardEsc(value){
+    return String(value??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+  }
+  function hardDate(value){
+    if(!value)return "—";
+    try{return new Date(value).toLocaleString("ru-RU")}catch(e){return String(value)}
+  }
+  function hardJson(value){
+    if(!value)return "—";
+    try{return hardEsc(JSON.stringify(value,null,2))}catch(e){return hardEsc(String(value))}
+  }
+  function hardErrorMessage(value){
+    if(value instanceof Error)return value.message||value.name||"Error";
+    if(value&&typeof value==="object"&&value.message)return String(value.message);
+    return String(value??"Unknown error");
+  }
+
+  async function hardCheckAdmin(force=false){
+    if(hardAdminBusy)return hardAdmin;
+    if(hardAdminChecked&&!force)return hardAdmin;
+    const c=hardClient();if(!c)return false;
+    hardAdminBusy=true;
+    try{
+      const {data,error}=await c.rpc("is_admin");
+      if(error)throw error;
+      hardAdmin=!!data;
+      hardAdminChecked=true;
+    }catch(e){hardAdmin=false;hardAdminChecked=true}
+    finally{hardAdminBusy=false}
+    return hardAdmin;
+  }
+
+  async function hardReportError(message,meta={}){
+    const c=hardClient();
+    const clean=hardErrorMessage(message).slice(0,1000);
+    if(!c||!clean)return;
+    const key=clean+"|"+(meta.source||"");
+    const last=sentErrors.get(key)||0;
+    if(Date.now()-last<60000)return;
+    sentErrors.set(key,Date.now());
+    try{
+      const {data}=await c.auth.getSession();
+      if(!data?.session?.user)return;
+      await c.rpc("report_client_error",{
+        p_message:clean,
+        p_source:String(meta.source||location.origin+location.pathname).slice(0,500),
+        p_line_no:Number.isFinite(Number(meta.line))?Number(meta.line):null,
+        p_column_no:Number.isFinite(Number(meta.column))?Number(meta.column):null,
+        p_stack:String(meta.stack||"").slice(0,4000),
+        p_context:{
+          page:typeof currentPage!=="undefined"?String(currentPage):"",
+          online:navigator.onLine,
+          language:typeof lang!=="undefined"?String(lang):""
+        }
+      });
+    }catch(e){}
+  }
+  window.sellerControlReportError=hardReportError;
+
+  window.addEventListener("error",event=>{
+    hardReportError(event.error||event.message,{source:event.filename,line:event.lineno,column:event.colno,stack:event.error?.stack});
+  });
+  window.addEventListener("unhandledrejection",event=>{
+    const reason=event.reason;
+    hardReportError(reason,{source:"unhandledrejection",stack:reason?.stack});
+  });
+
+  const originalConsoleError=console.error.bind(console);
+  console.error=function(){
+    originalConsoleError.apply(console,arguments);
+    try{
+      const parts=[...arguments].map(hardErrorMessage).filter(Boolean);
+      hardReportError(parts.join(" · "),{source:"console.error"});
+    }catch(e){}
+  };
+
+  function hardAddNav(){
+    document.querySelectorAll(".sc-hard-admin-nav-button").forEach(x=>x.remove());
+    if(!hardAdmin)return;
+    const nav=document.querySelector(".nav-group-tools .nav");
+    if(!nav)return;
+    const b=document.createElement("button");
+    b.className="sc-hard-admin-nav-button "+(typeof currentPage!=="undefined"&&currentPage==="adminSystem"?"active":"");
+    b.innerHTML='<span class="ico">🛡</span><span>Журнал системы</span>';
+    b.onclick=()=>window.go("adminSystem");
+    nav.appendChild(b);
+  }
+
+  function hardActionLabel(action){
+    const map={
+      payment_submitted:"Заявка создана",
+      payment_approved:"Оплата подтверждена",
+      payment_rejected:"Заявка отклонена",
+      payment_deleted:"Заявка удалена"
+    };
+    return map[action]||action||"—";
+  }
+
+  async function hardLoadSystemLogs(){
+    const auditBody=document.getElementById("scHardAuditBody");
+    const errorBody=document.getElementById("scHardErrorBody");
+    if(!auditBody||!errorBody)return;
+    auditBody.innerHTML='<tr><td colspan="7">Загрузка...</td></tr>';
+    errorBody.innerHTML='<tr><td colspan="6">Загрузка...</td></tr>';
+    const c=hardClient();
+    if(!c){auditBody.innerHTML='<tr><td colspan="7">Supabase не подключён.</td></tr>';errorBody.innerHTML='<tr><td colspan="6">Supabase не подключён.</td></tr>';return}
+    const [auditRes,errorRes]=await Promise.all([
+      c.rpc("admin_list_audit_logs",{p_limit:150}),
+      c.rpc("admin_list_client_errors",{p_limit:150})
+    ]);
+
+    if(auditRes.error){
+      auditBody.innerHTML=`<tr><td colspan="7">Ошибка: ${hardEsc(auditRes.error.message)}</td></tr>`;
+    }else{
+      const rows=Array.isArray(auditRes.data)?auditRes.data:[];
+      auditBody.innerHTML=rows.length?rows.map(r=>`<tr>
+        <td>#${r.id}</td>
+        <td>${hardDate(r.created_at)}</td>
+        <td>${hardEsc(r.actor_email||"—")}</td>
+        <td>${hardEsc(r.target_email||"—")}</td>
+        <td><span class="sc-hard-log-action">${hardEsc(hardActionLabel(r.action))}</span></td>
+        <td>${hardEsc(r.entity_id||"—")}</td>
+        <td><div class="sc-hard-json">${hardJson(r.details)}</div></td>
+      </tr>`).join(""):'<tr><td colspan="7">Записей пока нет.</td></tr>';
+    }
+
+    if(errorRes.error){
+      errorBody.innerHTML=`<tr><td colspan="6">Ошибка: ${hardEsc(errorRes.error.message)}</td></tr>`;
+    }else{
+      const rows=Array.isArray(errorRes.data)?errorRes.data:[];
+      errorBody.innerHTML=rows.length?rows.map(r=>`<tr>
+        <td>#${r.id}</td>
+        <td>${hardDate(r.created_at)}</td>
+        <td>${hardEsc(r.email||"—")}</td>
+        <td><div class="sc-hard-error-msg">${hardEsc(r.message||"—")}</div></td>
+        <td>${hardEsc(r.source||"—")}${r.line_no?`:${r.line_no}`:""}</td>
+        <td><div class="sc-hard-json">${hardJson(r.context)}</div></td>
+      </tr>`).join(""):'<tr><td colspan="6">Ошибок пока нет.</td></tr>';
+    }
+  }
+  window.sellerControlLoadSystemLogs=hardLoadSystemLogs;
+
+  async function hardRenderSystem(){
+    const root=document.getElementById("pageRoot");if(!root)return;
+    const allowed=await hardCheckAdmin();
+    const h=document.querySelector(".topbar h2"),s=document.querySelector(".topbar .sub");
+    if(h)h.textContent="Журнал системы";
+    if(s)s.textContent="История действий администратора и технические ошибки";
+    if(!allowed){root.innerHTML='<div class="card empty">Доступ только для администратора.</div>';return}
+    root.innerHTML=`
+      <div class="sc-admin-hero"><h3>Контроль и безопасность</h3><p>Здесь сохраняются действия по оплатам и технические ошибки клиентов. Пароли, банковские коды и содержимое бизнеса сюда не записываются.</p></div>
+      <div class="sc-hard-grid">
+        <div class="card kpi"><div class="label">Аудит</div><div class="value">Оплаты</div><div class="sub">Кто, что и когда изменил</div></div>
+        <div class="card kpi"><div class="label">Мониторинг</div><div class="value">Ошибки</div><div class="sub">Проблемы браузера и синхронизации</div></div>
+      </div>
+      <div class="section card table-card sc-hard-table">
+        <div class="section-title"><div><h3>Журнал действий</h3><p>Подтверждение, отклонение и удаление заявок.</p></div><button class="btn" onclick="sellerControlLoadSystemLogs()">Обновить</button></div>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Дата</th><th>Кто</th><th>Клиент</th><th>Действие</th><th>Объект</th><th>Детали</th></tr></thead><tbody id="scHardAuditBody"></tbody></table></div>
+      </div>
+      <div class="section card table-card sc-hard-table">
+        <div class="section-title"><div><h3>Технические ошибки</h3><p>Последние ошибки сайта, отправленные после входа в аккаунт.</p></div></div>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Дата</th><th>Клиент</th><th>Ошибка</th><th>Источник</th><th>Контекст</th></tr></thead><tbody id="scHardErrorBody"></tbody></table></div>
+        <div class="sc-hard-system-note">Резервную копию бизнес-данных пользователь может скачать в «Настройки». Резервные копии всей базы Supabase настраиваются отдельно в панели проекта.</div>
+      </div>`;
+    hardLoadSystemLogs();
+  }
+
+  async function hardDecorate(){
+    await hardCheckAdmin();
+    hardAddNav();
+    if(typeof currentPage!=="undefined"&&currentPage==="adminSystem")hardRenderSystem();
+  }
+
+  const previousRender=window.renderApp;
+  if(typeof previousRender==="function"){
+    window.renderApp=function(){
+      const result=previousRender.apply(this,arguments);
+      requestAnimationFrame(hardDecorate);
+      return result;
+    };
+  }
+
+  function hardBoot(){
+    let tries=0;
+    const timer=setInterval(async()=>{
+      tries++;
+      const c=hardClient();
+      if(c){
+        clearInterval(timer);
+        await hardCheckAdmin(true);
+        hardDecorate();
+        c.auth.onAuthStateChange(async(event,session)=>{
+          hardAdminChecked=false;
+          hardAdmin=false;
+          if(session?.user)await hardCheckAdmin(true);
+          hardDecorate();
+        });
+      }else if(tries>80)clearInterval(timer);
+    },150);
+    requestAnimationFrame(hardDecorate);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",hardBoot);else hardBoot();
+})();
+</script>
+<!-- /Seller Control FINAL hardening -->
 
 </body>
 </html>
