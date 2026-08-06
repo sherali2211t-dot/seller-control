@@ -8161,9 +8161,18 @@ window.addEventListener("DOMContentLoaded",boot);
     }catch(e){}
   };
 
+  function hardUiShowsAdmin(){
+    const badge=document.querySelector(".sc-plan-badge-top");
+    const badgeText=String(badge?.textContent||"").toUpperCase();
+    return hardAdmin || !!document.querySelector(".sc-admin-nav-button") || badgeText.includes("ADMIN");
+  }
+
   function hardAddNav(){
     document.querySelectorAll(".sc-hard-admin-nav-button").forEach(x=>x.remove());
-    if(!hardAdmin)return;
+    // The payment module and this system journal both use the same server-side
+    // is_admin() check. During the first page load Supabase can restore the
+    // session slightly later, so also trust the already-rendered ADMIN UI.
+    if(!hardUiShowsAdmin())return;
     const nav=document.querySelector(".nav-group-tools .nav");
     if(!nav)return;
     const b=document.createElement("button");
@@ -8253,7 +8262,10 @@ window.addEventListener("DOMContentLoaded",boot);
   }
 
   async function hardDecorate(){
-    await hardCheckAdmin();
+    // Re-check after the main payment module has restored the authenticated
+    // session. This prevents the journal button from disappearing on a cold load.
+    if(!hardAdmin)await hardCheckAdmin(true);
+    if(!hardAdmin&&hardUiShowsAdmin())hardAdmin=true;
     hardAddNav();
     if(typeof currentPage!=="undefined"&&currentPage==="adminSystem")hardRenderSystem();
   }
@@ -8269,21 +8281,24 @@ window.addEventListener("DOMContentLoaded",boot);
 
   function hardBoot(){
     let tries=0;
+    let authListenerAttached=false;
     const timer=setInterval(async()=>{
       tries++;
       const c=hardClient();
       if(c){
-        clearInterval(timer);
-        await hardCheckAdmin(true);
-        hardDecorate();
-        c.auth.onAuthStateChange(async(event,session)=>{
-          hardAdminChecked=false;
-          hardAdmin=false;
-          if(session?.user)await hardCheckAdmin(true);
-          hardDecorate();
-        });
+        if(!authListenerAttached){
+          authListenerAttached=true;
+          c.auth.onAuthStateChange(async(event,session)=>{
+            hardAdminChecked=false;
+            hardAdmin=false;
+            if(session?.user)await hardCheckAdmin(true);
+            hardDecorate();
+          });
+        }
+        await hardDecorate();
+        if(hardUiShowsAdmin()||tries>80)clearInterval(timer);
       }else if(tries>80)clearInterval(timer);
-    },150);
+    },250);
     requestAnimationFrame(hardDecorate);
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",hardBoot);else hardBoot();
