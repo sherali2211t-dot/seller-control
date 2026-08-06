@@ -7540,7 +7540,7 @@ window.addEventListener("DOMContentLoaded",boot);
   }
   function scRule(){return SC_RULES[scPlan()]||SC_RULES.free}
   function scCanPage(page){
-    if(page==="adminPayments")return scIsAdmin;
+    if(page==="adminPayments"||page==="adminSystem")return scIsAdmin;
     const pages=scRule().pages;
     return pages==="all"||pages.has(page);
   }
@@ -7687,15 +7687,24 @@ window.addEventListener("DOMContentLoaded",boot);
   }
 
   function scAddAdminNav(){
-    document.querySelectorAll(".sc-admin-nav-button").forEach(x=>x.remove());
+    document.querySelectorAll(".sc-admin-nav-button,.sc-hard-admin-nav-button").forEach(x=>x.remove());
     if(!scIsAdmin)return;
     const nav=document.querySelector(".nav-group-tools .nav");
     if(!nav)return;
-    const b=document.createElement("button");
-    b.className="sc-admin-nav-button "+(typeof currentPage!=="undefined"&&currentPage==="adminPayments"?"active":"");
-    b.innerHTML='<span class="ico">₽</span><span>Платежи клиентов</span>';
-    b.onclick=()=>window.go("adminPayments");
-    nav.appendChild(b);
+
+    const payments=document.createElement("button");
+    payments.className="sc-admin-nav-button "+(typeof currentPage!=="undefined"&&currentPage==="adminPayments"?"active":"");
+    payments.innerHTML='<span class="ico">₽</span><span>Платежи клиентов</span>';
+    payments.onclick=()=>window.go("adminPayments");
+    nav.appendChild(payments);
+
+    // Add the system journal from the same proven admin flow as payments.
+    // Therefore, whenever the payments button is visible, this button is too.
+    const journal=document.createElement("button");
+    journal.className="sc-hard-admin-nav-button "+(typeof currentPage!=="undefined"&&currentPage==="adminSystem"?"active":"");
+    journal.innerHTML='<span class="ico">🛡</span><span>Журнал системы</span>';
+    journal.onclick=()=>window.go("adminSystem");
+    nav.appendChild(journal);
   }
 
   function scDecorate(){
