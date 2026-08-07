@@ -4049,7 +4049,7 @@ function renderApp(){
         </div>
         <span class="account">${esc(user?.name||"")}</span>
         <div class="lang"><button class="${lang==="ru"?"active":""}" onclick="setLang('ru')">RU</button><button class="${lang==="zh"?"active":""}" onclick="setLang('zh')">中文</button></div>
-        <button class="btn danger small" onclick="logout()">${T("Выйти","退出")}</button>
+        <button class="btn danger small" onclick="sellerControlLogoutToHome(event)">${T("Выйти","退出")}</button>
       </div>
     </header><div class="content">
       <div class="productivity-bar ${currentPage==="dashboard"?"hidden":""}" id="productivityBar">
@@ -7473,14 +7473,14 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
       <div class="sc-plan-card"><h3>Start</h3><div class="sc-plan-price">550 ₽ <small>/ 1 ${scTrialT("месяц","个月")}</small></div><ul class="sc-plan-list"><li>${scTrialT("1 магазин","1个店铺")}</li><li>${scTrialT("Отчёты и аналитика","报表与分析")}</li><li>${scTrialT("Закупки и Unit Economics","采购与单品经济")}</li></ul><button class="btn shop" onclick="sellerControlChoosePlan('start')">${scTrialT("Купить Start","购买 Start")}</button></div>
       <div class="sc-plan-card popular"><span class="sc-plan-badge">${scTrialT("Популярный","热门")}</span><h3>Business</h3><div class="sc-plan-price">999 ₽ <small>/ 1 ${scTrialT("месяц","个月")}</small></div><ul class="sc-plan-list"><li>${scTrialT("До 3 магазинов","最多3个店铺")}</li><li>${scTrialT("Инвестиции, кредиты и прибыль","投资、借款与利润")}</li><li>${scTrialT("Экспорт и backup","导出与备份")}</li></ul><button class="btn primary" onclick="sellerControlChoosePlan('business')">${scTrialT("Купить Business","购买 Business")}</button></div>
       <div class="sc-plan-card"><h3>Pro</h3><div class="sc-plan-price">1 499 ₽ <small>/ 1 ${scTrialT("месяц","个月")}</small></div><ul class="sc-plan-list"><li>${scTrialT("Безлимитные магазины","无限店铺")}</li><li>${scTrialT("AI Аналитик и расширенные отчёты","AI分析师与高级报表")}</li><li>${scTrialT("Все функции без ограничений","全部功能无限制")}</li></ul><button class="btn" style="background:linear-gradient(135deg,#6935D8,#9A4DE6);color:#fff" onclick="sellerControlChoosePlan('pro')">${scTrialT("Купить Pro","购买 Pro")}</button></div>
-    </div><div class="sc-access-note">${scTrialT("Оплата вручную: переведите сумму на карту Alif и отправьте чек администратору. После проверки тариф будет активирован на 1 календарный месяц.","手动付款：转账到 Alif 卡并将凭证发送给管理员。审核后套餐将激活1个自然月。")}</div><div class="sc-access-footer">${expired?`<button class="btn danger" onclick="logout()">${scTrialT("Выйти","退出")}</button>`:`<button class="btn" onclick="sellerControlClosePlans()">${scTrialT("Закрыть","关闭")}</button>`}</div></div></div>`;
+    </div><div class="sc-access-note">${scTrialT("Оплата вручную: переведите сумму на карту Alif и отправьте чек администратору. После проверки тариф будет активирован на 1 календарный месяц.","手动付款：转账到 Alif 卡并将凭证发送给管理员。审核后套餐将激活1个自然月。")}</div><div class="sc-access-footer">${expired?`<button class="btn danger" onclick="sellerControlLogoutToHome(event)">${scTrialT("Выйти","退出")}</button>`:`<button class="btn" onclick="sellerControlClosePlans()">${scTrialT("Закрыть","关闭")}</button>`}</div></div></div>`;
   }
   function scTrialExpiredScreenHtml(){
     return `<div id="scExpiredRoot" class="sc-expired-root"><div class="sc-expired-shell"><section class="sc-expired-panel"><div class="sc-expired-kicker">${scTrialT("Бесплатный доступ завершён","免费访问已结束")}</div><div class="sc-access-head"><div class="sc-access-clock">⏱</div><h2>${scTrialT("Время закончилось — выберите тариф","时间已结束 — 请选择套餐")}</h2><p>${scTrialT("30 минут бесплатного доступа закончились. Вы автоматически вышли из Dashboard. Чтобы снова открыть Seller Control и продолжить работу, купите тариф. Ваши данные сохранены.","30分钟免费访问已结束。您已自动退出 Dashboard。购买套餐后即可继续使用 Seller Control，您的数据已保存。")}</p></div><div class="sc-plan-grid">
       <div class="sc-plan-card"><h3>Start</h3><div class="sc-plan-price">550 ₽ <small>/ 1 ${scTrialT("месяц","个月")}</small></div><ul class="sc-plan-list"><li>${scTrialT("1 магазин","1个店铺")}</li><li>${scTrialT("Главная, общий отчёт и аналитика","主页、总报表与分析")}</li><li>${scTrialT("Закупки и Unit Economics","采购与单品经济")}</li></ul><button class="btn shop" onclick="sellerControlChoosePlan('start')">${scTrialT("Купить Start","购买 Start")}</button></div>
       <div class="sc-plan-card popular"><span class="sc-plan-badge">${scTrialT("Популярный","热门")}</span><h3>Business</h3><div class="sc-plan-price">999 ₽ <small>/ 1 ${scTrialT("месяц","个月")}</small></div><ul class="sc-plan-list"><li>${scTrialT("До 3 магазинов","最多3个店铺")}</li><li>${scTrialT("Прибыль, финансы, инвестиции и займы","利润、财务、投资与借款")}</li><li>${scTrialT("Фулфилмент, документы, экспорт и backup","履约、文件、导出与备份")}</li></ul><button class="btn primary" onclick="sellerControlChoosePlan('business')">${scTrialT("Купить Business","购买 Business")}</button></div>
       <div class="sc-plan-card"><h3>Pro</h3><div class="sc-plan-price">1 499 ₽ <small>/ 1 ${scTrialT("месяц","个月")}</small></div><ul class="sc-plan-list"><li>${scTrialT("Безлимитные магазины","无限店铺")}</li><li>${scTrialT("FBS Абдурахим + AI Аналитик","FBS 阿卜杜拉希姆 + AI 分析师")}</li><li>${scTrialT("Все разделы и функции без ограничений","全部页面和功能无限制")}</li></ul><button class="btn" style="background:linear-gradient(135deg,#6935D8,#9A4DE6);color:#fff" onclick="sellerControlChoosePlan('pro')">${scTrialT("Купить Pro","购买 Pro")}</button></div>
-    </div><div class="sc-access-note">${scTrialT("Все разделы сейчас заблокированы. После оплаты отправьте чек администратору. После подтверждения откроются только разделы выбранного тарифа; ваши данные останутся сохранёнными.","当前所有页面均已锁定。付款后请发送凭证给管理员。确认后只会开放所购套餐包含的页面，您的数据会保留。")}</div><div id="scExpiredCheckStatus" class="sc-payment-status show" style="display:block;text-align:center;background:#F7F8FC;color:#536078">${scTrialT("Уже оплатили? После подтверждения администратора нажмите «Проверить оплату».","已付款？管理员确认后点击“检查付款”。")}</div><div class="sc-expired-bottom" style="gap:10px;flex-wrap:wrap"><button class="btn primary" onclick="sellerControlCheckAccessNow()">${scTrialT("Проверить оплату","检查付款")}</button><button class="btn danger" onclick="logout()">${scTrialT("Выйти из аккаунта","退出账户")}</button></div></section></div></div>`;
+    </div><div class="sc-access-note">${scTrialT("Все разделы сейчас заблокированы. После оплаты отправьте чек администратору. После подтверждения откроются только разделы выбранного тарифа; ваши данные останутся сохранёнными.","当前所有页面均已锁定。付款后请发送凭证给管理员。确认后只会开放所购套餐包含的页面，您的数据会保留。")}</div><div id="scExpiredCheckStatus" class="sc-payment-status show" style="display:block;text-align:center;background:#F7F8FC;color:#536078">${scTrialT("Уже оплатили? После подтверждения администратора нажмите «Проверить оплату».","已付款？管理员确认后点击“检查付款”。")}</div><div class="sc-expired-bottom" style="gap:10px;flex-wrap:wrap"><button class="btn primary" onclick="sellerControlCheckAccessNow()">${scTrialT("Проверить оплату","检查付款")}</button><button class="btn danger" onclick="sellerControlLogoutToHome(event)">${scTrialT("Выйти из аккаунта","退出账户")}</button></div></section></div></div>`;
   }
   function scTrialForceExpiredPaywall(){
     if(window.__scLoggingOut)return false;
@@ -9435,5 +9435,119 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
 }
 </style>
 <!-- /Seller Control: mobile comfort v3 -->
+
+
+<!-- Seller Control: hard logout to public home v1 -->
+<script id="seller-control-hard-logout-home-v1">
+(function(){
+  const LOGOUT_FLAG="sc_force_public_after_logout";
+  const PUBLIC_PARAM="sc_logged_out";
+
+  function clearAuthStorage(){
+    const storages=[window.localStorage,window.sessionStorage];
+    for(const storage of storages){
+      try{
+        const remove=[];
+        for(let i=0;i<storage.length;i++){
+          const key=storage.key(i)||"";
+          const low=key.toLowerCase();
+          if(
+            key==="wb_premium_session_v4" ||
+            low.includes("supabase.auth") ||
+            (low.startsWith("sb-") && low.includes("auth")) ||
+            low.includes("auth-token")
+          ) remove.push(key);
+        }
+        remove.forEach(k=>storage.removeItem(k));
+      }catch(e){console.warn("Seller Control logout storage cleanup:",e)}
+    }
+    try{localStorage.removeItem(typeof SESSION_KEY!=="undefined"?SESSION_KEY:"wb_premium_session_v4")}catch(e){}
+  }
+
+  function clearPrivateUi(){
+    try{document.getElementById("scPaymentOverlay")?.remove()}catch(e){}
+    try{document.getElementById("scAccessOverlay")?.remove()}catch(e){}
+    try{document.getElementById("scExpiredRoot")?.remove()}catch(e){}
+    try{document.body.classList.remove("sc-access-expired-lock")}catch(e){}
+    try{document.body.style.overflow="auto"}catch(e){}
+    try{if(typeof scRemoteUser!=="undefined")scRemoteUser=null}catch(e){}
+    try{window.sellerControlAccess=null}catch(e){}
+  }
+
+  function showPublicNow(){
+    clearPrivateUi();
+    try{
+      if(typeof renderPublic==="function"){
+        renderPublic();
+        return true;
+      }
+    }catch(e){console.warn("Seller Control render public:",e)}
+    try{
+      const app=document.getElementById("appRoot"); if(app)app.innerHTML="";
+      const onboarding=document.getElementById("onboardingRoot"); if(onboarding)onboarding.innerHTML="";
+      const auth=document.getElementById("authRoot"); if(auth)auth.innerHTML="";
+    }catch(e){}
+    return false;
+  }
+
+  function backgroundSupabaseSignOut(){
+    try{
+      const client=(typeof scInitClient==="function"?scInitClient():window.sellerControlSupabaseClient);
+      if(client?.auth?.signOut){
+        Promise.resolve(client.auth.signOut({scope:"local"})).catch(()=>{});
+      }
+    }catch(e){}
+  }
+
+  window.sellerControlLogoutToHome=function(ev){
+    try{ev?.preventDefault?.();ev?.stopPropagation?.()}catch(e){}
+    if(window.__scHardLogoutRunning)return false;
+    window.__scHardLogoutRunning=true;
+    window.__scLoggingOut=true;
+
+    // The public-page flag is set FIRST so every older auth/trial listener backs off on reload.
+    try{sessionStorage.setItem(LOGOUT_FLAG,"1")}catch(e){}
+    clearAuthStorage();
+    clearPrivateUi();
+    showPublicNow();
+    backgroundSupabaseSignOut();
+
+    // Reload into a clean public context. Query flag is consumed immediately below.
+    const base=location.origin+location.pathname;
+    setTimeout(()=>{
+      try{location.replace(base+"?"+PUBLIC_PARAM+"=1&t="+Date.now())}
+      catch(e){location.href=base}
+    },60);
+    return false;
+  };
+
+  // Make the legacy function use the same reliable path everywhere in the site.
+  window.logout=window.sellerControlLogoutToHome;
+  try{logout=window.sellerControlLogoutToHome}catch(e){}
+
+  // This code runs while HTML is still being parsed, before scBoot's DOMContentLoaded handler.
+  // If we arrived from an explicit logout, clear the session before the auth boot can restore it.
+  try{
+    const params=new URLSearchParams(location.search);
+    if(params.get(PUBLIC_PARAM)==="1"){
+      window.__scLoggingOut=true;
+      sessionStorage.setItem(LOGOUT_FLAG,"1");
+      clearAuthStorage();
+      clearPrivateUi();
+      try{history.replaceState(null,"",location.pathname)}catch(e){}
+      const finish=()=>{
+        clearAuthStorage();
+        showPublicNow();
+        window.__scLoggingOut=false;
+        window.__scHardLogoutRunning=false;
+      };
+      if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>setTimeout(finish,0),{once:true});
+      else setTimeout(finish,0);
+    }
+  }catch(e){console.warn("Seller Control logout landing guard:",e)}
+})();
+</script>
+<!-- /Seller Control: hard logout to public home v1 -->
+
 </body>
 </html>
