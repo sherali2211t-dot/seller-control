@@ -7304,6 +7304,7 @@ window.addEventListener("DOMContentLoaded",boot);
 .sc-trial-copy{min-width:0}.sc-trial-copy strong{display:block;font-size:14px}.sc-trial-copy span{display:block;margin-top:4px;color:var(--muted);font-size:12px}.sc-trial-clockbox{min-width:132px;padding:8px 11px;border-radius:14px;background:#fff;border:1px solid #CFEBDD;box-shadow:0 8px 18px rgba(0,128,96,.08);text-align:center}.sc-trial-clocklabel{display:block;margin-bottom:2px;color:#708078;font-size:9px;font-weight:950;letter-spacing:.75px;text-transform:uppercase}.sc-trial-countdown{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;font-size:22px;font-weight:950;letter-spacing:1px;color:#00805F;white-space:nowrap;line-height:1.05}.sc-trial-clockdot{display:inline-block;width:6px;height:6px;margin:0 0 2px 5px;border-radius:50%;background:#00A67B;box-shadow:0 0 0 4px rgba(0,166,123,.11);animation:scClockPulse 1s steps(1,end) infinite}.sc-trial-progress{height:5px;margin-top:7px;border-radius:999px;background:#E8F1ED;overflow:hidden}.sc-trial-progress>i{display:block;height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,#00A67B,#87D252);transition:width .35s linear}.sc-trial-banner.warning .sc-trial-clockbox{border-color:#F0D49A}.sc-trial-banner.danger .sc-trial-clockbox{border-color:#F1B6C4}.sc-trial-banner.warning .sc-trial-countdown{color:#B97600}.sc-trial-banner.danger .sc-trial-countdown{color:#D52D58}.sc-trial-banner.warning .sc-trial-progress>i{background:linear-gradient(90deg,#D99A20,#FFC74D)}.sc-trial-banner.danger .sc-trial-progress>i{background:linear-gradient(90deg,#D52D58,#FF7999)}@keyframes scClockPulse{0%,49%{opacity:1}50%,100%{opacity:.18}}
 .sc-trial-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}.sc-trial-plan{padding:7px 10px;border-radius:999px;background:#E7ECFF;color:#254CB6;font-size:11px;font-weight:900;white-space:nowrap}.sc-trial-tariffs{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:12px;background:#fff;border:1px solid #DCE4F5;color:#344566;font-size:10px;font-weight:900;white-space:nowrap;box-shadow:0 6px 16px rgba(31,53,115,.06)}.sc-trial-tariffs b{color:#254CB6;font-weight:950}.sc-trial-paid-remaining{font-size:12px;font-weight:950;color:#007653;white-space:nowrap}.sc-trial-paid-remaining.warning{color:#B97600}.sc-trial-paid-remaining.danger{color:#D52D58}
 .sc-access-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(8,18,40,.72);backdrop-filter:blur(10px)}
+body.sc-access-expired-lock{overflow:hidden!important}
 .sc-access-modal{width:min(920px,100%);max-height:94vh;overflow:auto;padding:25px;border-radius:26px;background:#fff;box-shadow:0 36px 100px rgba(0,0,0,.34)}
 .sc-access-head{text-align:center}.sc-access-clock{width:62px;height:62px;margin:0 auto 12px;display:grid;place-items:center;border-radius:20px;background:#FFF0F3;color:#D52D58;font-size:30px}.sc-access-head h2{margin:0;font-size:26px}.sc-access-head p{margin:9px auto 0;max-width:650px;color:var(--muted);line-height:1.55}
 .sc-plan-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px}.sc-plan-card{position:relative;padding:20px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,#fff,#F8FAFD)}.sc-plan-card.popular{border:2px solid #254CB6;box-shadow:0 17px 38px rgba(37,76,182,.14)}.sc-plan-badge{position:absolute;right:12px;top:12px;padding:5px 8px;border-radius:999px;background:#E7ECFF;color:#254CB6;font-size:10px;font-weight:950}.sc-plan-card h3{margin:0;font-size:20px}.sc-plan-price{margin-top:12px;font-size:25px;font-weight:950}.sc-plan-price small{font-size:12px;color:var(--muted)}.sc-plan-list{margin:14px 0 18px;padding:0;list-style:none;display:grid;gap:8px}.sc-plan-list li{font-size:12px;color:#536078}.sc-plan-list li:before{content:"✓";margin-right:7px;color:#00A67B;font-weight:950}.sc-plan-card .btn{width:100%}.sc-access-note{margin-top:16px;padding:12px 14px;border-radius:14px;background:#FFF7DC;border:1px solid #F0DE9C;color:#725C19;font-size:12px;line-height:1.5;text-align:center}.sc-access-footer{display:flex;justify-content:center;gap:10px;margin-top:15px}
@@ -7391,6 +7392,27 @@ window.addEventListener("DOMContentLoaded",boot);
       <div class="sc-plan-card"><h3>Pro</h3><div class="sc-plan-price">1 499 ₽ <small>/ 1 ${scTrialT("месяц","个月")}</small></div><ul class="sc-plan-list"><li>${scTrialT("Безлимитные магазины","无限店铺")}</li><li>${scTrialT("AI Аналитик и расширенные отчёты","AI分析师与高级报表")}</li><li>${scTrialT("Все функции без ограничений","全部功能无限制")}</li></ul><button class="btn" style="background:linear-gradient(135deg,#6935D8,#9A4DE6);color:#fff" onclick="sellerControlChoosePlan('pro')">${scTrialT("Купить Pro","购买 Pro")}</button></div>
     </div><div class="sc-access-note">${scTrialT("Оплата вручную: переведите сумму на карту Alif и отправьте чек администратору. После проверки тариф будет активирован на 1 календарный месяц.","手动付款：转账到 Alif 卡并将凭证发送给管理员。审核后套餐将激活1个自然月。")}</div><div class="sc-access-footer">${expired?`<button class="btn danger" onclick="logout()">${scTrialT("Выйти","退出")}</button>`:`<button class="btn" onclick="sellerControlClosePlans()">${scTrialT("Закрыть","关闭")}</button>`}</div></div></div>`;
   }
+  function scTrialForceExpiredPaywall(){
+    if(scTrialPaidActive())return false;
+    // Expired trial must immediately leave the working dashboard behind a non-dismissible tariff gate.
+    document.body.classList.add("sc-access-expired-lock");
+    // If the client is already on the payment screen, keep it open so they can finish buying a tariff.
+    if(document.getElementById("scPaymentOverlay"))return true;
+    const existing=document.getElementById("scAccessOverlay");
+    // Do not rebuild the same expired screen every timer tick.
+    if(existing?.dataset.autoExpired==="1")return true;
+    if(existing)existing.remove();
+    document.body.insertAdjacentHTML("beforeend",scTrialPlansHtml(true));
+    const overlay=document.getElementById("scAccessOverlay");
+    if(overlay){
+      overlay.dataset.autoExpired="1";
+      overlay.setAttribute("aria-modal","true");
+      overlay.setAttribute("role","dialog");
+    }
+    return true;
+  }
+  window.sellerControlForceExpiredPaywall=scTrialForceExpiredPaywall;
+
   function scTrialRender(){
     const content=document.querySelector(".main .content");
     if(content){
@@ -7398,8 +7420,12 @@ window.addEventListener("DOMContentLoaded",boot);
       content.insertAdjacentHTML("afterbegin",scTrialBannerHtml());
     }
     const expired=scAccessRow&&!scTrialAllowed();
-    if(expired&&!document.getElementById("scAccessOverlay"))document.body.insertAdjacentHTML("beforeend",scTrialPlansHtml(true));
-    if(!expired&&document.getElementById("scAccessOverlay")?.dataset.autoExpired==="1")document.getElementById("scAccessOverlay").remove();
+    if(expired){
+      scTrialForceExpiredPaywall();
+    }else{
+      document.body.classList.remove("sc-access-expired-lock");
+      if(document.getElementById("scAccessOverlay")?.dataset.autoExpired==="1")document.getElementById("scAccessOverlay").remove();
+    }
   }
   function scTrialTick(){
     if(!scAccessRow)return;
@@ -7418,6 +7444,13 @@ window.addEventListener("DOMContentLoaded",boot);
       if(paid){paid.textContent=scTrialPaidText();paid.classList.remove("warning","danger");const c=scTrialPaidClass(days);if(c)paid.classList.add(c)}
       if(banner){banner.classList.remove("warning","danger");const c=scTrialPaidClass(days);if(c)banner.classList.add(c)}
     }else if(banner){banner.classList.remove("warning","danger");const c=scTrialBannerClass(ms);if(c)banner.classList.add(c)}
+    if(ms<=0&&!scTrialPaidActive()){
+      if(el)el.textContent="00:00:00";
+      if(topEl)topEl.textContent="00:00:00";
+      if(progress)progress.style.width="0%";
+      scTrialForceExpiredPaywall();
+      return;
+    }
     if(!scTrialAllowed())scTrialRender();
   }
   async function scTrialLoad(){
@@ -7435,10 +7468,16 @@ window.addEventListener("DOMContentLoaded",boot);
     }catch(e){console.error("Seller Control trial:",e)}finally{scAccessBusy=false}
   }
   window.sellerControlOpenPlans=function(){
+    const expired=!scTrialAllowed();
     document.getElementById("scAccessOverlay")?.remove();
-    document.body.insertAdjacentHTML("beforeend",scTrialPlansHtml(!scTrialAllowed()));
+    if(expired)document.body.classList.add("sc-access-expired-lock");
+    document.body.insertAdjacentHTML("beforeend",scTrialPlansHtml(expired));
+    const overlay=document.getElementById("scAccessOverlay");
+    if(expired&&overlay)overlay.dataset.autoExpired="1";
   };
-  window.sellerControlClosePlans=function(){if(scTrialAllowed())document.getElementById("scAccessOverlay")?.remove()};
+  window.sellerControlClosePlans=function(){
+    if(scTrialAllowed()){document.getElementById("scAccessOverlay")?.remove();document.body.classList.remove("sc-access-expired-lock")}
+  };
   const SC_PAYMENT={
     bank:"Alif",
     recipient:"Azizjon Dzhamolov",
@@ -7456,7 +7495,7 @@ window.addEventListener("DOMContentLoaded",boot);
       <div class="sc-payment-actions"><button class="btn primary" onclick="sellerControlCopyPayment('card')">${scTrialT("Копировать номер карты","复制卡号")}</button><button class="btn" onclick="sellerControlCopyPayment('phone')">${scTrialT("Копировать телефон","复制电话")}</button><button class="btn shop" onclick="sellerControlSendReceipt('${plan}')">${scTrialT("Я оплатил — отправить чек","已付款—发送凭证")}</button><button class="btn" onclick="sellerControlOpenPlans()">${scTrialT("Назад к тарифам","返回套餐")}</button></div>
       <div id="scPaymentStatus" class="sc-payment-status"></div>
       <div class="sc-payment-instructions"><b>${scTrialT("Как оплатить:","付款步骤：")}</b><br>1. ${scTrialT("Откройте приложение банка и переведите указанную сумму на карту Alif.","打开银行应用，将指定金额转入 Alif 卡。")}<br>2. ${scTrialT("Сохраните чек или скриншот операции.","保存付款凭证或截图。")}<br>3. ${scTrialT("Нажмите «Я оплатил — отправить чек» и отправьте чек вместе с email аккаунта.","点击“已付款—发送凭证”，并发送凭证和账户邮箱。")}</div>
-      <div class="sc-access-footer"><button class="btn" onclick="document.getElementById('scPaymentOverlay')?.remove()">${scTrialT("Закрыть","关闭")}</button></div></div></div>`;
+      <div class="sc-access-footer"><button class="btn" onclick="document.getElementById('scPaymentOverlay')?.remove();if(!scTrialAllowed())scTrialForceExpiredPaywall()">${scTrialT("Назад к тарифам","返回套餐")}</button></div></div></div>`;
   }
   async function scPaymentEmail(){try{const c=scTrialClient();if(!c)return"";const r=await c.auth.getSession();return r?.data?.session?.user?.email||""}catch(e){return""}}
   window.sellerControlCopyPayment=async function(type){
@@ -7478,7 +7517,7 @@ window.addEventListener("DOMContentLoaded",boot);
   const scTrialOriginalRenderApp=window.renderApp;
   if(typeof scTrialOriginalRenderApp==="function")window.renderApp=function(){scTrialOriginalRenderApp();requestAnimationFrame(scTrialRender)};
   function scTrialBoot(){
-    let tries=0;const wait=setInterval(()=>{tries++;if(scTrialClient()){clearInterval(wait);scTrialLoad();const c=scTrialClient();c.auth.onAuthStateChange((event,session)=>{if(session?.user)scTrialLoad();else{scAccessRow=null;clearInterval(scAccessTimer);document.getElementById("scAccessOverlay")?.remove()}});scAccessRefreshTimer=setInterval(scTrialLoad,60000)}else if(tries>80)clearInterval(wait)},150);
+    let tries=0;const wait=setInterval(()=>{tries++;if(scTrialClient()){clearInterval(wait);scTrialLoad();const c=scTrialClient();c.auth.onAuthStateChange((event,session)=>{if(session?.user)scTrialLoad();else{scAccessRow=null;clearInterval(scAccessTimer);document.getElementById("scAccessOverlay")?.remove();document.body.classList.remove("sc-access-expired-lock")}});scAccessRefreshTimer=setInterval(scTrialLoad,60000)}else if(tries>80)clearInterval(wait)},150);
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",scTrialBoot);else scTrialBoot();
 })();
@@ -7832,7 +7871,11 @@ window.addEventListener("DOMContentLoaded",boot);
     clearInterval(scTrialTopbarTimer);
     const tick=()=>{
       const el=document.getElementById("scTrialTopCountdown");
+      const left=Math.max(0,scTrialTopbarEnd()-Date.now());
       if(el)el.textContent=scTrialTopbarTime();
+      if(left<=0&&scPlan()==="free"&&typeof window.sellerControlForceExpiredPaywall==="function"){
+        window.sellerControlForceExpiredPaywall();
+      }
     };
     tick();
     scTrialTopbarTimer=setInterval(tick,250);
