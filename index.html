@@ -3804,7 +3804,7 @@ function logout(){localStorage.removeItem(SESSION_KEY);currentPage="dashboard";r
 /* ---------- Onboarding ---------- */
 function startOnboarding(){
   document.getElementById("publicRoot").innerHTML="";document.getElementById("appRoot").innerHTML="";document.getElementById("authRoot").innerHTML="";
-  const ws=getWorkspace();onboardingStep=1;onboardingDraft={businessName:ws?.businessName||"",currency:ws?.currency||"RUB",taxRate:ws?.taxRate??7,bankRate:ws?.bankRate??0,yuanRate:ws?.yuanRate??11,stores:(ws?.stores?.length?ws.stores.map(s=>s.name):[T("Магазин 1","店铺1"),T("Магазин 2","店铺2")])};renderOnboarding()
+  const ws=getWorkspace();onboardingStep=1;onboardingDraft={businessName:ws?.businessName||"",currency:ws?.currency||"RUB",taxRate:ws?.taxRate??7,bankRate:ws?.bankRate??0,yuanRate:ws?.yuanRate??11,stores:(ws?.stores?.length?ws.stores.map(s=>s.name):[T("Магазин 1","店铺1")])};renderOnboarding()
 }
 function renderOnboarding(){
   let content="";
@@ -7015,6 +7015,9 @@ window.addEventListener("DOMContentLoaded",boot);
     }catch(error){
       console.error("Seller Control Supabase save:",error);
       scLastSyncError = error?.message || String(error);
+      if(/Store limit exceeded/i.test(scLastSyncError)){
+        scLastSyncError = T("Тариф Start разрешает 1 магазин. Старые дополнительные магазины сохранены, но должны быть заблокированы тарифом.","Start 套餐允许 1 个店铺。旧的额外店铺会保留，但应由套餐锁定。") + " · " + scLastSyncError;
+      }
       scSetBadge("error");
       if(!silent) console.warn(scLastSyncError);
       return false;
