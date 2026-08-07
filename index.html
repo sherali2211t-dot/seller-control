@@ -3063,6 +3063,26 @@ tbody tr:hover{
   .founder-value-grid>div{min-height:0}
 }
 
+
+
+/* Real WB Profit — simple month-to-month dashboard */
+.real-wb-monthly-card{min-height:0!important;padding:0!important;overflow:hidden;background:linear-gradient(180deg,#fff 0%,#F8FAFD 100%)}
+.real-wb-monthly-card:before{content:"";display:block;height:4px;background:linear-gradient(90deg,#32288E,#254CB6,#00A67B)}
+.real-wb-monthly-head{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:18px 20px 14px;border-bottom:1px solid var(--line)}
+.real-wb-monthly-head h3{margin:0;font-size:19px;letter-spacing:-.25px}
+.real-wb-store-pill-compact{margin:0!important;display:inline-flex!important;align-items:center;gap:7px;padding:7px 10px!important;border-radius:999px;background:#F1F4F9;border:1px solid #E1E6EF;color:#33405C;font-size:12px;font-weight:900;white-space:nowrap}
+.real-wb-store-pill-compact span{font-size:13px}
+.real-wb-months{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px;padding:16px 18px 18px}
+.real-wb-month-card{position:relative;min-width:130px;padding:14px 13px;border:1px solid #E2E7F0;border-radius:16px;background:#fff;box-shadow:0 8px 22px rgba(22,37,78,.055)}
+.real-wb-month-card.latest{border-color:rgba(37,76,182,.28);box-shadow:0 12px 26px rgba(37,76,182,.10);background:linear-gradient(145deg,#fff,#F5F8FF)}
+.real-wb-month-card.loss{background:linear-gradient(145deg,#fff,#FFF7F9)}
+.real-wb-month-name{font-size:11px;font-weight:900;color:#747C8D;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+.real-wb-month-value{margin-top:9px;font-size:18px;font-weight:950;color:#12224B;white-space:nowrap}
+.real-wb-month-card.loss .real-wb-month-value{color:#D52D58}
+.real-wb-month-delta{display:inline-flex;margin-top:8px;padding:4px 7px;border-radius:999px;background:#EEF1F5;color:#6B7280;font-size:10px;font-weight:950;line-height:1}
+.real-wb-month-delta.up{background:#E8F7F1;color:#00845F}.real-wb-month-delta.down{background:#FFF0F3;color:#C92E52}
+.real-wb-month-empty{grid-column:1/-1;padding:30px 18px;text-align:center;color:var(--muted);font-size:13px}
+@media(max-width:760px){.real-wb-monthly-head{grid-template-columns:auto 1fr;gap:9px;padding:14px}.real-wb-monthly-head .real-wb-store-pill-compact{grid-column:1/-1;width:max-content}.real-wb-monthly-head h3{font-size:17px}.real-wb-months{display:flex;padding:13px 14px 15px}.real-wb-month-card{flex:0 0 148px}.real-wb-month-value{font-size:17px}}
 </style>
 
 <style id="seller-control-global-compact">
@@ -3357,9 +3377,62 @@ body{background:
   .nav-group .nav{display:flex!important;flex-direction:row!important;overflow-x:auto!important;padding:0 0 2px!important}
   .nav-group .nav button{justify-content:flex-start!important;min-width:max-content!important;padding:8px 10px!important}
 }
+
+/* Accordion sidebar: click a category to open/close its items */
+.nav-group{display:block!important;padding:8px!important}
+.nav-group-toggle{width:100%;min-height:40px;border:0;background:transparent;color:#fff;display:grid;grid-template-columns:26px 1fr 20px;align-items:center;gap:8px;padding:6px 7px;border-radius:11px;text-align:left;transition:.18s ease}
+.nav-group-toggle:hover{background:rgba(255,255,255,.10)}
+.nav-group-toggle .nav-group-icon{width:26px;height:26px;border-radius:8px;font-size:13px}
+.nav-group-label{font-size:12px;font-weight:950;letter-spacing:.9px;text-transform:uppercase;color:rgba(255,255,255,.86)}
+.nav-group-chevron{justify-self:end;font-size:16px;line-height:1;color:rgba(255,255,255,.56);transform:rotate(-90deg);transition:transform .2s ease,color .2s ease}
+.nav-group.open .nav-group-chevron{transform:rotate(0deg);color:#fff}
+.nav-group-body{max-height:0;opacity:0;overflow:hidden;visibility:hidden;margin-top:0;transition:max-height .26s ease,opacity .18s ease,margin .2s ease,visibility 0s linear .26s}
+.nav-group.open .nav-group-body{max-height:720px;opacity:1;visibility:visible;margin-top:5px;transition:max-height .30s ease,opacity .22s ease,margin .2s ease,visibility 0s}
+.nav-group-body .nav{padding-top:1px}
+.nav-group-stores{border-left:3px solid rgba(70,211,226,.72)}
+.nav-group-empty{padding:9px 10px;color:rgba(255,255,255,.48);font-size:11px}
+.nav-group.open{background:linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.045));border-top-color:rgba(255,255,255,.13);border-right-color:rgba(255,255,255,.13);border-bottom-color:rgba(255,255,255,.13)}
+@media(max-width:1100px){
+  .nav-group{padding:5px 3px!important}
+  .nav-group-toggle{display:flex;justify-content:center;padding:6px 3px}
+  .nav-group-toggle .nav-group-label,.nav-group-toggle .nav-group-chevron{display:none}
+  .nav-group-toggle .nav-group-icon{width:30px;height:30px}
+}
+@media(max-width:760px){
+  .nav-group{padding:4px 0 7px!important}
+  .nav-group-toggle{display:grid;grid-template-columns:28px 1fr 20px;justify-content:initial;padding:6px 8px}
+  .nav-group-toggle .nav-group-label,.nav-group-toggle .nav-group-chevron{display:block}
+  .nav-group-toggle .nav-group-label{text-align:left}
+  .nav-group.open .nav-group-body{max-height:220px}
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style id="seller-control-real-wb-profit-style">
+.real-wb-hero{background:radial-gradient(circle at 88% 8%,rgba(255,225,92,.22),transparent 28%),linear-gradient(125deg,#17254E,#283CB0 55%,#008164)!important}
+.real-wb-form-card{padding:20px}.real-wb-fields{display:grid;grid-template-columns:1fr 1.25fr 1fr 1fr 1fr;gap:12px}
+.real-wb-preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:13px;padding:13px;border-radius:17px;background:linear-gradient(135deg,#EEF3FF,#EEF9F5);border:1px solid #D8E1EF}.real-wb-preview>div{padding:12px;border-radius:14px;background:rgba(255,255,255,.9);border:1px solid rgba(214,222,236,.9)}.real-wb-preview span{display:block;color:var(--muted);font-size:12px;font-weight:850}.real-wb-preview strong{display:block;margin-top:5px;font-size:17px}.real-wb-preview-profit{box-shadow:inset 0 0 0 1px rgba(0,166,123,.13)}
+.real-wb-formula{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.45}.real-wb-summary{grid-template-columns:repeat(6,minmax(0,1fr));margin-top:18px}.real-wb-kpi{padding:15px;position:relative;overflow:hidden}.real-wb-kpi:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--wb),var(--shop))}.real-wb-kpi span{display:block;color:var(--muted);font-size:12px;font-weight:850;line-height:1.3}.real-wb-kpi strong{display:block;margin-top:7px;font-size:18px}.real-wb-kpi small{display:block;margin-top:4px;color:var(--muted);font-size:11px}.real-wb-profit-total{background:linear-gradient(145deg,#fff,#F0FAF6)}
+.real-wb-guide{margin-top:18px;padding:0;overflow:hidden;border:1px solid #DDE4F1;background:linear-gradient(145deg,#fff,#F8FAFD)}.real-wb-guide-top{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 18px;background:linear-gradient(120deg,#F1F4FF,#EEF9F5);border-bottom:1px solid #DDE4F1}.real-wb-guide-top h3{margin:0;font-size:17px}.real-wb-guide-top p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.45}.real-wb-guide-badge{flex:0 0 auto;padding:7px 10px;border-radius:999px;background:#E7F7F1;color:#007457;font-size:11px;font-weight:950;border:1px solid #CDEBDF}.real-wb-guide details{padding:0}.real-wb-guide summary{list-style:none;cursor:pointer;padding:14px 18px;font-size:13px;font-weight:950;color:#243154;display:flex;align-items:center;justify-content:space-between;gap:12px}.real-wb-guide summary::-webkit-details-marker{display:none}.real-wb-guide summary:after{content:"Открыть";padding:5px 8px;border-radius:8px;background:#EEF1F7;color:#5A647A;font-size:10px;font-weight:900}.real-wb-guide details[open] summary:after{content:"Скрыть"}.real-wb-steps{margin:0;padding:0 22px 19px 50px}.real-wb-steps li{padding:7px 0 7px 3px;color:#4E586D;font-size:12px;line-height:1.55}.real-wb-steps li::marker{font-weight:950;color:#254CB6}.real-wb-steps b{color:#1C2946}.real-wb-important{margin:0 18px 18px;padding:12px 14px;border-radius:13px;background:#FFF8E7;border:1px solid #F0DFA7;color:#725C19;font-size:12px;line-height:1.55}.real-wb-important b{color:#5B4713}
+.real-wb-table{min-width:1420px}.real-wb-table th,.real-wb-table td{text-align:right}.real-wb-table th:first-child,.real-wb-table td:first-child,.real-wb-table th:nth-child(2),.real-wb-table td:nth-child(2){text-align:left}.real-wb-legacy{margin-top:3px;color:var(--muted);font-size:10px}.real-wb-table-note{font-size:12px;margin-top:3px}
+@media(max-width:1450px){.real-wb-summary{grid-template-columns:repeat(4,minmax(0,1fr))}.real-wb-fields{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:950px){.real-wb-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.real-wb-fields,.real-wb-preview{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.real-wb-form-card{padding:16px}.real-wb-fields,.real-wb-preview,.real-wb-summary{grid-template-columns:1fr}.real-wb-kpi{padding:13px}.real-wb-preview{padding:10px}.real-wb-table{min-width:1260px}.real-wb-guide-top{display:block;padding:15px}.real-wb-guide-badge{display:inline-flex;margin-top:9px}.real-wb-guide summary{padding:12px 15px}.real-wb-steps{padding-left:38px;padding-right:16px}.real-wb-important{margin:0 14px 14px}}
+</style>
+
+
+<style id="seller-control-dashboard-real-wb-v1">
+.real-wb-dashboard-card{position:relative;overflow:hidden;background:radial-gradient(circle at 102% -4%,rgba(50,40,142,.14),transparent 31%),radial-gradient(circle at -8% 110%,rgba(0,166,123,.12),transparent 34%),linear-gradient(180deg,#FFFFFF 0%,#F7F9FD 100%)!important;border:1px solid rgba(50,40,142,.11)!important;box-shadow:0 22px 58px rgba(31,45,104,.11)!important}
+.real-wb-dashboard-card:before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,#32288E 0%,#254CB6 47%,#00A67B 100%)}
+.real-wb-dashboard-head{align-items:flex-start}.real-wb-dashboard-title{min-width:0}.real-wb-dashboard-kicker{background:linear-gradient(135deg,#EEEAFD,#EAF7F2)!important;color:#2B3474!important;border:1px solid #DDDDF3!important}.real-wb-store-pill{display:inline-flex;align-items:center;gap:8px;max-width:100%;margin-top:8px;padding:6px 10px 6px 7px;border:1px solid #E2E5F1;border-radius:12px;background:rgba(255,255,255,.88);box-shadow:0 7px 18px rgba(31,45,104,.06)}.real-wb-store-pill>span{width:27px;height:27px;display:grid;place-items:center;border-radius:9px;background:linear-gradient(135deg,#32288E,#254CB6);font-size:12px}.real-wb-store-pill div{min-width:0}.real-wb-store-pill small{display:block;color:#8A90A0;font-size:8px;font-weight:850;line-height:1}.real-wb-store-pill b{display:block;max-width:190px;margin-top:3px;color:#27304E;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.real-wb-trend-chip{min-width:122px;text-align:right;align-self:center;padding:9px 11px;border-radius:15px;background:#F1F3F7;border:1px solid #E5E8EF;box-shadow:0 8px 20px rgba(35,48,92,.05)}.real-wb-trend-chip strong{display:block;font-size:17px;line-height:1;font-weight:950;color:#687083}.real-wb-trend-chip span{display:block;margin-top:5px;font-size:9px;font-weight:850;color:var(--muted)}.real-wb-trend-chip.up{background:#EAF8F3;border-color:#CBECDD}.real-wb-trend-chip.up strong{color:#00865F}.real-wb-trend-chip.down{background:#FFF0F3;border-color:#F3CBD5}.real-wb-trend-chip.down strong{color:#C63458}.real-wb-trend-chip.flat strong{color:#687083}
+.real-wb-profit-hero{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:13px 0 9px;padding:14px 15px;border-radius:18px;color:#fff;overflow:hidden;position:relative}.real-wb-profit-hero.profit{background:radial-gradient(circle at 95% 10%,rgba(255,255,255,.16),transparent 28%),linear-gradient(125deg,#172B6F 0%,#254CB6 52%,#008B69 118%)}.real-wb-profit-hero.loss{background:radial-gradient(circle at 95% 10%,rgba(255,255,255,.13),transparent 28%),linear-gradient(125deg,#50213C 0%,#9E2E50 55%,#D52D58 115%)}.real-wb-profit-hero-main span{display:block;color:rgba(255,255,255,.76);font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.5px}.real-wb-profit-hero-main strong{display:block;margin-top:4px;font-size:25px;line-height:1.06;letter-spacing:-.5px}.real-wb-profit-hero-main small{display:block;margin-top:5px;color:rgba(255,255,255,.68);font-size:9px}.real-wb-profit-hero-move{display:flex;align-items:center;gap:8px;min-width:115px;padding:8px 9px;border-radius:13px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(8px)}.real-wb-profit-arrow{width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:rgba(255,255,255,.13);font-size:22px;font-weight:950}.real-wb-profit-hero-move b{display:block;font-size:12px;color:#fff}.real-wb-profit-hero-move small{display:block;margin-top:3px;color:rgba(255,255,255,.65);font-size:8px;line-height:1.2}
+.real-wb-dashboard-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 4px}.real-wb-dashboard-stats>div{padding:10px 11px;border:1px solid #E3E7F0;border-radius:14px;background:rgba(255,255,255,.92);box-shadow:0 7px 18px rgba(31,45,104,.04)}.real-wb-dashboard-stats span{display:block;font-size:9px;font-weight:900;letter-spacing:.25px;color:var(--muted)}.real-wb-dashboard-stats strong{display:block;margin-top:4px;font-size:15px;color:#273044}.real-wb-dashboard-stats strong.good{color:#00865F}.real-wb-dashboard-stats strong.bad{color:#C63458}.real-wb-dashboard-stats small{display:block;margin-top:3px;font-size:8.5px;color:#8A909B}
+.real-wb-dashboard-chart{margin-top:9px!important;border:1px solid #E5E8F1!important;background:rgba(255,255,255,.78)!important}.real-wb-dashboard-open{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px}.real-wb-dashboard-open>span{color:#7D8494;font-size:9px;font-weight:750}.real-wb-dashboard-open .btn{white-space:nowrap}
+@media(max-width:760px){.real-wb-dashboard-head{grid-template-columns:auto 1fr}.real-wb-trend-chip{grid-column:2;text-align:left;justify-self:start;min-width:0}.real-wb-store-pill b{max-width:155px}.real-wb-profit-hero{align-items:flex-start}.real-wb-profit-hero-main strong{font-size:21px}.real-wb-profit-hero-move{min-width:0}.real-wb-dashboard-stats{grid-template-columns:1fr 1fr 1fr}.real-wb-dashboard-stats>div{padding:8px}.real-wb-dashboard-stats span,.real-wb-dashboard-stats small{font-size:7.5px}.real-wb-dashboard-stats strong{font-size:12px}.real-wb-dashboard-open{display:block}.real-wb-dashboard-open>span{display:block;margin-bottom:7px}.real-wb-dashboard-open .btn{width:100%}}
+</style>
+
 </head>
 <body>
 <div id="publicRoot"></div>
@@ -3985,7 +4058,7 @@ function pageTitle(){
   if(currentPage==="investments")return[T("Учёт инвестиций","投资记录"),T("Инвестиции в юанях и рублях по магазинам","按店铺记录人民币与卢布投资")];
   if(currentPage==="loans")return[T("Выданные займы","已发放借款"),T("Удобный контроль выданных сумм, возвратов и остатка долга","便捷管理借款金额、归还与未还余额")];
   if(currentPage==="finance")return[T("Финансы","财务"),T("Расходы, пополнения и контроль баланса","支出、充值与余额控制")];
-  if(currentPage==="profit")return[T("Аналитика прибыли","利润分析"),T("Графики, динамика и распределение прибыли","利润图表、趋势与分配")];
+  if(currentPage==="profit")return[T("Реальная прибыль WB","WB 实际利润"),T("Автоматический расчёт фактической прибыли по отчётам Wildberries","根据 Wildberries 财务报告自动计算实际利润")];
   if(currentPage==="ai")return[T("WB AI Аналитик","WB AI 分析师"),T("Умный анализ показателей и рекомендации по бизнесу","智能分析业务指标并提供建议")];
   if(currentPage==="generalReport")return[T("Общий отчёт","总报表"),T("Полный отчёт по каждому магазину и всем расходам","按店铺汇总全部收入与支出")];
   if(currentPage==="returnMoney")return[T("Возврат денег за товар","货款回收"),T("Контроль возврата расходов на закупку, фулфилмент и рассрочку","跟踪采购、履约与分期成本回收")];
@@ -3994,52 +4067,77 @@ function pageTitle(){
   const s=ws.stores.find(x=>x.id===currentStoreId);return[s?.name||T("Магазин","店铺"),T("Ежедневный финансовый отчёт","每日财务报表")]
 }
 function navButton(page,icon,label){return`<button class="${currentPage===page?"active":""}" onclick="go('${page}')"><span class="ico">${icon}</span><span>${esc(label)}</span></button>`}
-function go(page,storeId=null){if(typeof capturePurchaseDraftNow==="function")capturePurchaseDraftNow();currentPage=page;currentStoreId=storeId;editingReportId=null;editingPurchaseId=null;editingInvestmentId=null;editingUnitId=null;editingLoanId=null;editingInstallmentId=null;editingFulfillmentId=null;renderApp();window.scrollTo({top:0,behavior:"smooth"})}
+let sidebarOpenGroup="";
+function sidebarGroupForPage(page){
+  if(page==="store")return "stores";
+  if(["dashboard","generalReport","profit"].includes(page))return "sales";
+  if(["purchases","fulfillment","installments","unitEconomics"].includes(page))return "product";
+  if(["finance","investments","loans","returnMoney"].includes(page))return "money";
+  if(["ai","documents","settings"].includes(page))return "tools";
+  return "sales"
+}
+function toggleSidebarGroup(group){
+  sidebarOpenGroup=sidebarOpenGroup===group?"":group;
+  document.querySelectorAll(".sidebar .nav-group").forEach(el=>{
+    const open=el.dataset.group===sidebarOpenGroup;
+    el.classList.toggle("open",open);
+    const btn=el.querySelector(".nav-group-toggle");
+    if(btn)btn.setAttribute("aria-expanded",open?"true":"false")
+  })
+}
+function sidebarGroupHeader(group,icon,label){
+  const open=sidebarOpenGroup===group;
+  return `<button type="button" class="nav-group-toggle" onclick="toggleSidebarGroup('${group}')" aria-expanded="${open?"true":"false"}"><span class="nav-group-icon">${icon}</span><span class="nav-group-label">${esc(label)}</span><span class="nav-group-chevron">⌄</span></button>`
+}
+function go(page,storeId=null){if(typeof capturePurchaseDraftNow==="function")capturePurchaseDraftNow();sidebarOpenGroup=sidebarGroupForPage(page);currentPage=page;currentStoreId=storeId;editingReportId=null;editingPurchaseId=null;editingInvestmentId=null;editingUnitId=null;editingLoanId=null;editingInstallmentId=null;editingFulfillmentId=null;renderApp();window.scrollTo({top:0,behavior:"smooth"})}
 function renderApp(){
   const ws=getWorkspace(),user=getCurrentUser();const [title,sub]=pageTitle();
+  if(!sidebarOpenGroup)sidebarOpenGroup=sidebarGroupForPage(currentPage);
   document.getElementById("appRoot").innerHTML=`
   <div class="app-shell">
     <aside class="sidebar">
       <div class="side-brand"><div class="logo-mark sc-monogram"><span class="s-part">S</span><span class="c-part">C</span></div><div><h2>${esc(ws.businessName)}</h2><small>Seller Control</small></div></div>
-      <section class="nav-group nav-group-sales">
-        <div class="nav-title"><span class="nav-group-icon">▦</span><span>${T("Продажи","销售")}</span></div>
-        <nav class="nav">
+      <section class="nav-group nav-group-sales ${sidebarOpenGroup==="sales"?"open":""}" data-group="sales">
+        ${sidebarGroupHeader("sales","▦",T("Продажи","销售"))}
+        <div class="nav-group-body"><nav class="nav">
           ${navButton("dashboard","⌂",T("Главная","主页"))}
           ${navButton("generalReport","📊",T("Общий отчёт","总报表"))}
-          ${navButton("profit","₽",T("Аналитика прибыли","利润分析"))}
-        </nav>
-        <div class="nav-subtitle">${T("Магазины","店铺")}</div>
-        <nav class="nav nav-stores">${ws.stores.filter(s=>s.enabled).map(s=>`<button class="store-nav-button ${currentPage==="store"&&currentStoreId===s.id?"active":""}" onclick="go('store','${s.id}')"><span class="ico">🏪</span><span>${esc(s.name)}</span></button>`).join("")}</nav>
+          ${navButton("profit","₽",T("Реальная прибыль WB","WB 实际利润"))}
+        </nav></div>
       </section>
-      <section class="nav-group nav-group-product">
-        <div class="nav-title"><span class="nav-group-icon">📦</span><span>${T("Товар","商品")}</span></div>
-        <nav class="nav">
+      <section class="nav-group nav-group-stores ${sidebarOpenGroup==="stores"?"open":""}" data-group="stores">
+        ${sidebarGroupHeader("stores","🏪",T("Магазины","店铺"))}
+        <div class="nav-group-body"><nav class="nav nav-stores">${ws.stores.filter(s=>s.enabled).map(s=>`<button class="store-nav-button ${currentPage==="store"&&currentStoreId===s.id?"active":""}" onclick="go('store','${s.id}')"><span class="ico">🏪</span><span>${esc(s.name)}</span></button>`).join("")||`<div class="nav-group-empty">${T("Нет магазинов","暂无店铺")}</div>`}</nav></div>
+      </section>
+      <section class="nav-group nav-group-product ${sidebarOpenGroup==="product"?"open":""}" data-group="product">
+        ${sidebarGroupHeader("product","📦",T("Товар","商品"))}
+        <div class="nav-group-body"><nav class="nav">
           ${navButton("purchases","📦",T("Закупки из Китая","中国采购"))}
           ${navButton("fulfillment","▣",T("Фулфилмент Абдурахим","阿卜杜拉希姆履约"))}
           ${navButton("installments","分",T("Рассрочка из Китая","中国分期付款"))}
           ${navButton("unitEconomics","◈",T("Юнит-экономика","单品经济"))}
-        </nav>
+        </nav></div>
       </section>
-      <section class="nav-group nav-group-money">
-        <div class="nav-title"><span class="nav-group-icon">₽</span><span>${T("Деньги","资金")}</span></div>
-        <nav class="nav">
+      <section class="nav-group nav-group-money ${sidebarOpenGroup==="money"?"open":""}" data-group="money">
+        ${sidebarGroupHeader("money","₽",T("Деньги","资金"))}
+        <div class="nav-group-body"><nav class="nav">
           ${navButton("finance","💳",T("Финансы","财务"))}
           ${navButton("investments","¥",T("Инвестиции","投资"))}
           ${navButton("loans","₽",T("Выданные займы","已发放借款"))}
           ${navButton("returnMoney","💰",T("Возврат денег за товар","货款回收"))}
-        </nav>
+        </nav></div>
       </section>
-      <section class="nav-group nav-group-tools">
-        <div class="nav-title"><span class="nav-group-icon">⚙</span><span>${T("Инструменты","工具")}</span></div>
-        <nav class="nav">
+      <section class="nav-group nav-group-tools ${sidebarOpenGroup==="tools"?"open":""}" data-group="tools">
+        ${sidebarGroupHeader("tools","⚙",T("Инструменты","工具"))}
+        <div class="nav-group-body"><nav class="nav">
           ${navButton("ai","AI",T("WB AI Аналитик","WB AI 分析师"))}
           ${navButton("documents","📄",T("Документы","文件"))}
           ${navButton("settings","⚙",T("Настройки","设置"))}
-        </nav>
+        </nav></div>
       </section>
       <div class="side-foot founder-side-foot"><span>${T("Основатель платформы","平台创始人")}</span><strong>Шерали Туйчибой Зафар</strong></div>
     </aside>
-    <main class="main"><header class="topbar"><div><h2>${esc(title)}</h2><div class="sub">${esc(sub)}</div></div>
+    <main class="main"><header class="topbar"><div class="topbar-heading"><div class="topbar-title-row"><h2>${esc(title)}</h2><div id="scAccessBadgeSlot"></div></div><div class="sub">${esc(sub)}</div></div>
       <div class="top-actions">
         <div class="section-actions">
           <button class="btn save-action small" onclick="manualSaveCurrentSection()">💾 ${T("Сохранить","保存")}</button>
@@ -4101,7 +4199,6 @@ function fulfillmentStatusHtml(status){const cls=status==="Отгружено"?"
 function renderFulfillment(){
   const ws=ensureWorkspaceData(),rows=ws.fulfillment.map(calcFulfillment).sort((a,b)=>(b.date||"").localeCompare(a.date||"")),t=fulfillmentTotals(rows),edit=editingFulfillmentId?ws.fulfillment.find(x=>x.id===editingFulfillmentId):null;
   document.getElementById("pageRoot").innerHTML=`
-    <div class="fulfill-hero"><h3>Фулфилмент Абдурахим</h3><p>${T("Мы доверяем вам: ваша быстрая и качественная работа — основа порядка, доверия и роста нашего бизнеса.","Мы доверяем вам: ваша быстрая и качественная работа — основа порядка, доверия и роста нашего бизнеса.")}</p></div>
     <div class="grid fulfill-kpis">
       <div class="card kpi"><div class="label">${T("Операций","操作数")}</div><div class="value">${num(t.operations)}</div><div class="hint">${T("Всего записей","全部记录")}</div></div>
       <div class="card kpi"><div class="label">${T("Коробок","箱数")}</div><div class="value">${num(t.boxes)}</div><div class="hint">${T("Принятые партии","已录入批次")}</div></div>
@@ -4251,7 +4348,6 @@ function renderAIAnalyst(){
   if(!aiMessages.length)aiMessages=[{role:"assistant",text:aiWelcome()}];
   document.getElementById("pageRoot").innerHTML=`
     <div class="ai-page">
-      <section class="ai-hero"><div class="ai-hero-inner"><div class="ai-hero-copy"><div class="ai-badge">${T("УМНЫЙ КОНТРОЛЬ БИЗНЕСА","智能业务管理")}</div><h3>${T("Ваш AI-аналитик по бизнесу","您的业务 AI 分析师")}</h3><p>${T("Задавайте вопросы простыми словами. Seller AI анализирует показатели из ваших отчётов и показывает, где прибыль, где риск и что проверить в первую очередь.","您可以用简单语言提问。Seller AI 会分析报表数据，指出利润、风险以及最需要优先检查的地方。")}</p></div></div></section>
       <div class="ai-metrics">
         <div class="ai-metric"><span>${T("Выручка","营业额")}</span><strong>${money(s.total.revenue)}</strong></div>
         <div class="ai-metric"><span>${T("Чистая прибыль","净利润")}</span><strong class="${s.total.net>=0?"good":"bad"}">${money(s.total.net)}</strong></div>
@@ -4287,81 +4383,111 @@ function renderAIAnalyst(){
 }
 
 function kpi(label,value,hint){return`<div class="card kpi"><div class="label">${label}</div><div class="value">${value}</div><div class="hint">${hint||""}</div></div>`}
-function dashboardMotivation(total){
-  if(!total.revenue && !total.orders)return {
-    title:T("Большой результат начинается с первого точного шага","重大成果始于第一个准确行动"),
-    text:T("Начните с одного отчёта — цифры покажут, куда двигаться дальше。","从一份报表开始，数据会告诉你下一步该往哪里走。"),
-    kicker:T("СПОКОЙНО · ТОЧНО · ВПЕРЁД","冷静 · 准确 · 向前")
-  };
-  if(total.net<0)return {
-    title:T("Минус — не поражение, а точка роста","亏损不是失败，而是成长的起点"),
-    text:T("Найдите главный расход, исправьте один показатель и продолжайте движение。","找到最大的费用，改善一个指标，然后继续前进。"),
-    kicker:T("АНАЛИЗ · РЕШЕНИЕ · РОСТ","分析 · 决策 · 成长")
-  };
-  return {
-    title:T("Точные решения создают сильную прибыль","精准决策创造强劲利润"),
-    text:T("Контролируйте расходы и усиливайте то, что уже приносит результат。","控制费用，并加强已经带来成果的部分。"),
-    kicker:T("КОНТРОЛЬ · ТОЧНОСТЬ · РОСТ","控制 · 精准 · 成长")
-  }
-}
-
 function dashboardFinancePanel(){
   const rows=financeRows(),t=financeTotals(rows),latest=rows.length?financeNum(rows[rows.length-1].balance):0,flow=t.topup-t.expense;
-  return `<div class="section-title dashboard-finance-title"><div><h3>💳 ${T("Финансы","财务")}</h3><p>${T("Остаток, пополнения и расходы — прямо на главном дашборде","余额、充值与支出直接显示在主仪表盘")}</p></div><button class="btn primary small" onclick="go('finance')">${T("Открыть","打开")} →</button></div>
+  return `<div class="section-title dashboard-finance-title"><div><h3>💳 ${T("Финансы","财务")}</h3></div><button class="btn primary small" onclick="go('finance')">${T("Открыть","打开")} →</button></div>
     <div class="dashboard-finance-balance"><span>${T("Текущий остаток","当前余额")}</span><strong class="${latest>=0?'good':'bad'}">${money(latest)}</strong><small>${T("По последней финансовой операции","按最后一笔财务操作")}</small></div>
     <div class="dashboard-finance-stats">
       <div class="dashboard-finance-stat"><span>${T("Всего пополнено","累计充值")}</span><b class="good">${money(t.topup)}</b></div>
       <div class="dashboard-finance-stat"><span>${T("Всего расходов","累计支出")}</span><b class="bad">${money(t.expense)}</b></div>
       <div class="dashboard-finance-stat"><span>${T("Чистое движение","净资金流")}</span><b class="${flow>=0?'good':'bad'}">${money(flow)}</b></div>
-    </div>
-    ${rows.length?'':`<div class="dashboard-finance-empty">${T("Финансовых операций пока нет. Откройте раздел «Финансы» и добавьте первую операцию.","暂无财务操作。请打开“财务”栏目并添加第一笔操作。")}</div>`}`
+    </div>`
 }
+
+function dashboardRealWbStoreInfo(){
+  const ws=getWorkspace(),selected=String(window.dashboardStoreFilter||"all");
+  if(selected==="all")return {id:"all",name:T("Все магазины","全部店铺")};
+  const store=(ws?.stores||[]).find(s=>String(s.id)===selected&&s.enabled!==false);
+  return store?{id:String(store.id),name:String(store.name||T("Магазин","店铺"))}:{id:"all",name:T("Все магазины","全部店铺")}
+}
+function dashboardRealWbRows(){
+  const ws=getWorkspace(),scope=dashboardRealWbStoreInfo();
+  return (ws?.profitEntries||[])
+    .filter(isRealWbProfitEntry)
+    .filter(v=>scope.id==="all"||String(v.storeId||"")===scope.id)
+    .map(calcRealWbProfit)
+    .filter(v=>!dashboardDateFrom||String(v.date||"")>=dashboardDateFrom)
+    .filter(v=>!dashboardDateTo||String(v.date||"")<=dashboardDateTo)
+}
+function dashboardRealWbMonthLabel(monthKey){
+  const parts=String(monthKey||"").split("-");
+  const year=Number(parts[0]),month=Number(parts[1]);
+  if(!year||month<1||month>12)return String(monthKey||"");
+  if(lang==="zh")return `${year}年${month}月`;
+  const names=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+  return `${names[month-1]} ${year}`
+}
+function dashboardRealWbMonthlySeries(rows){
+  const byMonth={};
+  (rows||[]).forEach(v=>{
+    const date=String(v.date||"");
+    const month=date.slice(0,7);
+    if(!/^\d{4}-\d{2}$/.test(month))return;
+    byMonth[month]=(byMonth[month]||0)+n(v.amount)
+  });
+  const base=Object.entries(byMonth).sort((a,b)=>a[0].localeCompare(b[0])).map(([month,profit])=>({month,profit:n(profit)}));
+  return base.map((v,i)=>{
+    const prev=i?base[i-1].profit:null,diff=prev===null?0:v.profit-prev;
+    const percent=prev===null?0:(prev!==0?diff/Math.abs(prev)*100:(v.profit===0?0:(v.profit>0?100:-100)));
+    return {...v,prev,diff,percent,direction:diff>0?"up":diff<0?"down":"flat",arrow:diff>0?"↗":diff<0?"↘":"→"}
+  })
+}
+function dashboardRealWbSeries(rows){
+  const byDate={};
+  (rows||[]).forEach(v=>{const d=String(v.date||"");if(!d)return;byDate[d]=(byDate[d]||0)+n(v.amount)});
+  return Object.entries(byDate).sort((a,b)=>a[0].localeCompare(b[0])).map(([date,profit])=>({date,profit}))
+}
+function dashboardRealWbTrend(rows){
+  const series=dashboardRealWbSeries(rows),total=(rows||[]).reduce((a,v)=>a+n(v.amount),0);
+  const last=series.length?n(series[series.length-1].profit):0,prev=series.length>1?n(series[series.length-2].profit):0,diff=last-prev;
+  let percent=0;if(series.length>1){percent=prev!==0?diff/Math.abs(prev)*100:(last===0?0:(last>0?100:-100))}
+  const direction=diff>0?"up":diff<0?"down":"flat",arrow=diff>0?"↗":diff<0?"↘":"→";
+  return {series,total,last,prev,diff,percent,direction,arrow,count:(rows||[]).length,lastDate:series.length?series[series.length-1].date:""}
+}
+function drawRealWbProfitDashboardChart(canvasId,points){
+  const c=document.getElementById(canvasId);if(!c)return;const rect=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+  c.width=Math.max(1,rect.width)*dpr;c.height=286*dpr;const x=c.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);const w=rect.width,h=286;x.clearRect(0,0,w,h);
+  if(!points?.length){const g=x.createLinearGradient(0,28,0,233);g.addColorStop(0,"rgba(111,223,196,.22)");g.addColorStop(1,"rgba(104,128,255,.18)");x.fillStyle=g;roundRectPath(x,12,28,w-24,205,18);x.fill();x.strokeStyle="rgba(255,255,255,.18)";x.lineWidth=1;x.stroke();x.fillStyle="#F4FBFF";x.font="800 13px sans-serif";x.textAlign="center";x.fillText(T("Добавьте первый отчёт в «Реальная прибыль WB»","请先添加一份“WB 实际利润”报告"),w/2,128);x.fillStyle="rgba(235,247,255,.78)";x.font="10px sans-serif";x.fillText(T("После сохранения здесь появится динамика прибыли","保存后这里会显示利润趋势"),w/2,150);x.textAlign="left";return}
+  const padL=52,padR=22,padT=22,padB=42,vals=[...points.map(v=>n(v.profit)),0];let max=Math.max(...vals),min=Math.min(...vals);if(max===min){max+=1;min-=1}const extra=(max-min)*.10;max+=extra;min-=extra;const span=max-min||1;
+  const X=i=>points.length===1?(padL+w-padR)/2:padL+(w-padL-padR)*i/(points.length-1),Y=v=>padT+(max-v)/span*(h-padT-padB),zeroY=Y(0);
+  x.font="9px sans-serif";for(let i=0;i<5;i++){const y=padT+(h-padT-padB)*i/4,val=max-span*i/4;x.strokeStyle="#E7EAF1";x.lineWidth=1;x.beginPath();x.moveTo(padL,y);x.lineTo(w-padR,y);x.stroke();x.fillStyle="#8A8F99";x.textAlign="right";x.fillText(shortMoney(val),padL-8,y+3)}
+  if(min<0&&max>0){x.save();x.strokeStyle="#D95B76";x.setLineDash([5,5]);x.beginPath();x.moveTo(padL,zeroY);x.lineTo(w-padR,zeroY);x.stroke();x.restore()}
+  const pts=points.map((v,i)=>({x:X(i),y:Y(n(v.profit)),v:n(v.profit),date:v.date}));
+  if(pts.length>1){for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1],loss=(a.v<0||b.v<0);x.beginPath();x.moveTo(a.x,a.y);const dx=(b.x-a.x)*.38;x.bezierCurveTo(a.x+dx,a.y,b.x-dx,b.y,b.x,b.y);x.strokeStyle=loss?"#D52D58":"#00A67B";x.lineWidth=3.3;x.lineCap="round";x.stroke()}}
+  pts.forEach(p=>{const color=p.v<0?"#D52D58":"#00A67B";x.fillStyle="#fff";x.beginPath();x.arc(p.x,p.y,4.6,0,Math.PI*2);x.fill();x.strokeStyle=color;x.lineWidth=2.5;x.stroke()});
+  const last=pts[pts.length-1];drawValueBubble(x,last.x,last.y,shortMoney(last.v),last.v<0?"#D52D58":"#00A67B",w,padL,padR);
+  x.fillStyle="#7B808B";x.font="9px sans-serif";x.textAlign="center";const step=Math.max(1,Math.ceil(points.length/6));points.forEach((v,i)=>{if(i%step===0||i===points.length-1)x.fillText(fmtDateShort(v.date),X(i),h-14)});x.textAlign="left"
+}
+
 
 function renderDashboard(){
   const ws=getWorkspace(),rows=allFilteredRows(),total=totals(rows);
   const avg=total.orders?total.revenue/total.orders:0,returns=total.fbo+total.fbs;
-  const bestStore=bestStoreSummary(),motivation=dashboardMotivation(total);
+  const bestStore=bestStoreSummary(),realWbStore=dashboardRealWbStoreInfo(),realWbMonthly=dashboardRealWbMonthlySeries(dashboardRealWbRows());
   document.getElementById("pageRoot").innerHTML=`
-    <section class="hero motivation-hero"><div class="hero-inner"><div class="motivation-copy"><div class="motivation-kicker">${motivation.kicker}</div><h3>${motivation.title}</h3><p>${motivation.text}</p><div class="home-ticker"><div class="home-ticker-track"><span>${T("Контролируй цифры","掌控数据")}</span><span>${T("Усиливай прибыль","提升利润")}</span><span>${T("Каждый поток под контролем","每个批次都在掌控中")}</span><span>${T("Решения на основе данных","用数据做决策")}</span><span>${T("Контролируй цифры","掌控数据")}</span><span>${T("Усиливай прибыль","提升利润")}</span><span>${T("Каждый поток под контролем","每个批次都在掌控中")}</span><span>${T("Решения на основе данных","用数据做决策")}</span></div></div></div></div></section>
     <div class="card calendar-period"><div class="calendar-period-info"><strong>📅 ${T("Период отчёта","报表期间")}</strong><span>${dashboardRangeText()} · ${T("Магазинов","店铺")}: ${activeStores().length} · ${T("Отчётов","报表")}: ${rows.length}</span></div><div class="calendar-controls"><div class="calendar-field"><label>${T("Дата начала","开始日期")}</label><input id="dashboardDateFrom" type="date" value="${esc(dashboardDateFrom)}"></div><div class="calendar-field"><label>${T("Дата окончания","结束日期")}</label><input id="dashboardDateTo" type="date" value="${esc(dashboardDateTo)}"></div><button class="btn primary small" onclick="applyDashboardDateRange()">${T("Применить","应用")}</button><button class="btn small" onclick="clearDashboardDateRange()">${T("Сбросить","重置")}</button></div></div>
     <div class="grid kpis">${kpi(T("Общая выручка","总营业额"),money(total.revenue),T("Все активные магазины","全部启用店铺"))}${kpi(T("Все расходы","全部费用"),money(total.allExpenses),T("С учётом налога и банка","含税费和银行手续费"))}${kpi(T("Налог","税费"),money(total.tax),num(ws.taxRate)+"%")}${kpi(T("Чистая прибыль","净利润"),money(total.net),T("После всех расходов","扣除全部费用后"))}${kpi(T("Заказы","订单"),num(total.orders),T("По всем магазинам","全部店铺"))}${kpi(T("Рентабельность","盈利率"),num(pct(total.net,total.revenue))+"%",T("Чистая маржа","净利率"))}</div>
     <div class="grid insight-grid"><div class="insight"><span>${T("Средний чек","平均客单价")}</span><strong>${money(avg)}</strong><small>${T("Выручка делённая на количество заказов","营业额除以订单数量")}</small></div><div class="insight"><span>${T("Лучшая точка роста","最佳增长店铺")}</span><strong>${esc(bestStore.name)}</strong><small>${T("Чистая прибыль","净利润")}: ${money(bestStore.net)} · ${T("Выручка","营业额")}: ${money(bestStore.revenue)}</small></div><div class="insight"><span>${T("Заказы с рекламы","广告订单")}</span><strong>${num(pct(total.adOrders,total.orders))}%</strong><small>${num(total.adOrders)} / ${num(total.orders)} ${T("заказов","订单")}</small></div><div class="insight"><span>${T("Возвраты FBO / FBS","FBO / FBS退货")}</span><strong>${num(returns)}</strong><small>FBO ${num(total.fbo)} · FBS ${num(total.fbs)}</small></div></div>
     <div class="section grid chart-grid dashviz-grid">
-      <div class="card chart-card premium dashviz-card dashviz-hero">
-        <div class="dashviz-orb dashviz-orb-a"></div><div class="dashviz-orb dashviz-orb-b"></div>
-        <div class="dashviz-head">
+      <div class="card chart-card premium dashviz-card dashviz-store real-wb-dashboard-card real-wb-monthly-card">
+        <div class="real-wb-monthly-head">
           <div class="dashviz-index">01</div>
-          <div class="dashviz-title"><span class="dashviz-kicker">${T("PERFORMANCE MAP","经营表现地图")}</span><h3>${T("Путь выручки и чистой прибыли","营业额与净利润走势")}</h3><p>${T("Зелёная линия показывает результат, красные участки — точки для улучшения","绿色线表示成果，红色区段表示需要改进的位置")}</p></div>
-          <div class="dashviz-live"><i></i>${T("Живые данные","实时数据")}</div>
+          <h3>₽ ${T("Реальная прибыль WB","WB 实际利润")}</h3>
+          <div class="real-wb-store-pill real-wb-store-pill-compact"><span>🏪</span><b>${esc(realWbStore.name)}</b></div>
         </div>
-        <div class="dashviz-metrics">
-          <div><span>${T("Выручка","营业额")}</span><strong>${money(total.revenue)}</strong></div>
-          <div><span>${T("Чистая прибыль","净利润")}</span><strong class="${total.net>=0?'good':'bad'}">${money(total.net)}</strong></div>
-          <div><span>${T("Маржа","利润率")}</span><strong>${num(pct(total.net,total.revenue))}%</strong></div>
-        </div>
-        <div class="dashviz-chart-shell dashviz-chart-shell-dark">
-          <div class="dashviz-legend"><span><i class="revenue"></i>${T("Выручка","营业额")}</span><span><i class="profit"></i>${T("Прибыль","利润")}</span><span><i class="loss"></i>${T("Минус","亏损")}</span></div>
-          <canvas id="revNetChart"></canvas>
-        </div>
-        <div class="dashviz-foot"><span class="dashviz-arrow">↗</span><div><b>${T("Смотрите на направление","观察趋势方向")}</b><span>${T("Не бойтесь красной точки: она показывает, где скрыта следующая возможность для роста. Находите причину изменения и принимайте одно точное решение за раз.","不要害怕红色点：它会指出下一个增长机会。找到变化原因，并一次做出一个准确决定。")}</span></div></div>
-      </div>
-
-      <div class="card chart-card premium dashviz-card dashviz-store">
-        <div class="dashviz-head dashviz-head-light">
-          <div class="dashviz-index">02</div>
-          <div class="dashviz-title"><span class="dashviz-kicker">${T("STORE RANKING","店铺排行")}</span><h3>${T("Сравнение магазинов","店铺对比")}</h3><p>${T("Кто зарабатывает сильнее","谁的表现更强")}</p></div>
-          <div class="dashviz-count"><strong>${activeStores().length}</strong><span>${T("магазинов","家店铺")}</span></div>
-        </div>
-        <div class="dashviz-chart-shell">
-          <div class="dashviz-legend"><span><i class="revenue"></i>${T("Выручка","营业额")}</span><span><i class="profit-alt"></i>${T("Чистая прибыль","净利润")}</span></div>
-          <canvas id="storeBarsChart"></canvas>
+        <div class="real-wb-months">
+          ${realWbMonthly.length?realWbMonthly.map((m,i)=>`<div class="real-wb-month-card ${i===realWbMonthly.length-1?'latest':''} ${m.profit<0?'loss':''}">
+            <div class="real-wb-month-name">${esc(dashboardRealWbMonthLabel(m.month))}</div>
+            <div class="real-wb-month-value">${money(m.profit)}</div>
+            ${i?`<div class="real-wb-month-delta ${m.direction}">${m.arrow} ${(m.percent>=0?'+':'')+num(m.percent)}%</div>`:""}
+          </div>`).join(""):`<div class="real-wb-month-empty">${T("Добавьте первый месячный отчёт","请添加第一份月度报告")}</div>`}
         </div>
       </div>
 
       <div class="card chart-card premium dashviz-card dashviz-expense">
         <div class="dashviz-head dashviz-head-light">
-          <div class="dashviz-index">03</div>
-          <div class="dashviz-title"><span class="dashviz-kicker">${T("COST X-RAY","费用透视")}</span><h3>${T("Структура расходов","费用结构")}</h3><p>${T("Куда уходят деньги","钱花在哪里")}</p></div>
+          <div class="dashviz-index">02</div>
+          <div class="dashviz-title"><h3>${T("Структура расходов","费用结构")}</h3><p>${T("Куда уходят деньги","钱花在哪里")}</p></div>
           <div class="dashviz-total"><span>${T("Всего расходов","总费用")}</span><strong>${money(total.allExpenses)}</strong></div>
         </div>
         <div class="dashviz-chart-shell dashviz-donut-shell"><canvas id="expenseDonut"></canvas></div>
@@ -4370,8 +4496,6 @@ function renderDashboard(){
     <div class="section"><div class="section-title"><div><h3>${T("Магазины","店铺")}</h3><p>${T("Каждый магазин рассчитывается отдельно","每个店铺独立计算")}</p></div></div><div class="grid store-grid">${activeStores().map(storeCard).join("")||`<div class="card empty">${T("Добавьте первый магазин в настройках","请在设置中添加第一个店铺")}</div>`}</div></div>
     <div class="section grid three-col"><div class="card panel dashboard-finance-panel">${dashboardFinancePanel()}</div><div class="card panel progress-panel"><div class="section-title progress-title"><div><span class="progress-kicker">${T("РЕЗУЛЬТАТ · ДВИЖЕНИЕ · РОСТ","成果 · 前进 · 成长")}</span><h3>🚀 ${T("Твой прогресс","你的进展")}</h3><p>${T("Главные показатели твоего движения вперёд","展示你持续前进的核心指标")}</p></div></div>${progressHtml(rows,total)}</div><div class="card panel"><div class="section-title"><h3>${T("Вклад магазинов","店铺贡献")}</h3></div>${contributionHtml(total)}</div></div>`;
   requestAnimationFrame(()=>{
-    drawRevenueNetChart("revNetChart",dailyRevenueNet(rows));
-    drawGroupedBars("storeBarsChart",storeCompareData());
     drawDonutChart("expenseDonut",expenseData(total));
   })
 }
@@ -4500,7 +4624,6 @@ function renderPurchases(){
   const draftMatches=!!(draft?.values&&typeof draft.values==="object"&&(!draft.editingId||draft.editingId===editingPurchaseId));
   const formData=edit?(draftMatches?Object.assign({},edit,draft.values):edit):(draft?.values||null),selectedStoreId=formData?.storeId||"";
   document.getElementById("pageRoot").innerHTML=`
-    <section class="module-hero motivational-module"><div class="module-kicker">${T("ТОЧНАЯ ЗАКУПКА · СИЛЬНАЯ ПРИБЫЛЬ","精准采购 · 强劲利润")}</div><h3>${T("Прибыль начинается с правильной закупки","利润始于正确采购")}</h3><p>${T("Считайте себестоимость заранее, контролируйте расходы и выбирайте товар с реальной прибылью.","提前计算成本，控制费用，选择真正有利润的商品。")}</p></section>
     <div class="grid module-kpis">${kpi(T("Количество позиций","商品条目"),num(t.positions),T("Записей закупок","采购记录"))}${kpi(T("Всего штук","总件数"),num(t.units),T("Коробки × штук","箱数 × 每箱数量"))}${kpi(T("Общая себестоимость","总成本"),money(t.totalCost),T("Все закупки","全部采购"))}${kpi(T("Средняя себестоимость","平均单件成本"),money(avg),T("На 1 единицу","每件"))}${kpi(T("Расходы в Китае","中国费用"),money(t.china),"")}${kpi(T("Доставка и транзит","运输与中转"),money(t.delivery+t.transit),"")}</div>
     <div class="section card form-card"><div class="section-title"><div><h3>${edit?T("Изменить закупку","修改采购"):T("Добавить закупку","添加采购")}</h3><p>${T("Жёлтые поля из Excel перенесены в удобную форму","Excel中的手动字段已转为便捷表单")}</p></div><span class="auto-pill" id="purchaseDraftStatus">✓ ${draftMatches?T("Черновик восстановлен и сохраняется автоматически","草稿已恢复并自动保存"):T("Автосохранение включено","自动保存已开启")}</span></div>
       <form onsubmit="savePurchase(event)"><div class="report-form"><div class="field"><label>${T("Магазин","店铺")} *</label><select name="storeId" required onchange="autoSavePurchaseDraft(this.form)"><option value="">${T("Выберите магазин","请选择店铺")}</option>${ws.stores.filter(x=>x.enabled).map(x=>`<option value="${x.id}" ${selectedStoreId===x.id?"selected":""}>${esc(x.name)}</option>`).join("")}<option value="general" ${selectedStoreId==="general"?"selected":""}>${T("Общий расход","公共费用")}</option></select></div>${purchaseFields.map(([k,type])=>`<div class="field"><label>${purchaseFieldName(k)}</label><input name="${k}" type="${type}" ${type==="number"?'step="0.001"':''} value="${formData?esc(formData[k]??''):(k==='date'?today():k==='yuanRate'?esc(ws.yuanRate):'')}" ${['date','product'].includes(k)?'required':''} oninput="autoSavePurchaseDraft(this.form)"></div>`).join("")}</div>
@@ -4578,13 +4701,6 @@ function renderInstallments(){
 
   document.getElementById("pageRoot").innerHTML=`
     <div class="inst-page">
-      <section class="inst-hero">
-        <div>
-          <div class="inst-kicker">${T("ТОВАР · ПЛАТЕЖИ · ОСТАТОК","商品 · 付款 · 余额")}</div>
-          <h3>${T("Рассрочка из Китая — каждый платёж под контролем","中国采购分期付款，每一笔都清晰可控")}</h3>
-          <p>${T("Фиксируйте стоимость товара, аванс и второй платёж. Система автоматически рассчитает общую сумму, оплату и остаток в юанях и рублях.","记录商品金额、预付款和第二次付款。系统自动计算人民币与卢布的总额、已付款和余额。")}</p>
-        </div>
-      </section>
 
       <div class="grid inst-kpis">
         <div class="card inst-kpi" style="--inst-glow:rgba(37,76,182,.10)"><span>${T("Количество позиций","商品条目")}</span><strong>${num(totals.count)}</strong><small>${num(totals.qty)} ${T("штук всего","件商品")}</small></div>
@@ -4774,7 +4890,6 @@ function exportInstallmentsCSV(){
 function renderInvestments(){
   const ws=ensureWorkspaceData(),rows=ws.investments.map(calcInvestment).sort((a,b)=>(b.date||'').localeCompare(a.date||'')),t=investmentTotals(rows),edit=editingInvestmentId?ws.investments.find(x=>x.id===editingInvestmentId):null,avg=t.count?t.rub/t.count:0,last=rows[0];
   document.getElementById("pageRoot").innerHTML=`
-    <section class="module-hero motivational-module"><div class="module-kicker">${T("КАПИТАЛ · КОНТРОЛЬ · РОСТ","资本 · 控制 · 成长")}</div><h3>${T("Инвестиции должны работать","投资必须产生价值")}</h3><p>${T("Фиксируйте каждое вложение и направляйте капитал туда, где он приносит результат.","记录每一笔投入，把资本投向能够创造成果的地方。")}</p></section>
     <div class="grid module-kpis">${kpi(T("Количество инвестиций","投资笔数"),num(t.count),"")}${kpi(T("Общий объём, юань","总额，人民币"),money(t.cny,'CNY'),"")}${kpi(T("Общий объём, руб.","总额，卢布"),money(t.rub),"")}${kpi(T("Средняя инвестиция","平均投资"),money(avg),"")}${kpi(T("Крупнейшая инвестиция","最大投资"),money(t.max),"")}${kpi(T("Последняя инвестиция","最近投资"),last?money(last.amountRub):money(0),last?fmtDate(last.date):'—')}</div>
     <div class="section card form-card"><div class="section-title"><div><h3>${edit?T("Изменить инвестицию","修改投资"):T("Добавить инвестицию","添加投资")}</h3><p>${T("Сумма в рублях рассчитывается автоматически","卢布金额自动计算")}</p></div><span class="auto-pill">✓ ${T("Автоматический курс","自动汇率")}</span></div>
       <form onsubmit="saveInvestment(event)"><div class="report-form"><div class="field"><label>${T("Дата","日期")}</label><input name="date" type="date" value="${edit?esc(edit.date):today()}" required></div><div class="field"><label>${T("Магазин","店铺")}</label><select name="storeId">${ws.stores.map(s=>`<option value="${s.id}" ${edit?.storeId===s.id?'selected':''}>${esc(s.name)}</option>`).join("")}</select></div><div class="field"><label>${T("Поток","批次")}</label><input name="flow" value="${edit?esc(edit.flow):''}"></div><div class="field"><label>${T("Сумма, юань","金额，人民币")}</label><input name="amountCny" type="number" step="0.01" value="${edit?esc(edit.amountCny):''}" required oninput="previewInvestment(this.form)"></div><div class="field"><label>${T("Курс юань → рубль","人民币兑卢布汇率")}</label><input name="yuanRate" type="number" step="0.001" value="${edit?esc(edit.yuanRate):esc(ws.yuanRate)}" required oninput="previewInvestment(this.form)"></div><div class="field"><label>${T("Комментарий","备注")}</label><input name="comment" value="${edit?esc(edit.comment):''}"></div></div><div class="calc-preview"><div><span>${T("Сумма, юань","金额，人民币")}</span><strong id="invCny">0</strong></div><div><span>${T("Курс","汇率")}</span><strong id="invRate">0</strong></div><div><span>${T("Сумма, рубль","金额，卢布")}</span><strong id="invRub">0</strong></div></div><div class="form-actions"><button class="btn primary">${edit?T("Сохранить изменения","保存修改"):T("Добавить инвестицию","添加投资")}</button>${edit?`<button type="button" class="btn" onclick="editingInvestmentId=null;renderInvestments()">${T("Отмена","取消")}</button>`:""}<button type="button" class="btn shop" onclick="exportInvestmentsCSV()">${T("Скачать CSV","下载CSV")}</button></div></form></div>
@@ -4812,7 +4927,10 @@ function renderUnitEconomics(){
   const avgMargin=tot.count?tot.margin/tot.count:0,avgCost=tot.count?tot.cost/tot.count:0,avgPayout=tot.count?tot.payout/tot.count:0;
   const v=(k,d="")=>edit?.[k]??d;
   document.getElementById("pageRoot").innerHTML=`
-    <section class="unit-hero unit-motivation"><div class="unit-hero-inner"><div class="unit-center-copy"><div class="unit-kicker">${T("СЧИТАЙТЕ ДО ЗАПУСКА","上线前测算")}</div><h3>${T("Юнит-экономика","单品经济模型")}</h3><p>${T("Проверьте прибыль товара до запуска и уберите лишние расходы.","上线前检查商品利润，并减少多余费用。")}</p><div class="unit-hero-actions"><button class="btn white small" onclick="document.getElementById('unitFormCard').scrollIntoView({behavior:'smooth'})">+ ${T("Новый товар","新商品")}</button><button class="btn white small" onclick="exportUnitEconomicsCSV()">${T("Скачать CSV","下载CSV")}</button></div></div></div></section>
+    <div class="unit-page-actions" style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin:0 0 12px">
+      <button class="btn small" onclick="document.getElementById('unitFormCard').scrollIntoView({behavior:'smooth'})">+ ${T("Новый товар","新商品")}</button>
+      <button class="btn small" onclick="exportUnitEconomicsCSV()">${T("Скачать CSV","下载CSV")}</button>
+    </div>
     <div class="grid unit-kpis">${unitKpi("▦",T("Количество SKU","SKU数量"),num(tot.count),T("Все рассчитанные товары","全部已计算商品"),"purple")}${unitKpi("↑",T("Прибыльные SKU","盈利SKU"),num(tot.profitable),T("Прибыль выше нуля","利润大于零"),"green")}${unitKpi("↓",T("Убыточные SKU","亏损SKU"),num(tot.loss),T("Требуют изменения цены или расходов","需要调整价格或费用"),"red")}${unitKpi("%",T("Средняя маржа","平均毛利率"),num(avgMargin)+"%",T("Среднее по всем SKU","全部SKU平均值"),avgMargin>=0?"gold":"red")}${unitKpi("₽",T("Сумма прибыли с 1 ед.","单件利润合计"),money(tot.profit),T("Сумма по всем SKU","全部SKU合计"),tot.profit>=0?"green":"red")}${unitKpi("◎",T("Средняя себестоимость","平均单件成本"),money(avgCost),T("Средняя выплата","平均回款")+": "+money(avgPayout),"blue")}</div>
     <div class="formula-road"><div class="formula-step"><i>1</i><b>${T("Транзит на единицу","单件中转")}</b><small>${T("Общий транзит ÷ количество","中转总额 ÷ 数量")}</small></div><div class="formula-step"><i>2</i><b>${T("Себестоимость","单件成本")}</b><small>${T("Закупка + упаковка + доставка + транзит","采购 + 包装 + 配送 + 中转")}</small></div><div class="formula-step"><i>3</i><b>${T("Цена продажи","销售价")}</b><small>${T("Цена до скидки − скидка","原价减去折扣")}</small></div><div class="formula-step"><i>4</i><b>${T("Выплата на р/с","账户回款")}</b><small>${T("Продажа − комиссия − расходы − налог","销售额减佣金、费用和税费")}</small></div><div class="formula-step"><i>5</i><b>${T("Прибыль и маржа","利润与毛利率")}</b><small>${T("Выплата − себестоимость","回款减去成本")}</small></div></div>
     <div class="section unit-form-layout">
@@ -4912,15 +5030,6 @@ function renderIssuedLoans(){
 
   document.getElementById("pageRoot").innerHTML=`
     <div class="loan-page">
-      <section class="loan-hero">
-        <div class="loan-hero-content">
-          <div class="loan-hero-copy">
-            <div class="loan-kicker">${T("КОНТРОЛЬ ЗАЙМОВ И ВОЗВРАТОВ","借款与还款管理")}</div>
-            <h3>${T("Все выданные займы — в одном понятном месте","所有已发放借款集中清晰管理")}</h3>
-            <p>${T("Записывайте, кому и сколько выдали, указывайте курс юаня и контролируйте возврат. Система автоматически покажет сумму в юанях и остаток долга.","记录借款人和借款金额，填写人民币汇率并跟踪归还情况。系统会自动显示人民币金额和未还余额。")}</p>
-          </div>
-        </div>
-      </section>
 
       <div class="grid loan-kpis">
         <div class="card loan-kpi">
@@ -5129,29 +5238,114 @@ function exportIssuedLoansCSV(){
 }
 
 
-/* Profit */
+/* Profit — Real WB · RUB only */
+function isRealWbProfitEntry(v){return !!(v&&v.kind==="real_wb_rub")}
+function calcRealWbProfit(v){
+  const sales=n(v?.sales),payout=n(v?.payout),costRub=n(v?.costRub);
+  const taxRate=7,withdrawalRate=2;
+  const tax=sales*taxRate/100,withdrawalFee=payout*withdrawalRate/100;
+  const amount=payout-costRub-tax-withdrawalFee;
+  return {...v,sales,payout,costRub,taxRate,withdrawalRate,tax,withdrawalFee,amount}
+}
+function realWbProfitTotals(entries){
+  return (entries||[]).filter(isRealWbProfitEntry).map(v=>calcRealWbProfit(v)).reduce((a,v)=>{
+    a.sales+=n(v.sales);a.payout+=n(v.payout);a.costRub+=n(v.costRub);a.tax+=n(v.tax);a.withdrawalFee+=n(v.withdrawalFee);a.profit+=n(v.amount);a.count++;return a
+  },{sales:0,payout:0,costRub:0,tax:0,withdrawalFee:0,profit:0,count:0})
+}
+function realWbProfitSummaryHtml(entries){
+  const x=realWbProfitTotals(entries);
+  return `<div class="grid real-wb-summary">
+    <div class="card real-wb-kpi"><span>${T("Продажи всего","销售总额")}</span><strong>${money(x.sales)}</strong></div>
+    <div class="card real-wb-kpi"><span>${T("Выплата WB всего","WB 支付总额")}</span><strong>${money(x.payout)}</strong></div>
+    <div class="card real-wb-kpi"><span>${T("Себестоимость всего","总成本")}</span><strong>${money(x.costRub)}</strong></div>
+    <div class="card real-wb-kpi"><span>${T("Налог всего","税费总额")}</span><strong>${money(x.tax)}</strong><small>7%</small></div>
+    <div class="card real-wb-kpi"><span>${T("Комиссия за вывод","提现手续费")}</span><strong>${money(x.withdrawalFee)}</strong><small>2%</small></div>
+    <div class="card real-wb-kpi real-wb-profit-total"><span>${T("Чистая прибыль","净利润")}</span><strong class="${x.profit<0?"bad":"good"}">${money(x.profit)}</strong><small>${x.count} ${T("записей","条记录")}</small></div>
+  </div>`
+}
+function realWbProfitTable(entries){
+  const ws=getWorkspace();
+  const rows=(entries||[]).filter(isRealWbProfitEntry).slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).map(raw=>{
+    const v=calcRealWbProfit(raw),s=(ws.stores||[]).find(x=>x.id===v.storeId);
+    return `<tr>
+      <td>${fmtDate(v.date)}</td><td>${esc(s?.name||"—")}</td>
+      <td>${money(v.sales)}</td><td>${money(v.payout)}</td><td>${money(v.costRub)}</td>
+      <td>${money(v.tax)}</td><td>${money(v.withdrawalFee)}</td>
+      <td><b class="${n(v.amount)<0?"bad":"good"}">${money(v.amount)}</b></td>
+      <td><button class="btn small danger" onclick="deleteProfit('${v.id}')">${T("Удал.","删除")}</button></td>
+    </tr>`
+  }).join("");
+  return `<table class="real-wb-table"><thead><tr>
+    <th>${T("Дата","日期")}</th><th>${T("Название магазина","店铺名称")}</th><th>${T("Продажи (₽)","销售额 (₽)")}</th><th>${T("Итого от WB (₽)","WB 实付 (₽)")}</th><th>${T("Себестоимость товара (₽)","商品成本 (₽)")}</th><th>${T("Налог 7% (₽)","税费 7% (₽)")}</th><th>${T("Комиссия за вывод 2% (₽)","提现手续费 2% (₽)")}</th><th>${T("Прибыль (₽)","利润 (₽)")}</th><th></th>
+  </tr></thead><tbody>${rows||`<tr><td colspan="9" class="empty">${T("Пока нет записей","暂无记录")}</td></tr>`}</tbody></table>`
+}
 function renderProfit(){
-  const ws=getWorkspace(),entries=ws.profitEntries||[];
+  const ws=getWorkspace(),entries=(ws.profitEntries||[]).filter(isRealWbProfitEntry);
   const storeOptions=activeStores().map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
   document.getElementById("pageRoot").innerHTML=`
-    <section class="profit-motivation"><div class="profit-kicker">${T("ПРИБЫЛЬ · КОНТРОЛЬ · РОСТ","利润 · 控制 · 成长")}</div><h3>${T("Прибыль — результат точных решений","利润是精准决策的结果")}</h3><p>${T("Считайте честно, распределяйте справедливо и часть направляйте на рост.","如实核算，公平分配，并把一部分投入成长。")}</p></section>
-    <div class="section card form-card"><div class="section-title"><h3>${T("Добавить прибыль","添加利润")}</h3></div><form onsubmit="addProfit(event)"><div class="report-form"><div class="field"><label>${T("Дата","日期")}</label><input name="date" type="date" value="${today()}" required></div><div class="field"><label>${T("Магазин","店铺")}</label><select name="storeId" required>${storeOptions}</select></div><div class="field"><label>${T("Сумма прибыли","利润金额")} (${ws.currency})</label><input name="amount" type="number" step="0.01" required></div></div><button class="btn primary">${T("Добавить","添加")}</button></form></div>
-    ${profitAnalyticsHtml(entries)}
-    <div class="section">${activeStores().map(s=>profitStoreBlock(s)).join("")||`<div class="card empty">${T("Добавьте магазин","请添加店铺")}</div>`}</div>`;
-  setTimeout(()=>{activeStores().forEach(s=>drawProfitStoreChart(s.id,entries.filter(e=>e.storeId===s.id)))},0)
+    ${realWbProfitSummaryHtml(entries)}
+    <div class="card real-wb-guide">
+      <div class="real-wb-guide-top"><div><h3>${T("Как работает система «Реальная прибыль WB»","“WB 实际利润”系统如何工作")}</h3><p>${T("Короткая инструкция: от финансового отчёта Wildberries до чистой прибыли.","简要说明：从 Wildberries 财务报告到净利润。")}</p></div><span class="real-wb-guide-badge">${T("РАСЧЁТ АВТОМАТИЧЕСКИ","自动计算")}</span></div>
+      <details>
+        <summary>${T("Показать пошаговую инструкцию","查看分步说明")}</summary>
+        <ol class="real-wb-steps">
+          <li>${T("Откройте Wildberries → «Финансовые отчёты» и выберите нужный период: неделя, месяц, квартал или год.","打开 Wildberries →“财务报告”，选择周、月、季度或年度。")}</li>
+          <li>${T("Если выбран месяц, скачайте все недельные отчёты за этот месяц. Каждый отчёт имеет свой номер, например 799169080.","如果选择一个月，请下载该月所有周报，每份报告都有自己的编号。")}</li>
+          <li>${T("Откройте новый Excel и объедините данные всех скачанных отчётов в один файл, вставляя их друг за другом.","新建 Excel，将所有下载报告的数据依次合并到一个文件中。")}</li>
+          <li>${T("Включите «Фильтр». В колонке «Тип документа» оставьте только значение «Продажа»; «Возврат» и другие типы не учитывайте.","启用筛选，在“文档类型”列中只保留“销售”，不计退货和其他类型。")}</li>
+          <li>${T("В колонке AH исключите строки, где значение равно 0, чтобы в расчёте остались только нужные продажи.","在 AH 列中排除数值为 0 的行，只保留需要计算的销售。")}</li>
+          <li>${T("В колонке «Цена розничная» посчитайте общую сумму продаж и внесите её в поле «Продажи (₽)».","汇总“零售价”列，并把总额填入“销售额 (₽)”。")}</li>
+          <li>${T("В «Финансовых отчётах» скачайте Excel за тот же период и возьмите итоговую сумму «Итого к оплате». Внесите её в «Итого от WB (₽)».","下载同一期间的财务 Excel，取“应付合计”并填入“WB 实付 (₽)”。")}</li>
+          <li>${T("Для себестоимости используйте «Код номенклатуры»: определите, сколько единиц каждого артикула реально продано.","通过“商品编码”确定每个商品实际售出的数量。")}</li>
+          <li>${T("Для каждого артикула умножьте количество проданных единиц на себестоимость одной единицы в рублях. Сложите все позиции и внесите результат в «Себестоимость товара (₽)».","每个商品用已售数量乘以单件卢布成本，汇总后填入“商品成本 (₽)”。")}</li>
+          <li>${T("После ввода трёх сумм система автоматически рассчитает налог 7%, комиссию за вывод 2% и чистую прибыль.","录入三项金额后，系统自动计算 7% 税费、2% 提现手续费和净利润。")}</li>
+        </ol>
+        <div class="real-wb-important"><b>${T("Важно:","重要：")}</b> ${T("в расчёт попадают только завершённые продажи, которые Wildberries уже включил в финансовый отчёт как «Продажа». Заказы, которые ещё не дошли до клиента, не выкуплены или ещё не вошли в отчёт, здесь не учитываются. Поэтому результат — не прогноз, а фактическая прибыль по отчёту WB.","只计算 Wildberries 已在财务报告中列为“销售”的已完成交易。尚未送达、未被客户购买或尚未进入报告的订单不计入，因此结果是实际利润而不是预测。")}</div>
+      </details>
+    </div>
+    <div class="section card real-wb-form-card">
+      <div class="section-title"><div><h3>${T("Добавить отчёт","添加报告")}</h3><p>${T("Введите только продажи, выплату WB и себестоимость. Остальное система рассчитает сама.","只需录入销售额、WB 实付和成本，其余由系统自动计算。")}</p></div><span class="auto-pill">AUTO</span></div>
+      <form id="realWbProfitForm" onsubmit="addProfit(event)">
+        <div class="real-wb-fields">
+          <div class="field"><label>${T("Дата","日期")}</label><input name="date" type="date" value="${today()}" required></div>
+          <div class="field"><label>${T("Название магазина","店铺名称")}</label><select name="storeId" required>${storeOptions}</select></div>
+          <div class="field"><label>${T("Продажи (₽)","销售额 (₽)")}</label><input name="sales" type="number" min="0" step="0.01" placeholder="0" oninput="previewProfitCalc()" required></div>
+          <div class="field"><label>${T("Итого от WB (₽)","WB 实付 (₽)")}</label><input name="payout" type="number" min="0" step="0.01" placeholder="0" oninput="previewProfitCalc()" required></div>
+          <div class="field"><label>${T("Себестоимость товара (₽)","商品成本 (₽)")}</label><input name="costRub" type="number" min="0" step="0.01" placeholder="0" oninput="previewProfitCalc()" required></div>
+        </div>
+        <div class="real-wb-preview">
+          <div><span>${T("Налог 7%","税费 7%")}</span><strong id="realWbTax">0 ₽</strong></div>
+          <div><span>${T("Комиссия за вывод 2%","提现手续费 2%")}</span><strong id="realWbFee">0 ₽</strong></div>
+          <div class="real-wb-preview-profit"><span>${T("Реальная прибыль","实际利润")}</span><strong id="realWbProfit">0 ₽</strong></div>
+        </div>
+        <div class="real-wb-formula">${T("Формула","公式")}: ${T("Итого от WB − себестоимость товара − налог 7% − комиссия за вывод 2%","WB 实付 − 商品成本 − 7% 税费 − 2% 提现手续费")}</div>
+        <div class="form-actions"><button class="btn primary">${T("Сохранить отчёт","保存报告")}</button></div>
+      </form>
+    </div>
+    <div class="section card table-card"><div class="table-tools"><div><b>${T("История реальной прибыли WB","WB 实际利润历史")}</b><div class="muted real-wb-table-note">${T("Все показатели этого раздела хранятся в рублях.","本栏目所有指标均以卢布保存。")}</div></div><span class="auto-pill">₽ · AUTO</span></div><div class="table-wrap">${realWbProfitTable(entries)}</div></div>`;
+  setTimeout(previewProfitCalc,0)
 }
-function profitAnalyticsHtml(entries){const vals=entries.map(e=>n(e.amount)),total=vals.reduce((a,b)=>a+b,0),avg=vals.length?total/vals.length:0,best=vals.length?Math.max(...vals):0,last=vals.length?vals[vals.length-1]:0;return `<div class="grid profit-analytics-grid"><div class="card profit-analytics-card"><span>${T("Общая прибыль","总利润")}</span><strong>${money(total)}</strong><small>${entries.length} ${T("операций","笔记录")}</small></div><div class="card profit-analytics-card"><span>${T("Средняя прибыль","平均利润")}</span><strong>${money(avg)}</strong><small>${T("На одну запись","每条记录")}</small></div><div class="card profit-analytics-card"><span>${T("Лучшая прибыль","最高利润")}</span><strong class="good">${money(best)}</strong><small>${T("Максимальная запись","最高单笔")}</small></div><div class="card profit-analytics-card"><span>${T("Последняя прибыль","最近利润")}</span><strong>${money(last)}</strong><small>${T("По последней записи","按最近记录")}</small></div></div>`}
-function drawProfitAnalyticsChart(entries){const c=document.getElementById("profitAnalyticsChart"),z=prepCanvas(c);if(!z)return;const{x,w,h}=z,p=38;x.clearRect(0,0,w,h);x.strokeStyle="#E4E8F0";x.lineWidth=1;for(let i=0;i<5;i++){const y=p+i*(h-2*p)/4;x.beginPath();x.moveTo(p,y);x.lineTo(w-p,y);x.stroke()}if(!entries.length){x.fillStyle="#7B8190";x.textAlign="center";x.fillText(T("Нет данных","暂无数据"),w/2,h/2);return}const rows=entries.slice().sort((a,b)=>a.date.localeCompare(b.date)),vals=rows.map(e=>n(e.amount)),mn=Math.min(0,...vals),mx=Math.max(1,...vals),range=mx-mn||1;x.strokeStyle="#254CB6";x.lineWidth=3;x.beginPath();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);x.fillStyle=v>=0?"#00A67B":"#D52D58";x.beginPath();x.arc(px,py,4,0,Math.PI*2);x.fill()})}
-function drawProfitStoreChart(storeId,entries){const c=document.getElementById("profitStoreChart_"+storeId),z=prepCanvas(c);if(!z)return;const{x,w,h}=z,p=36;x.clearRect(0,0,w,h);x.strokeStyle="#E7EAF1";x.lineWidth=1;for(let i=0;i<5;i++){const y=p+i*(h-2*p)/4;x.beginPath();x.moveTo(p,y);x.lineTo(w-p,y);x.stroke()}if(!entries.length){x.fillStyle="#7B8190";x.textAlign="center";x.font="12px sans-serif";x.fillText(T("Нет данных по магазину","该店铺暂无数据"),w/2,h/2);return}const rows=entries.slice().sort((a,b)=>a.date.localeCompare(b.date)),vals=rows.map(e=>n(e.amount)),mn=Math.min(0,...vals),mx=Math.max(1,...vals),range=mx-mn||1,grad=x.createLinearGradient(0,p,0,h-p);grad.addColorStop(0,"rgba(37,76,182,.24)");grad.addColorStop(1,"rgba(0,128,96,.03)");x.beginPath();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);i?x.lineTo(px,py):x.moveTo(px,py)});x.lineTo(w-p,h-p);x.lineTo(p,h-p);x.closePath();x.fillStyle=grad;x.fill();x.strokeStyle="#254CB6";x.lineWidth=3;x.beginPath();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);x.fillStyle=v>=0?"#00A67B":"#D52D58";x.beginPath();x.arc(px,py,4,0,Math.PI*2);x.fill()})}
-
-function storeProfitTotal(storeId){return (getWorkspace().profitEntries||[]).filter(e=>e.storeId===storeId).reduce((a,e)=>a+n(e.amount),0)}
-function profitStoreBlock(s){const ws=getWorkspace(),total=storeProfitTotal(s.id),parts=(ws.partners||[]).filter(p=>p.storeId===s.id);return`<div class="section profit-store-group"><div class="section-title"><div><h3>${esc(s.name)}</h3><p>${T("Курс","汇率")}: 1 CNY = ${num(ws.yuanRate)} ${ws.currency}</p></div></div><div class="grid profit-summary"><div class="card summary"><span>${T("Общая прибыль","总利润")}</span><strong>${money(total)}</strong><small>${money(total/(ws.yuanRate||1),"CNY")}</small></div>${parts.map(p=>`<div class="card summary"><span>${esc(p.name)} · ${num(p.share)}%</span><strong>${money(total*p.share/100)}</strong><small>${money(total*p.share/100/(ws.yuanRate||1),"CNY")}</small></div>`).join("")||`<div class="card summary"><span>${T("Партнёры","合作伙伴")}</span><strong>—</strong><small>${T("Добавьте в настройках","请在设置中添加")}</small></div>`}</div><div class="card profit-chart-card store-profit-chart-card" style="margin-top:14px"><div class="section-title"><div><h3>${T("Динамика прибыли","利润趋势")}</h3><p>${T("Как меняется прибыль по датам","利润随日期的变化")}</p></div></div><canvas id="profitStoreChart_${s.id}"></canvas></div></div>`}
-function addProfit(e){e.preventDefault();const ws=getWorkspace(),d=Object.fromEntries(new FormData(e.target).entries());ws.profitEntries.push({id:id(),date:d.date,storeId:d.storeId,amount:n(d.amount)});saveWorkspace(ws);renderProfit()}
+function previewProfitCalc(){
+  const f=document.getElementById("realWbProfitForm");if(!f)return;
+  const sales=n(f.sales?.value),payout=n(f.payout?.value),costRub=n(f.costRub?.value);
+  const tax=sales*.07,fee=payout*.02,profit=payout-costRub-tax-fee;
+  const set=(id,value,cls="")=>{const el=document.getElementById(id);if(el){el.textContent=money(value);if(cls)el.className=cls}};
+  set("realWbTax",tax);set("realWbFee",fee);set("realWbProfit",profit,profit<0?"bad":"good")
+}
+function storeProfitTotal(storeId){return (getWorkspace().profitEntries||[]).filter(e=>isRealWbProfitEntry(e)&&e.storeId===storeId).reduce((a,e)=>a+n(calcRealWbProfit(e).amount),0)}
+function addProfit(e){
+  e.preventDefault();const ws=getWorkspace(),d=Object.fromEntries(new FormData(e.target).entries());
+  const row=calcRealWbProfit({kind:"real_wb_rub",id:id(),date:d.date,storeId:d.storeId,sales:n(d.sales),payout:n(d.payout),costRub:n(d.costRub),taxRate:7,withdrawalRate:2});
+  ws.profitEntries.push(row);saveWorkspace(ws);renderProfit()
+}
 function deleteProfit(pid){if(!confirm(T("Удалить запись?","确定删除记录吗？")))return;const ws=getWorkspace();ws.profitEntries=ws.profitEntries.filter(x=>x.id!==pid);saveWorkspace(ws);renderProfit()}
-function profitTable(entries){const ws=getWorkspace();return`<table style="min-width:850px"><thead><tr><th>${T("Дата","日期")}</th><th>${T("Магазин","店铺")}</th><th>${T("Сумма","金额")}</th><th>${T("Распределение","分配")}</th><th></th></tr></thead><tbody>${entries.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(e=>{const s=ws.stores.find(x=>x.id===e.storeId),ps=ws.partners.filter(p=>p.storeId===e.storeId);return`<tr><td>${fmtDate(e.date)}</td><td>${esc(s?.name||"—")}</td><td>${money(e.amount)}</td><td>${ps.map(p=>esc(p.name)+" "+num(p.share)+"%").join(" · ")||"—"}</td><td><button class="btn small danger" onclick="deleteProfit('${e.id}')">${T("Удал.","删除")}</button></td></tr>`}).join("")}</tbody></table>`}
-
-
-
+function profitTable(entries){return realWbProfitTable(entries)}
+function realWbProfitExcelRows(entries,ws=getWorkspace()){
+  return (entries||[]).filter(isRealWbProfitEntry).map(raw=>{const v=calcRealWbProfit(raw),s=(ws?.stores||[]).find(x=>x.id===v.storeId);return {
+    "Дата":v.date||"","Название магазина":s?.name||"—","Продажи (₽)":v.sales,"Итого от WB (₽)":v.payout,"Себестоимость товара (₽)":v.costRub,
+    "Налог 7% (₽)":v.tax,"Комиссия за вывод 2% (₽)":v.withdrawalFee,"Прибыль (₽)":v.amount
+  }})
+}
 
 /* General report */
 let generalReportStore="",generalReportFrom="",generalReportTo="";
@@ -5164,7 +5358,7 @@ function grStoreData(storeId){
   const installments=(ws.installments||[]).map(calcInstallment).filter(v=>v.storeId===storeId&&grInPeriod(v.date));
   const investments=(ws.investments||[]).map(calcInvestment).filter(v=>v.storeId===storeId&&grInPeriod(v.date));
   const loans=(ws.issuedLoans||[]).map(calcIssuedLoan).filter(v=>v.storeId===storeId&&grInPeriod(v.date||v.createdDate||""));
-  const profits=(ws.profitEntries||[]).filter(v=>v.storeId===storeId&&grInPeriod(v.date));
+  const profits=(ws.profitEntries||[]).filter(v=>isRealWbProfitEntry(v)&&v.storeId===storeId&&grInPeriod(v.date)).map(v=>calcRealWbProfit(v,ws));
   const flowMap={};
   function flow(flow){const k=String(flow||"").trim()||T("Без потока","无批次");return flowMap[k]||(flowMap[k]={name:k,purchase:0,fulfillment:0,installment:0,total:0,units:0,costPerUnit:0,soldQty:0,revenue:0,soldCost:0,profit:0,remainingQty:0})}
   purchases.forEach(v=>{const f=flow(v.flow);f.purchase+=n(v.totalCost);f.units+=n(v.totalUnits)});
@@ -5207,14 +5401,13 @@ function grSalesByMonth(rows){
 function grApply(){generalReportStore=document.getElementById("grStore")?.value||"";generalReportFrom=document.getElementById("grFrom")?.value||"";generalReportTo=document.getElementById("grTo")?.value||"";if(!generalReportStore){alert(T("Выберите магазин","请选择店铺"));return}renderGeneralReport()}
 function grClear(){const ws=ensureWorkspaceData();generalReportStore=ws.stores.find(s=>s.enabled)?.id||"";generalReportFrom="";generalReportTo="";renderGeneralReport()}
 function grCompareStores(stores){return stores.map(s=>{const d=grStoreData(s.id);return{label:s.name,revenue:d.totalInvestment,net:d.totalProfit}}).filter(x=>x.revenue||x.net)}
-function grProfitMonthly(storeId){const ws=ensureWorkspaceData(),m={};(ws.profitEntries||[]).filter(v=>v.storeId===storeId&&grInPeriod(v.date)).forEach(v=>{const k=String(v.date||"").slice(0,7);if(k)m[k]=(m[k]||0)+n(v.amount)});return Object.keys(m).sort().map(k=>[k+"-01",m[k]])}
+function grProfitMonthly(storeId){const ws=ensureWorkspaceData(),m={};(ws.profitEntries||[]).filter(v=>isRealWbProfitEntry(v)&&v.storeId===storeId&&grInPeriod(v.date)).map(v=>calcRealWbProfit(v,ws)).forEach(v=>{const k=String(v.date||"").slice(0,7);if(k)m[k]=(m[k]||0)+n(v.amount)});return Object.keys(m).sort().map(k=>[k+"-01",m[k]])}
 function renderGeneralReport(){
  const ws=ensureWorkspaceData(),stores=ws.stores.filter(s=>s.enabled);
  if(!generalReportStore||!stores.some(s=>s.id===generalReportStore))generalReportStore=stores[0]?.id||"";
  const store=stores.find(s=>s.id===generalReportStore),d=grStoreData(generalReportStore),compare=grCompareStores(stores),monthly=grProfitMonthly(generalReportStore),saleRows=flowSaleRows(generalReportStore),salesSummary=grSalesSummary(saleRows),salesMonths=grSalesByMonth(saleRows),flowOptions=d.flows.map(f=>`<option value="${esc(f.name)}">${esc(f.name)}</option>`).join("");
  const options=`<option value="">${T("Выберите магазин","请选择店铺")}</option>`+stores.map(s=>`<option value="${s.id}" ${s.id===generalReportStore?"selected":""}>${esc(s.name)}</option>`).join("");
  document.getElementById("pageRoot").innerHTML=`
- <section class="general-report-hero"><div class="general-report-badge">${T("ПОТОКИ · КОНТРОЛЬ · РОСТ","批次 · 管理 · 成长")}</div><h3>📊 ${T("Общий отчёт — ясная картина каждого потока","总报表——清晰掌握每个批次")}</h3><p>${T("Каждый новый заказ — это отдельный поток и новый шаг к росту. Закупка, фулфилмент и рассрочка собираются в один точный итог, а инвестиции, займы и прибыль остаются отдельно, чтобы вы всегда видели реальное движение денег.","每个新订单都是一个独立批次，也是迈向增长的新一步。采购、履约和分期付款汇总为一个准确结果，投资、借款和利润单独展示，让资金流向始终清晰可见。")}</p></section>
  <div class="card form-card"><div class="gr-filter"><div class="field"><label>${T("Магазин","店铺")} *</label><select id="grStore">${options}</select></div><div class="field"><label>${T("Дата от","开始日期")}</label><input id="grFrom" type="date" value="${esc(generalReportFrom)}"></div><div class="field"><label>${T("Дата до","结束日期")}</label><input id="grTo" type="date" value="${esc(generalReportTo)}"></div><div style="display:flex;gap:8px"><button class="btn primary" onclick="grApply()">${T("Показать отчёт","显示报表")}</button><button class="btn" onclick="grClear()">${T("Сбросить","重置")}</button></div></div></div>
  <div class="section-title" style="margin-top:16px"><h3>🏪 ${esc(store?.name||"—")}</h3><span class="muted">${T("Отчёт по потокам выбранного магазина","所选店铺批次报表")}</span></div>
  <div class="gr-analysis-grid">
@@ -5228,7 +5421,7 @@ function renderGeneralReport(){
    <div class="card chart-card premium"><div class="section-title"><div><h3>${T("Инвестиция и прибыль по магазинам","各店铺投资与利润")}</h3><p>${T("Сравнение общей инвестиции и общей прибыли","总投资与总利润对比")}</p></div></div><div class="legend"><span><i style="background:#32288E"></i>${T("Инвестиция","投资")}</span><span><i style="background:#87D252"></i>${T("Прибыль","利润")}</span></div><canvas id="grCompareChart"></canvas></div>
    <div class="card chart-card premium"><div class="section-title"><div><h3>${T("Возврат инвестиции","投资回收")}</h3><p>${T("Общая прибыль в процентах от общей инвестиции","总利润占总投资的比例")}</p></div></div><div style="padding:28px 12px"><div style="font-size:44px;font-weight:950" class="${d.recoveredPercent>=100?'good':''}">${num(d.recoveredPercent)}%</div><div class="gr-progress"><span style="width:${Math.min(100,d.recoveredPercent)}%"></span></div><div class="muted" style="margin-top:12px">${T("Инвестиция","投资")}: ${money(d.totalInvestment)} · ${T("Прибыль","利润")}: ${money(d.totalProfit)}</div></div></div>
  </div>
- <div class="section card chart-card premium"><div class="section-title"><div><h3>${T("Динамика прибыли по месяцам","月度利润趋势")}</h3><p>${T("Данные из раздела «Аналитика прибыли»","数据来自“利润分析”栏目")}</p></div></div><canvas id="grMonthlyChart"></canvas></div>`;
+ <div class="section card chart-card premium"><div class="section-title"><div><h3>${T("Динамика прибыли по месяцам","月度利润趋势")}</h3><p>${T("Данные из раздела «Реальная прибыль WB»","数据来自“WB 实际利润”栏目")}</p></div></div><canvas id="grMonthlyChart"></canvas></div>`;
  setTimeout(()=>{drawGroupedBars("grCompareChart",compare);drawSimpleLine("grMonthlyChart",monthly,"#87D252")},0)
 }
 
@@ -5266,7 +5459,6 @@ function financeTotals(rows){return rows.reduce((a,r)=>{a.open+=financeNum(r.ope
 function renderFinance(){
  const rows=financeRows(),t=financeTotals(rows),latest=rows.length?financeNum(rows[rows.length-1].balance):0;
  document.getElementById("pageRoot").innerHTML=`
- <section class="finance-hero"><h3>💳 ${T("Финансы под полным контролем","全面掌控财务")}</h3><p>${T("Каждый рубль должен работать на рост бизнеса. Контролируйте остаток, пополнения и расходы — система всё рассчитает автоматически, а графики покажут, где деньги растут и куда уходят.","资金需要秩序，强大的生意依赖精确控制。记录余额、充值与支出，让每一笔资金都清晰可见，而分析与图表会立即展示资金流向、增长点和主要支出项目。")}</p></section>
  <div class="grid finance-kpis">
   <div class="card finance-kpi"><span>${T("Текущий остаток","当前余额")}</span><strong>${money(latest)}</strong><small>${T("По последней операции","按最后一笔操作")}</small></div>
   <div class="card finance-kpi"><span>${T("Всего пополнено","累计充值")}</span><strong class="good">${money(t.topup)}</strong><small>${rows.length} ${T("операций","笔操作")}</small></div>
@@ -5370,7 +5562,6 @@ function filteredDocuments(){return getDocumentMeta().filter(d=>documentCategory
 function renderDocuments(){
   const ws=getWorkspace(),docs=getDocumentMeta(),rows=filteredDocuments(),total=docs.length,totalSize=docs.reduce((a,d)=>a+n(d.size),0),latest=docs.slice().sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""))[0];
   document.getElementById("pageRoot").innerHTML=`
-    <div class="docs-hero"><h3>${T("Документы бизнеса","业务文件")}</h3><p>${T("Храните договоры, счета, накладные, сертификаты и другие важные файлы в одном месте。","将合同、账单、单据、证书和其他重要文件集中保存。")}</p></div>
     <div class="docs-layout">
       <div class="card docs-upload">
         <h3>${T("Добавить документ","添加文件")}</h3>
@@ -5602,7 +5793,7 @@ function globalSearchMatches(query){
     ["unitEconomics",ws.unitEconomics||[],T("Юнит-экономика","单位经济")],
     ["investments",ws.investments||[],T("Инвестиция","投资")],
     ["loans",ws.issuedLoans||[],T("Займ","借款")],
-    ["profit",ws.profitEntries||[],T("Прибыль","利润")]
+    ["profit",(ws.profitEntries||[]).filter(isRealWbProfitEntry),T("Реальная прибыль WB","WB 实际利润")]
   ];
   collections.forEach(([page,rows,label])=>{
     rows.forEach(row=>{
@@ -6054,7 +6245,7 @@ function allWorkbookSheets(){
     {name:"Юнит экономика",rows:ws.unitEconomics||[]},
     {name:"Инвестиции",rows:ws.investments||[]},
     {name:"Займы",rows:(ws.issuedLoans||[]).map(calcIssuedLoan)},
-    {name:"Прибыль",rows:ws.profitEntries||[]},
+    {name:"Реальная прибыль WB",rows:realWbProfitExcelRows(ws.profitEntries||[],ws)},
     {name:"Партнёры",rows:ws.partners||[]}
   );
   return sheets;
@@ -6072,7 +6263,7 @@ function currentSectionSheets(){
   if(currentPage==="unitEconomics")return [{name:"Юнит экономика",rows:ws.unitEconomics||[]}];
   if(currentPage==="investments")return [{name:"Инвестиции",rows:ws.investments||[]}];
   if(currentPage==="loans")return [{name:"Займы",rows:(ws.issuedLoans||[]).map(calcIssuedLoan)}];
-  if(currentPage==="profit")return [{name:"Прибыль",rows:ws.profitEntries||[]}];
+  if(currentPage==="profit")return [{name:"Реальная прибыль WB",rows:realWbProfitExcelRows(ws.profitEntries||[],ws)}];
   if(currentPage==="returnMoney")return [{name:"Возврат денег",rows:returnMoneyRows(returnMoneyStore||ws.stores.find(s=>s.enabled)?.id||"")}];
   if(currentPage==="documents")return [{name:"Документы",rows:(ws.documents||[]).map(({fileKey,...d})=>d)}];
   if(currentPage==="settings")return [
@@ -6483,7 +6674,7 @@ window.addEventListener("DOMContentLoaded",boot);
     if(currentPage==="fulfillment")return [{name:sheetName,rows:filterRows("fulfillment",ws.fulfillment||[]).map(calcFulfillment)}];
     if(currentPage==="installments")return [{name:sheetName,rows:filterRows("installments",ws.installments||[]).map(calcInstallment)}];
     if(currentPage==="investments")return [{name:sheetName,rows:filterRows("investments",ws.investments||[]).map(calcInvestment)}];
-    if(currentPage==="profit")return [{name:sheetName,rows:filterRows("profit",ws.profitEntries||[]).map(v=>({...v,store:ws.stores.find(s=>s.id===v.storeId)?.name||"—"}))}];
+    if(currentPage==="profit")return [{name:"Реальная прибыль WB",rows:realWbProfitExcelRows(filterRows("profit",ws.profitEntries||[]),ws)}];
     if(currentPage==="ai"){
       const selected=validFilter("ai"),stores=selected==="all"?(ws.stores||[]):(ws.stores||[]).filter(s=>s.id===selected);
       return [{name:sheetName,rows:stores.flatMap(storeReportRows)}]
@@ -7497,7 +7688,7 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
     if(scTrialPaidActive()){
       const days=scTrialPaidRemainingDays();
       const paidClass=scTrialPaidClass(days);
-      return `<div id="scTrialBanner" class="sc-trial-banner ${paidClass}"><div class="sc-trial-main"><div class="sc-trial-icon">✓</div><div class="sc-trial-copy"><strong>${scTrialT("Тариф активен","套餐已激活")}</strong><span>${days===null?scTrialT("Доступ бессрочный","永久访问"):scTrialT(`Действует до ${scTrialPaidDate()}`,`有效期至 ${scTrialPaidDate()}`)}</span></div></div><div class="sc-trial-actions"><span class="sc-trial-plan">${scTrialPlanName()}</span><span id="scTrialPaidRemaining" class="sc-trial-paid-remaining ${paidClass}">${scTrialPaidText()}</span></div></div>`;
+      return `<div id="scTrialBanner" class="sc-trial-banner sc-paid-inline ${paidClass}"><div class="sc-trial-main"><div class="sc-trial-icon">✓</div><div class="sc-trial-copy"><strong>${scTrialT("Тариф активен","套餐已激活")}</strong><span>${days===null?scTrialT("Доступ бессрочный","永久访问"):scTrialT(`До ${scTrialPaidDate()}`,`至 ${scTrialPaidDate()}`)}</span></div></div><span class="sc-trial-plan">${scTrialPlanName()}</span></div>`;
     }
     const ms=scTrialRemaining();
     return `<div id="scTrialBanner" class="sc-trial-banner ${scTrialBannerClass(ms)}"><div class="sc-trial-main"><div class="sc-trial-icon">⏱</div><div class="sc-trial-copy"><strong>${ms>0?scTrialT("Тест 30 минут — осталось времени","30分钟测试 — 剩余时间"):scTrialT("Бесплатные 30 минут закончились","30分钟免费试用已结束")}</strong><span>${ms>0?scTrialT("Тестовый бесплатный доступ на 30 минут. Таймер идёт даже после выхода и повторного входа. После окончания выберите тариф.","30分钟测试免费访问。退出并重新登录后计时仍会继续。结束后请选择套餐。"):scTrialT("Ваши данные сохранены. Выберите тариф, чтобы продолжить работу.","您的数据已保存。请选择套餐继续使用。")}</span></div></div><div class="sc-trial-actions"><div class="sc-trial-clockbox"><span class="sc-trial-clocklabel">${scTrialT("Осталось","剩余")}</span><div><span id="scTrialCountdown" class="sc-trial-countdown">${scTrialFormat(ms)}</span><i class="sc-trial-clockdot"></i></div><div class="sc-trial-progress"><i id="scTrialProgress" style="width:${Math.max(0,Math.min(100,ms/SC_TRIAL_TEST_MS*100))}%"></i></div></div><span class="sc-trial-tariffs"><b>Start 550 ₽</b> · Business 999 ₽ · Pro 1 499 ₽</span><button class="btn small primary" onclick="sellerControlOpenPlans()">${scTrialT("Смотреть тарифы","查看套餐")}</button></div></div>`;
@@ -7532,8 +7723,11 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
 
   function scTrialRender(){
     const content=document.querySelector(".main .content");
-    if(content){
-      document.getElementById("scTrialBanner")?.remove();
+    const badgeSlot=document.getElementById("scAccessBadgeSlot");
+    document.getElementById("scTrialBanner")?.remove();
+    if(scTrialPaidActive()&&badgeSlot){
+      badgeSlot.innerHTML=scTrialBannerHtml();
+    }else if(content){
       content.insertAdjacentHTML("afterbegin",scTrialBannerHtml());
     }
     const expired=scAccessRow&&!scTrialAllowed();
@@ -9053,6 +9247,23 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
 .fbsab-overview{display:grid;grid-template-columns:minmax(210px,.8fr) minmax(250px,1fr) minmax(360px,1.7fr);gap:14px;margin-top:16px}.fbsab-overview-card{position:relative;overflow:hidden;padding:20px;border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:var(--soft)}.fbsab-overview-card:before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--wb),var(--shop))}.fbsab-overview-label{display:block;color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.35px}.fbsab-overview-value{display:block;margin-top:9px;font-size:31px;line-height:1;font-weight:950;letter-spacing:-.8px}.fbsab-overview-hint{display:block;margin-top:8px;color:var(--muted);font-size:12px;line-height:1.45}.fbsab-overview-card.stock{background:linear-gradient(145deg,#fff,#F0FBF6)}.fbsab-overview-card.pack{background:linear-gradient(145deg,#fff,#F3F5FF)}.fbsab-overview-card.pack .fbsab-overview-value{color:#254CB6}.fbsab-mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:11px}.fbsab-mini{padding:10px;border-radius:12px;background:#F7F9FD;border:1px solid #E7EBF4}.fbsab-mini span{display:block;color:var(--muted);font-size:11px;font-weight:850}.fbsab-mini strong{display:block;margin-top:4px;font-size:15px}.fbsab-total-formula{margin-top:11px;padding:9px 10px;border-radius:11px;background:#EEF4FF;color:#455779;font-size:12px;line-height:1.45}.fbsab-total-formula b{color:#254CB6}.fbsab-section-soft{background:linear-gradient(180deg,#fff,#FBFCFF)}
 @media(max-width:1250px){.fbsab-filter{grid-template-columns:auto 1fr 1fr auto}.fbsab-filter-current{grid-column:2/-1}.fbsab-kpis{grid-template-columns:repeat(3,1fr)}.fbsab-overview{grid-template-columns:1fr 1fr}.fbsab-overview-card.activity{grid-column:1/-1}.fbsab-form,.fbsab-receipt-form{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:760px){.fbsab-filter{grid-template-columns:1fr}.fbsab-filter-icon{display:none}.fbsab-filter-current{grid-column:auto}.fbsab-kpis,.fbsab-stock-hero,.fbsab-overview,.fbsab-form,.fbsab-receipt-form,.fbsab-summary{grid-template-columns:1fr}.fbsab-overview-card.activity{grid-column:auto}.fbsab-mini-grid{grid-template-columns:repeat(2,1fr)}.fbsab-hero{padding:18px}.fbsab-hero h3{font-size:20px}}
+
+/* Premium FBS page — compact header, richer colors, no daily trend banner */
+.fbsab-main-head{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 15px;padding:15px 17px;border-radius:22px;color:#fff;background:radial-gradient(circle at 90% 0%,rgba(61,224,183,.28),transparent 30%),radial-gradient(circle at 8% 100%,rgba(121,98,255,.24),transparent 28%),linear-gradient(125deg,#101A47 0%,#263EAA 48%,#0C816B 100%);box-shadow:0 18px 44px rgba(28,49,120,.18)}
+.fbsab-main-head:after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:-65px;bottom:-92px;border:1px solid rgba(255,255,255,.13);box-shadow:0 0 0 25px rgba(255,255,255,.035),0 0 0 50px rgba(255,255,255,.02);pointer-events:none}
+.fbsab-main-brand{display:flex;align-items:center;gap:12px;min-width:0;position:relative;z-index:1}.fbsab-main-logo{width:46px;height:46px;flex:0 0 46px;display:grid;place-items:center;border-radius:16px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.17);box-shadow:inset 0 1px 0 rgba(255,255,255,.18);font-size:12px;font-weight:950;letter-spacing:.8px}.fbsab-main-brand h3{margin:0;color:#fff;font-size:19px;letter-spacing:-.25px}.fbsab-main-brand p{margin:4px 0 0;color:rgba(255,255,255,.70);font-size:11px;font-weight:750}
+.fbsab-main-pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;position:relative;z-index:1}.fbsab-main-pills span{padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.78);font-size:8.5px;font-weight:950;letter-spacing:.55px}
+.fbsab-receipt-card,.fbsab-daily-card,.fbsab-stock-table-card,.fbsab-history-card,.fbsab-receipt-history-card{position:relative;overflow:hidden;border-radius:22px!important;border:1px solid rgba(39,61,126,.10)!important;box-shadow:0 12px 30px rgba(33,52,108,.065)!important}
+.fbsab-receipt-card{background:radial-gradient(circle at 100% 0%,rgba(89,106,255,.09),transparent 28%),linear-gradient(145deg,#FBFCFF,#F3F6FF)!important}.fbsab-receipt-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#596AFF,#7B5CFF)}
+.fbsab-daily-card{background:radial-gradient(circle at 100% 0%,rgba(0,179,139,.10),transparent 30%),linear-gradient(145deg,#FBFFFD,#F0FBF7)!important}.fbsab-daily-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#00A67B,#36D5AD)}
+.fbsab-stock-table-card{background:radial-gradient(circle at 100% 0%,rgba(255,184,72,.11),transparent 28%),linear-gradient(145deg,#FFFEFB,#FFF8EC)!important}.fbsab-stock-table-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#F1A22B,#FFD16B)}
+.fbsab-history-card{background:radial-gradient(circle at 100% 0%,rgba(114,91,255,.08),transparent 30%),linear-gradient(145deg,#FEFDFF,#F7F4FF)!important}.fbsab-history-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#7658E8,#A983FF)}
+.fbsab-receipt-history-card{background:radial-gradient(circle at 100% 0%,rgba(31,139,226,.08),transparent 30%),linear-gradient(145deg,#FCFEFF,#F1F8FF)!important}.fbsab-receipt-history-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#2586D9,#58B7F0)}
+.fbsab-filter{border-radius:22px!important;border-color:#DDE6F8!important;background:radial-gradient(circle at 100% 0%,rgba(61,202,174,.10),transparent 35%),linear-gradient(135deg,#F4F7FF,#F5FCF9)!important;box-shadow:0 11px 28px rgba(41,66,127,.06)!important}.fbsab-filter-icon{background:linear-gradient(135deg,#5268F2,#12A889)!important}.fbsab-filter-current{background:linear-gradient(135deg,#E9EEFF,#E8F8F2)!important;color:#24528B!important;border:1px solid #D8E5F6}
+.fbsab-overview{gap:11px!important}.fbsab-overview-card{border-radius:22px!important;box-shadow:0 12px 28px rgba(29,48,101,.07)!important}.fbsab-overview-card.stock{background:radial-gradient(circle at 100% 0%,rgba(54,221,171,.19),transparent 35%),linear-gradient(145deg,#F7FFFB,#EAF9F2)!important;border-color:#D6EFE4!important}.fbsab-overview-card.pack{background:radial-gradient(circle at 100% 0%,rgba(103,104,255,.17),transparent 35%),linear-gradient(145deg,#FAFAFF,#EEF0FF)!important;border-color:#DDE1FF!important}.fbsab-overview-card.activity{background:radial-gradient(circle at 100% 0%,rgba(255,190,82,.17),transparent 30%),linear-gradient(145deg,#FFFDF8,#FFF6E7)!important;border-color:#F4E4C4!important}.fbsab-overview-card.stock:before{background:linear-gradient(90deg,#00A67B,#59DEB7)!important}.fbsab-overview-card.pack:before{background:linear-gradient(90deg,#4E5FEA,#8B68FF)!important}.fbsab-overview-card.activity:before{background:linear-gradient(90deg,#E89923,#FFCC65)!important}.fbsab-mini{background:rgba(255,255,255,.72)!important;border-color:rgba(100,112,154,.10)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
+.fbsab-step{background:linear-gradient(135deg,#E9EEFF,#EEF9F5)!important;color:#294DA5!important;border:1px solid #DCE6FA}.fbsab-auto{background:linear-gradient(135deg,#E9F8F1,#EEF3FF)!important;border-color:#D7E9E2!important}.fbsab-summary>div{background:rgba(255,255,255,.72)!important;border-color:rgba(63,84,138,.10)!important;border-radius:15px!important}
+.fbsab-receipt-card .btn.primary{background:linear-gradient(135deg,#5369F3,#775CE7)!important;border-color:transparent!important}.fbsab-daily-card .btn.primary{background:linear-gradient(135deg,#00A67B,#22CBA1)!important;border-color:transparent!important}.fbsab-filter .btn.primary{background:linear-gradient(135deg,#3D5CE4,#0E9A7D)!important;border-color:transparent!important}
+@media(max-width:760px){.fbsab-main-head{padding:13px 14px;border-radius:19px}.fbsab-main-pills{display:none}.fbsab-main-logo{width:42px;height:42px;flex-basis:42px;border-radius:14px}.fbsab-main-brand h3{font-size:17px}.fbsab-main-brand p{font-size:10px}}
 </style>
 <script>
 (function(){
@@ -9266,9 +9477,13 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
     const defaultStore=edit?.storeId||(filterStore!=='all'?filterStore:(activeFbsStores(ws)[0]?.id||'general'));
     const defaultProduct=edit?.product||(filterProduct&&allProductsForStore(ws,defaultStore).some(p=>productSame(p,filterProduct))?filterProduct:'');
     document.getElementById('pageRoot').innerHTML=`
-      <div class="fulfill-hero fbsab-hero"><h3>${T('FBS Абдурахим','FBS 阿卜杜拉希姆')}</h3><p>${T('Сначала укажите, в какой магазин какой товар и сколько штук поступило. После этого каждый день отмечайте заказы, отправку и возвраты. Остаток каждого товара считается отдельно и автоматически.','先填写哪个店铺收到什么商品以及数量。之后每天记录订单、发货和退货。每个商品的库存都会单独自动计算。')}</p></div>
 
-      <div class="section card form-card"><div class="section-title"><div><div class="fbsab-step">1 · ${T('НАЧАЛЬНЫЙ СКЛАД / ПОСТУПЛЕНИЕ','初始库存 / 入库')}</div></div>${stockEdit?`<button class="btn" onclick="cancelFbsStockEdit()">${T('Отмена','取消')}</button>`:''}</div>
+      <div class="fbsab-main-head">
+        <div class="fbsab-main-brand"><div class="fbsab-main-logo">FBS</div><div><h3>${T('FBS Абдурахим','FBS 阿卜杜拉希姆')}</h3><p>${T('Склад · отправка · возврат · упаковка','库存 · 发货 · 退货 · 包装')}</p></div></div>
+        
+      </div>
+
+      <div class="section card form-card fbsab-receipt-card"><div class="section-title"><div><div class="fbsab-step">1 · ${T('НАЧАЛЬНЫЙ СКЛАД / ПОСТУПЛЕНИЕ','初始库存 / 入库')}</div></div>${stockEdit?`<button class="btn" onclick="cancelFbsStockEdit()">${T('Отмена','取消')}</button>`:''}</div>
         <form onsubmit="saveFbsStock(event)"><div class="fbsab-receipt-form">
           <div class="field"><label>${T('Дата','日期')}</label><input name="date" type="date" value="${esc(stockEdit?.date||today())}" required></div>
           <div class="field"><label>${T('Магазин','店铺')} *</label><select name="storeId" required><option value="">${T('Выберите магазин','请选择店铺')}</option>${storeOptions(ws,stockEdit?.storeId||'',false)}</select></div>
@@ -9311,9 +9526,10 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
         </div>
       </div>
 
-      <div class="section card table-card fbsab-section-soft"><div class="table-tools"><div><b>${T('Склад по каждому товару','每个商品的库存')}</b><div class="muted" style="font-size:13px;margin-top:3px">${T('Каждый магазин и каждый товар показываются отдельной строкой.','每个店铺、每个商品都单独显示一行。')}</div></div><span class="auto-pill">AUTO</span></div><div class="table-wrap fbsab-stock-table">${stockSummaryTable(ws)}</div></div>
 
-      <div class="section card form-card"><div class="section-title"><div><div class="fbsab-step">2 · ${T('ЕЖЕДНЕВНЫЙ FBS','每日 FBS')}</div></div>${edit?`<button class="btn" onclick="cancelFbsAbEdit()">${T('Отмена','取消')}</button>`:''}</div>
+      <div class="section card table-card fbsab-section-soft fbsab-stock-table-card"><div class="table-tools"><div><b>${T('Склад по каждому товару','每个商品的库存')}</b><div class="muted" style="font-size:13px;margin-top:3px">${T('Каждый магазин и каждый товар показываются отдельной строкой.','每个店铺、每个商品都单独显示一行。')}</div></div><span class="auto-pill">AUTO</span></div><div class="table-wrap fbsab-stock-table">${stockSummaryTable(ws)}</div></div>
+
+      <div class="section card form-card fbsab-daily-card"><div class="section-title"><div><div class="fbsab-step">2 · ${T('ЕЖЕДНЕВНЫЙ FBS','每日 FBS')}</div></div>${edit?`<button class="btn" onclick="cancelFbsAbEdit()">${T('Отмена','取消')}</button>`:''}</div>
         <form id="fbsAbForm" onsubmit="saveFbsAb(event)"><div class="fbsab-form">
           <div class="field"><label>${T('Дата','日期')}</label><input name="date" type="date" value="${esc(edit?.date||today())}" required></div>
           <div class="field"><label>${T('Магазин','店铺')} *</label><select id="fbsAbDailyStore" name="storeId" onchange="fbsAbUpdateDailyProducts()" required><option value="">${T('Выберите магазин','请选择店铺')}</option>${storeOptions(ws,defaultStore,false)}</select></div>
@@ -9332,8 +9548,8 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
         <div class="form-actions"><button class="btn primary">${edit?T('Сохранить изменения','保存修改'):T('Сохранить FBS','保存 FBS')}</button></div></form>
       </div>
 
-      <div class="section card table-card"><div class="table-tools"><div><b>${T('История FBS','FBS 历史')}</b><div class="muted" style="font-size:13px;margin-top:3px">${esc(filterLabel(ws))}</div></div><span class="auto-pill">AUTO</span></div><div class="table-wrap fbsab-table">${dailyTable(ws,history)}</div></div>
-      <div class="section card table-card"><div class="table-tools"><div><b>${T('История поступлений на склад','入库历史')}</b><div class="muted" style="font-size:13px;margin-top:3px">${T('Отдельный журнал начального склада и новых поступлений','初始库存和新增入库的独立记录')}</div></div></div><div class="table-wrap fbsab-table">${receiptTable(ws)}</div></div>`;
+      <div class="section card table-card fbsab-history-card"><div class="table-tools"><div><b>${T('История FBS','FBS 历史')}</b><div class="muted" style="font-size:13px;margin-top:3px">${esc(filterLabel(ws))}</div></div><span class="auto-pill">AUTO</span></div><div class="table-wrap fbsab-table">${dailyTable(ws,history)}</div></div>
+      <div class="section card table-card fbsab-receipt-history-card"><div class="table-tools"><div><b>${T('История поступлений на склад','入库历史')}</b><div class="muted" style="font-size:13px;margin-top:3px">${T('Отдельный журнал начального склада и новых поступлений','初始库存和新增入库的独立记录')}</div></div></div><div class="table-wrap fbsab-table">${receiptTable(ws)}</div></div>`;
     setTimeout(()=>{previewFbsAb();if(typeof moveSearchBelowSectionHeader==='function')moveSearchBelowSectionHeader()},0)
   };
 
@@ -9366,13 +9582,15 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
 
 <!-- Seller Control: compact FBS dashboard card v1 -->
 <style id="seller-control-fbs-dashboard-style">
-.dashboard-fbs-card{position:relative;overflow:hidden;margin-top:18px;padding:17px 18px;border:1px solid rgba(37,76,182,.12);border-radius:20px;background:linear-gradient(135deg,#fff 0%,#F7FAFF 58%,#F1FBF7 100%);box-shadow:0 14px 36px rgba(31,50,116,.08)}
-.dashboard-fbs-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#254CB6,#00A67B)}
+.dashboard-fbs-card{position:relative;overflow:hidden;margin-top:18px;padding:18px;border:1px solid rgba(255,255,255,.10);border-radius:24px;color:#fff;background:radial-gradient(circle at 92% 0%,rgba(54,222,175,.22),transparent 30%),radial-gradient(circle at 3% 100%,rgba(115,90,255,.22),transparent 27%),linear-gradient(128deg,#10193F 0%,#233893 50%,#0D675B 100%);box-shadow:0 20px 48px rgba(20,36,92,.18)}
+.dashboard-fbs-card:before{content:"";position:absolute;width:180px;height:180px;right:-82px;bottom:-105px;border-radius:50%;border:1px solid rgba(255,255,255,.10);box-shadow:0 0 0 28px rgba(255,255,255,.024),0 0 0 56px rgba(255,255,255,.015);pointer-events:none}
 .dashboard-fbs-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:13px}
 .dashboard-fbs-title{display:flex;align-items:center;gap:11px;min-width:0}.dashboard-fbs-logo{width:40px;height:40px;display:grid;place-items:center;flex:0 0 40px;border-radius:13px;background:linear-gradient(135deg,#2038B6,#00866A);color:#fff;font-size:12px;font-weight:950;letter-spacing:.4px;box-shadow:0 8px 20px rgba(35,64,173,.18)}
-.dashboard-fbs-title h3{margin:0;font-size:17px;line-height:1.2}.dashboard-fbs-title p{margin:3px 0 0;color:var(--muted);font-size:12px;line-height:1.35}
-.dashboard-fbs-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.dashboard-fbs-metric{padding:11px 12px;border:1px solid rgba(34,52,105,.08);border-radius:14px;background:rgba(255,255,255,.82)}
-.dashboard-fbs-metric span{display:block;color:var(--muted);font-size:11px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dashboard-fbs-metric strong{display:block;margin-top:5px;font-size:17px;line-height:1.15}.dashboard-fbs-metric strong.good{color:#00805F}.dashboard-fbs-metric strong.warn{color:#B97600}
+.dashboard-fbs-title h3{margin:0;color:#fff;font-size:17px;line-height:1.2}.dashboard-fbs-title p{margin:3px 0 0;color:rgba(255,255,255,.64);font-size:12px;line-height:1.35}
+.dashboard-fbs-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;position:relative;z-index:1}.dashboard-fbs-metric{padding:11px 12px;border:1px solid rgba(255,255,255,.10);border-radius:15px;background:rgba(255,255,255,.085);backdrop-filter:blur(7px)}
+.dashboard-fbs-metric span{display:block;color:rgba(255,255,255,.58);font-size:11px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dashboard-fbs-metric strong{display:block;margin-top:5px;color:#fff;font-size:17px;line-height:1.15}.dashboard-fbs-metric strong.good{color:#70EBC3}.dashboard-fbs-metric strong.warn{color:#FFD177}
+.dashboard-fbs-chart{position:relative;z-index:1;margin:0 0 11px;padding:10px 10px 5px;border-radius:19px;background:linear-gradient(180deg,rgba(255,255,255,.975),rgba(247,250,255,.94));border:1px solid rgba(255,255,255,.18);box-shadow:0 12px 30px rgba(5,16,52,.16),inset 0 1px 0 #fff}.dashboard-fbs-chart canvas{display:block;width:100%;height:142px}.dashboard-fbs-chart-empty{height:118px;display:grid;place-items:center;color:var(--muted);font-size:11px;text-align:center}.dashboard-fbs-chart-legend{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:4px}.dashboard-fbs-chart-legend span{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:850;color:#687187}.dashboard-fbs-chart-legend i{width:7px;height:7px;border-radius:50%}.dashboard-fbs-chart-legend i.o{background:#4C5DDF}.dashboard-fbs-chart-legend i.s{background:#00A67B}.dashboard-fbs-chart-legend i.r{background:#D95B76}
+.dashboard-fbs-open{position:relative;z-index:1;background:rgba(255,255,255,.13)!important;border:1px solid rgba(255,255,255,.15)!important;color:#fff!important;box-shadow:none!important}.dashboard-fbs-open:hover{background:rgba(255,255,255,.20)!important}
 @media(max-width:900px){.dashboard-fbs-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.dashboard-fbs-card{padding:15px}.dashboard-fbs-head{align-items:flex-start}.dashboard-fbs-title p{display:none}.dashboard-fbs-metrics{grid-template-columns:1fr 1fr}.dashboard-fbs-metric{padding:10px}.dashboard-fbs-metric strong{font-size:16px}}
 </style>
@@ -9403,7 +9621,8 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
     const cutoff=new Date();cutoff.setHours(0,0,0,0);cutoff.setDate(cutoff.getDate()-29);const from=fbsDashDateKey(cutoff);
     let shipped30=0,pack30=0;
     daily.forEach(r=>{const date=String(r?.date||'');if(date<from)return;const shipped=Math.max(0,fbsDashNum(r.shipped));shipped30+=shipped;pack30+=shipped*Math.max(0,fbsDashNum(r.packagingPerUnit))});
-    return {stock:Math.max(0,stock),shipped30,pack30,low,store:selected};
+    const dateMap=new Map();daily.forEach(r=>{const date=String(r?.date||'');if(!date)return;const x=dateMap.get(date)||{date,orders:0,shipped:0,returns:0};x.orders+=Math.max(0,fbsDashNum(r.orders));x.shipped+=Math.max(0,fbsDashNum(r.shipped));x.returns+=Math.max(0,fbsDashNum(r.returns));dateMap.set(date,x)});const dates=[...dateMap.keys()].sort();let trend=[];if(dates.length){const latest=new Date(dates[dates.length-1]+'T00:00:00');const start=new Date(latest);start.setDate(start.getDate()-13);for(let i=0;i<14;i++){const d=new Date(start);d.setDate(start.getDate()+i);const key=fbsDashDateKey(d);trend.push(dateMap.get(key)||{date:key,orders:0,shipped:0,returns:0})}}
+    return {stock:Math.max(0,stock),shipped30,pack30,low,store:selected,trend};
   }
   window.openFbsFromDashboard=function(){
     const selected=fbsDashSelectedStore();
@@ -9411,12 +9630,15 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
     window.fbsAbProductFilter='';
     go('fbsAbdurahim');
   };
+  function fbsDashRoundRect(c,x,y,w,h,r){const rr=Math.min(r,Math.abs(w)/2,Math.abs(h)/2);c.beginPath();c.moveTo(x+rr,y);c.arcTo(x+w,y,x+w,y+h,rr);c.arcTo(x+w,y+h,x,y+h,rr);c.arcTo(x,y+h,x,y,rr);c.arcTo(x,y,x+w,y,rr);c.closePath()}
+  function drawFbsDashTrend(trend){const canvas=document.getElementById('dashboardFbsTrend');if(!canvas||!trend?.length)return;const rect=canvas.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1),w=Math.max(260,rect.width||720),h=Math.max(120,rect.height||142);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);const c=canvas.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);const pl=24,pr=8,pt=8,pb=22,cw=w-pl-pr,ch=h-pt-pb,max=Math.max(1,...trend.flatMap(x=>[x.orders,x.shipped,x.returns])),step=cw/trend.length,bw=Math.max(5,Math.min(12,step*.28)),xAt=i=>pl+step*(i+.5),y=v=>pt+ch-(v/max)*ch;c.clearRect(0,0,w,h);for(let i=0;i<3;i++){const yy=pt+ch*i/2;c.strokeStyle='#EDF0F5';c.beginPath();c.moveTo(pl,yy);c.lineTo(w-pr,yy);c.stroke()}trend.forEach((d,i)=>{const x=xAt(i),ys=y(d.shipped),hs=pt+ch-ys;if(hs>0){c.fillStyle='#00A67B';fbsDashRoundRect(c,x-bw-1,ys,bw,hs,bw/2);c.fill()}const yr=y(d.returns),hr=pt+ch-yr;if(hr>0){c.fillStyle='#D95B76';fbsDashRoundRect(c,x+1,yr,bw,hr,bw/2);c.fill()}});const pts=trend.map((d,i)=>({x:xAt(i),y:y(d.orders)}));c.strokeStyle='#4C5DDF';c.lineWidth=2.2;c.lineCap='round';c.lineJoin='round';c.beginPath();c.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],mx=(a.x+b.x)/2;c.bezierCurveTo(mx,a.y,mx,b.y,b.x,b.y)}c.stroke();c.font='8px sans-serif';c.fillStyle='#8A91A1';c.textAlign='center';trend.forEach((d,i)=>{if(i%3===0||i===trend.length-1){const p=d.date.split('-');c.fillText(`${p[2]}.${p[1]}`,xAt(i),h-7)}})}
   function fbsDashHtml(){
     const s=fbsDashStats();
     const n=v=>typeof num==='function'?num(v):Math.round(v).toLocaleString('ru-RU');
     const m=v=>typeof money==='function'?money(v):(Math.round(v).toLocaleString('ru-RU')+' ₽');
     return `<div class="section dashboard-fbs-card" data-dashboard-fbs="1">
-      <div class="dashboard-fbs-head"><div class="dashboard-fbs-title"><div class="dashboard-fbs-logo">FBS</div><div><h3>${T('FBS Абдурахим','FBS 阿卜杜拉希姆')}</h3><p>${T('Короткая сводка за последние 30 дней','最近30天简要汇总')} · ${esc(s.store.name)}</p></div></div><button class="btn primary small" onclick="openFbsFromDashboard()">${T('Открыть','打开')} →</button></div>
+      <div class="dashboard-fbs-head"><div class="dashboard-fbs-title"><div class="dashboard-fbs-logo">FBS</div><div><h3>${T('FBS Абдурахим','FBS 阿卜杜拉希姆')}</h3><p>${T('Короткая сводка за последние 30 дней','最近30天简要汇总')} · ${esc(s.store.name)}</p></div></div><button class="btn small dashboard-fbs-open" onclick="openFbsFromDashboard()">${T('Открыть','打开')} →</button></div>
+      <div class="dashboard-fbs-chart">${s.trend.length?`<div class="dashboard-fbs-chart-legend"><span><i class="o"></i>${T('Заказы','订单')}</span><span><i class="s"></i>${T('Отправлено','已发货')}</span><span><i class="r"></i>${T('Возврат','退货')}</span></div><canvas id="dashboardFbsTrend"></canvas>`:`<div class="dashboard-fbs-chart-empty">${T('Добавьте ежедневные записи FBS — появится график по дням.','添加每日 FBS 记录后会显示每日趋势图。')}</div>`}</div>
       <div class="dashboard-fbs-metrics">
         <div class="dashboard-fbs-metric"><span>${T('Остаток сейчас','当前库存')}</span><strong class="good">${n(s.stock)} ${T('шт','件')}</strong></div>
         <div class="dashboard-fbs-metric"><span>${T('Отправлено · 30 дней','已发货 · 30天')}</span><strong>${n(s.shipped30)} ${T('шт','件')}</strong></div>
@@ -9432,7 +9654,7 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
       const root=document.getElementById('pageRoot');
       if(root&&!root.querySelector('[data-dashboard-fbs]')){
         const anchor=root.querySelector('.insight-grid');
-        if(anchor)anchor.insertAdjacentHTML('afterend',fbsDashHtml());
+        if(anchor){anchor.insertAdjacentHTML('afterend',fbsDashHtml());const ds=fbsDashStats();requestAnimationFrame(()=>drawFbsDashTrend(ds.trend))}
       }
     }catch(e){console.error('FBS dashboard card:',e)}
     return result
@@ -9783,5 +10005,1284 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
 </script>
 <!-- /Seller Control: hard logout to public home v2 -->
 
+
+<style id="seller-control-dashboard-polish-v4">
+/* Dashboard clarity pass: compact header, inline plan badge, soft non-white workspace, smaller monthly profit visuals */
+body{background:#E8EEF7!important}
+.main{background:linear-gradient(180deg,#EAF0F8 0%,#F2F5FA 48%,#EAF0F7 100%)!important}
+.content{background:transparent!important}
+.topbar{
+  min-height:54px!important;
+  padding:7px 16px!important;
+  background:linear-gradient(110deg,rgba(235,240,252,.98),rgba(238,248,245,.98))!important;
+  border-bottom:1px solid #D5DEEC!important;
+  box-shadow:0 7px 22px rgba(30,48,91,.07)!important;
+}
+.topbar-heading{min-width:0}
+.topbar-title-row{display:flex;align-items:center;gap:9px;min-width:0}
+.topbar h2{font-size:17px!important;line-height:1.05!important;color:#17264D!important;letter-spacing:-.2px}
+.topbar .sub{margin-top:2px!important;font-size:10.5px!important;line-height:1.2!important;color:#71809A!important}
+#scAccessBadgeSlot{display:flex;align-items:center;min-width:0}
+.sc-trial-banner.sc-paid-inline{
+  display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;gap:6px!important;
+  width:max-content!important;margin:0!important;padding:4px 7px!important;border-radius:10px!important;
+  border:1px solid #BFE4D6!important;background:linear-gradient(135deg,#E9F8F2,#F2FBF7)!important;
+  box-shadow:0 4px 12px rgba(0,128,96,.06)!important;white-space:nowrap!important;
+}
+.sc-paid-inline .sc-trial-main{gap:5px!important}
+.sc-paid-inline .sc-trial-icon{width:20px!important;height:20px!important;flex:0 0 20px!important;border-radius:7px!important;font-size:11px!important;background:#D8F1E6!important}
+.sc-paid-inline .sc-trial-copy strong{font-size:9.5px!important;line-height:1!important;color:#116A52!important}
+.sc-paid-inline .sc-trial-copy span{margin-top:2px!important;font-size:8px!important;line-height:1!important;color:#648176!important}
+.sc-paid-inline .sc-trial-plan{padding:3px 5px!important;font-size:8px!important;border-radius:7px!important;background:#E3E9FF!important;color:#304FAD!important}
+
+/* Cards need contrast against the workspace instead of disappearing into white */
+#pageRoot>.card,#pageRoot .card{border-color:#DCE4F0!important}
+#pageRoot .kpi,#pageRoot .insight,#pageRoot .store-card,#pageRoot .panel,#pageRoot .calendar-period{
+  background:linear-gradient(145deg,#FBFCFF 0%,#F5F8FC 100%)!important;
+}
+.calendar-period{box-shadow:0 8px 22px rgba(31,52,96,.06)!important}
+
+
+/* 01 Real WB Profit and 02 expenses: compact visual row */
+#pageRoot .dashviz-grid{grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr)!important;gap:10px!important;margin-top:10px!important}
+#pageRoot .dashviz-card{padding:9px!important;border-radius:15px!important;box-shadow:0 7px 20px rgba(28,45,92,.065)!important}
+#pageRoot .real-wb-monthly-card{background:linear-gradient(145deg,#F8FAFF,#F2F6FC)!important}
+#pageRoot .real-wb-monthly-card:before{height:3px!important}
+#pageRoot .real-wb-monthly-head{gap:7px!important;padding:8px 9px 7px!important}
+#pageRoot .real-wb-monthly-head .dashviz-index{width:25px!important;height:25px!important;border-radius:8px!important;font-size:7px!important}
+#pageRoot .real-wb-monthly-head h3{font-size:13px!important;line-height:1.1!important}
+#pageRoot .real-wb-store-pill-compact{gap:4px!important;padding:4px 6px!important;font-size:8px!important}
+#pageRoot .real-wb-store-pill-compact span{font-size:9px!important}
+#pageRoot .real-wb-months{grid-template-columns:repeat(auto-fit,minmax(105px,1fr))!important;gap:6px!important;padding:8px 9px 9px!important}
+#pageRoot .real-wb-month-card{min-width:0!important;padding:8px!important;border-radius:11px!important;box-shadow:0 4px 12px rgba(22,37,78,.045)!important}
+#pageRoot .real-wb-month-name{font-size:7.5px!important}
+#pageRoot .real-wb-month-value{margin-top:4px!important;font-size:13.5px!important}
+#pageRoot .real-wb-month-delta{margin-top:5px!important;padding:3px 5px!important;font-size:7.5px!important}
+#pageRoot .real-wb-month-empty{padding:16px 10px!important;font-size:9px!important}
+#pageRoot .dashviz-expense{background:linear-gradient(145deg,#FFF9F2,#F8F2E8)!important}
+#pageRoot .dashviz-expense .dashviz-head{gap:6px!important}
+#pageRoot .dashviz-expense .dashviz-index{width:25px!important;height:25px!important;font-size:7px!important}
+#pageRoot .dashviz-expense .dashviz-title h3{font-size:13px!important}
+#pageRoot .dashviz-expense .dashviz-title p{font-size:8px!important}
+#pageRoot .dashviz-expense .dashviz-total strong{font-size:11px!important}
+#pageRoot .dashviz-expense .dashviz-total span{font-size:7px!important}
+#pageRoot .dashviz-expense .dashviz-chart-shell{margin-top:6px!important;padding:3px!important;border-radius:10px!important}
+#pageRoot .dashviz-expense .dashviz-chart-shell canvas{height:132px!important}
+
+@media(max-width:1100px) and (min-width:761px){
+  #pageRoot .dashviz-grid{grid-template-columns:1fr 1fr!important}
+}
+@media(max-width:760px){
+  .topbar{min-height:52px!important;padding:7px 10px!important}
+  .topbar-title-row{gap:5px}.topbar h2{font-size:15px!important}.topbar .sub{display:block!important;font-size:8.5px!important}
+  .sc-trial-banner.sc-paid-inline{padding:3px 5px!important}.sc-paid-inline .sc-trial-copy span{display:none!important}.sc-paid-inline .sc-trial-plan{display:none!important}
+  #pageRoot>.hero.motivation-hero{min-height:54px!important;padding:7px 10px!important}
+  #pageRoot>.hero.motivation-hero h3{font-size:13px!important}
+  #pageRoot>.hero.motivation-hero p{font-size:7.5px!important}
+  #pageRoot>.hero.motivation-hero .home-ticker{display:none!important}
+  #pageRoot .dashviz-grid{grid-template-columns:1fr!important;gap:8px!important}
+  #pageRoot .real-wb-monthly-head{grid-template-columns:auto 1fr auto!important}
+  #pageRoot .real-wb-monthly-head .real-wb-store-pill-compact{grid-column:auto!important;width:auto!important}
+  #pageRoot .real-wb-months{display:flex!important;overflow-x:auto!important}
+  #pageRoot .real-wb-month-card{flex:0 0 118px!important}
+  #pageRoot .dashviz-expense .dashviz-chart-shell canvas{height:145px!important}
+}
+</style>
+
+
+<style id="sc-premium-analytics-v2">
+/* =========================================================
+   Premium dashboard analytics — non-white, rounded, visual
+   ========================================================= */
+#pageRoot .dashviz-grid{
+  gap:14px!important;
+  align-items:stretch!important;
+}
+#pageRoot .dashviz-card{
+  position:relative!important;
+  overflow:hidden!important;
+  border-radius:26px!important;
+  padding:16px!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  box-shadow:0 22px 54px rgba(22,34,73,.18)!important;
+  isolation:isolate!important;
+}
+#pageRoot .dashviz-card:after{
+  content:"";position:absolute;inset:auto -55px -70px auto;width:190px;height:190px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.10);box-shadow:0 0 0 28px rgba(255,255,255,.025),0 0 0 56px rgba(255,255,255,.018);pointer-events:none;z-index:-1
+}
+/* 01 — WB profit */
+#pageRoot .real-wb-monthly-card{
+  background:
+    radial-gradient(circle at 90% 4%,rgba(91,231,184,.22),transparent 31%),
+    radial-gradient(circle at -5% 105%,rgba(90,112,255,.28),transparent 40%),
+    linear-gradient(140deg,#111B3D 0%,#1B2E63 52%,#0D665A 115%)!important;
+  color:#fff!important;
+}
+#pageRoot .real-wb-monthly-card:before{height:0!important;display:none!important}
+#pageRoot .real-wb-monthly-head{padding:4px 4px 13px!important;border-bottom:1px solid rgba(255,255,255,.12)!important}
+#pageRoot .real-wb-monthly-head h3{font-size:16px!important;color:#fff!important;letter-spacing:-.2px!important}
+#pageRoot .real-wb-monthly-head .dashviz-index{
+  width:34px!important;height:34px!important;border-radius:12px!important;font-size:9px!important;
+  color:#DCE7FF!important;background:rgba(255,255,255,.10)!important;border:1px solid rgba(255,255,255,.14)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 8px 20px rgba(0,0,0,.12)!important
+}
+#pageRoot .real-wb-store-pill-compact{
+  padding:7px 10px!important;border-radius:999px!important;background:rgba(255,255,255,.10)!important;
+  border:1px solid rgba(255,255,255,.14)!important;color:#fff!important;backdrop-filter:blur(10px)
+}
+#pageRoot .real-wb-months{gap:9px!important;padding:14px 2px 2px!important}
+#pageRoot .real-wb-month-card{
+  position:relative!important;overflow:hidden!important;min-height:88px!important;padding:12px!important;border-radius:17px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.065))!important;
+  border:1px solid rgba(255,255,255,.12)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 10px 25px rgba(0,0,0,.10)!important;
+  backdrop-filter:blur(12px)
+}
+#pageRoot .real-wb-month-card.latest{
+  background:linear-gradient(145deg,rgba(112,238,195,.20),rgba(255,255,255,.07))!important;
+  border-color:rgba(116,238,198,.30)!important;box-shadow:0 13px 28px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.09)!important
+}
+#pageRoot .real-wb-month-card.loss{background:linear-gradient(145deg,rgba(255,109,137,.18),rgba(255,255,255,.06))!important}
+#pageRoot .real-wb-month-name{font-size:9px!important;color:rgba(255,255,255,.63)!important;letter-spacing:.5px!important}
+#pageRoot .real-wb-month-value{margin-top:7px!important;font-size:17px!important;color:#fff!important}
+#pageRoot .real-wb-month-card.loss .real-wb-month-value{color:#FF9AAF!important}
+#pageRoot .real-wb-month-delta{margin-top:7px!important;background:rgba(255,255,255,.09)!important;color:rgba(255,255,255,.78)!important;border:1px solid rgba(255,255,255,.08)!important}
+#pageRoot .real-wb-month-delta.up{background:rgba(86,224,171,.14)!important;color:#86F0C8!important}
+#pageRoot .real-wb-month-delta.down{background:rgba(255,103,133,.14)!important;color:#FF9AAF!important}
+#pageRoot .real-wb-month-empty{color:rgba(255,255,255,.64)!important}
+.sc-month-visual{height:5px;margin-top:9px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden}
+.sc-month-visual i{display:block;height:100%;width:var(--w,0%);border-radius:inherit;background:linear-gradient(90deg,#66E5B5,#A6F3D7);box-shadow:0 0 14px rgba(102,229,181,.34)}
+.real-wb-month-card.loss .sc-month-visual i{background:linear-gradient(90deg,#FF7190,#FFB2C0);box-shadow:0 0 14px rgba(255,113,144,.25)}
+
+/* 02 — expense structure */
+#pageRoot .dashviz-expense{
+  background:
+    radial-gradient(circle at 90% 0%,rgba(255,198,96,.26),transparent 34%),
+    radial-gradient(circle at 0% 115%,rgba(119,100,255,.22),transparent 42%),
+    linear-gradient(142deg,#251A3D 0%,#3B254F 48%,#674322 120%)!important;
+  color:#fff!important;
+}
+#pageRoot .dashviz-expense .dashviz-head{gap:10px!important;position:relative;z-index:2}
+#pageRoot .dashviz-expense .dashviz-index{
+  width:34px!important;height:34px!important;border-radius:12px!important;font-size:9px!important;color:#FFEACB!important;
+  background:rgba(255,255,255,.10)!important;border:1px solid rgba(255,255,255,.14)!important
+}
+#pageRoot .dashviz-expense .dashviz-title h3{font-size:16px!important;color:#fff!important}
+#pageRoot .dashviz-expense .dashviz-title p{font-size:9px!important;color:rgba(255,255,255,.58)!important}
+#pageRoot .dashviz-expense .dashviz-total span{font-size:8px!important;color:rgba(255,255,255,.55)!important}
+#pageRoot .dashviz-expense .dashviz-total strong{font-size:14px!important;color:#FFD797!important}
+#pageRoot .dashviz-expense .dashviz-chart-shell{
+  position:relative!important;z-index:2;margin-top:10px!important;padding:8px 5px 2px!important;border-radius:19px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.035))!important;
+  border:1px solid rgba(255,255,255,.09)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)!important
+}
+#pageRoot .dashviz-expense .dashviz-chart-shell:before{display:none!important}
+#pageRoot .dashviz-expense #expenseDonut{height:220px!important;max-height:none!important}
+.sc-expense-analysis{position:relative;z-index:2;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-top:9px;padding:10px 11px;border-radius:15px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.09)}
+.sc-expense-analysis span{display:block;font-size:8.5px;color:rgba(255,255,255,.58);font-weight:800}
+.sc-expense-analysis b{display:block;margin-top:3px;font-size:11px;color:#fff}.sc-expense-analysis strong{font-size:15px;color:#FFD797;white-space:nowrap}
+
+/* Return money — deeper rounded analytics card */
+#pageRoot .dashboard-return-panel{
+  border-radius:26px!important;padding:17px!important;
+  background:
+    radial-gradient(circle at 92% 4%,rgba(118,244,197,.26),transparent 31%),
+    radial-gradient(circle at 2% 108%,rgba(95,114,255,.27),transparent 40%),
+    linear-gradient(145deg,#0C2430 0%,#123A47 47%,#153B6D 110%)!important;
+  border:1px solid rgba(140,241,204,.20)!important;box-shadow:0 22px 54px rgba(8,31,54,.23)!important
+}
+.dashboard-return-title small{padding:5px 8px!important;border-radius:999px!important;background:rgba(255,255,255,.09)!important}
+.dashboard-return-title h3{font-size:17px!important}.dashboard-return-title p{font-size:10px!important}
+.dashboard-return-store{padding:7px 10px!important;background:rgba(255,255,255,.09)!important;backdrop-filter:blur(10px)}
+.dashboard-return-main{grid-template-columns:126px 1fr!important;gap:14px!important;margin-top:14px!important}
+.dashboard-return-ring{
+  width:122px!important;height:122px!important;position:relative!important;
+  background:conic-gradient(from -25deg,#7FF0C6 0 var(--p),rgba(255,255,255,.105) var(--p) 100%)!important;
+  box-shadow:0 14px 34px rgba(0,0,0,.20),inset 0 0 0 1px rgba(255,255,255,.09)!important
+}
+.dashboard-return-ring:after{content:"";position:absolute;inset:7px;border-radius:50%;border:1px solid rgba(255,255,255,.10);pointer-events:none}
+.dashboard-return-ring:before{width:88px!important;height:88px!important;background:radial-gradient(circle at 35% 25%,#214A59,#102D3D 72%)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09),0 8px 20px rgba(0,0,0,.13)!important}
+.dashboard-return-ring strong{font-size:22px!important}.dashboard-return-ring span{font-size:8.5px!important}
+.dashboard-return-stats{gap:7px!important}.dashboard-return-stat{padding:9px 10px!important;border-radius:13px!important;background:rgba(255,255,255,.075)!important;backdrop-filter:blur(8px)}
+.dashboard-return-progress-track{height:10px!important;background:rgba(255,255,255,.105)!important;box-shadow:inset 0 1px 2px rgba(0,0,0,.14)}
+.dashboard-return-progress-track span{background:linear-gradient(90deg,#62DDB0,#A4F4D8)!important;box-shadow:0 0 18px rgba(98,221,176,.45)!important}
+.dashboard-return-bottom{padding:9px 10px!important;border-radius:13px!important;background:rgba(255,255,255,.055)!important;border:1px solid rgba(255,255,255,.07)!important}
+.dashboard-return-panel .btn{border-radius:11px!important;background:linear-gradient(145deg,#F8FFFC,#DDF8EE)!important;color:#153957!important;border:0!important}
+
+@media(max-width:1100px){#pageRoot .dashviz-grid{grid-template-columns:1fr!important}.dashboard-return-main{grid-template-columns:112px 1fr!important}.dashboard-return-ring{width:108px!important;height:108px!important}.dashboard-return-ring:before{width:78px!important;height:78px!important}}
+@media(max-width:760px){
+  #pageRoot .dashviz-card,#pageRoot .dashboard-return-panel{border-radius:21px!important;padding:13px!important}
+  #pageRoot .real-wb-monthly-head{grid-template-columns:auto 1fr!important}.real-wb-store-pill-compact{grid-column:1/-1!important;width:max-content}
+  #pageRoot .dashviz-expense .dashviz-head{grid-template-columns:auto 1fr!important}.dashviz-expense .dashviz-total{grid-column:2!important;text-align:left!important}
+  #pageRoot .dashviz-expense #expenseDonut{height:285px!important}
+  .sc-expense-analysis{grid-template-columns:1fr!important}.sc-expense-analysis strong{font-size:14px}
+  .dashboard-return-main{grid-template-columns:1fr!important}.dashboard-return-ring{margin:auto!important}
+}
+</style>
+
+<script id="sc-premium-analytics-v2-js">
+(function(){
+  const baseDrawDonutChart=drawDonutChart;
+
+  function scPremiumExpenseRows(){
+    const ws=getWorkspace();
+    const selected=String(window.dashboardStoreFilter||"all");
+    const stores=(ws?.stores||[]).filter(s=>s.enabled!==false).filter(s=>selected==="all"||String(s.id)===selected);
+    return stores.flatMap(s=>filteredReports(s).map(r=>({...r,storeId:s.id,storeName:s.name})))
+  }
+  function scExpenseSummary(){
+    const t=totals(scPremiumExpenseRows());
+    const items=expenseData(t).slice().sort((a,b)=>n(b.value)-n(a.value));
+    return {total:n(t.allExpenses),items,top:items[0]||null}
+  }
+
+  drawDonutChart=function(canvasId,items){
+    if(canvasId!=="expenseDonut")return baseDrawDonutChart(canvasId,items);
+    const c=document.getElementById(canvasId);if(!c)return;
+    const rect=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1,w=Math.max(250,rect.width||320),mobile=w<420,h=mobile?285:220;
+    c.style.height=h+"px";c.width=w*dpr;c.height=h*dpr;
+    const x=c.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,w,h);
+    const clean=(items||[]).filter(v=>n(v.value)>0),total=clean.reduce((a,b)=>a+n(b.value),0);
+    const cx=mobile?w/2:w*.29,cy=mobile?77:h/2,r=mobile?51:67,lw=mobile?13:16;
+
+    x.save();x.lineWidth=lw;x.lineCap="round";x.strokeStyle="rgba(255,255,255,.105)";x.beginPath();x.arc(cx,cy,r,0,Math.PI*2);x.stroke();x.restore();
+    x.save();x.lineWidth=2;x.strokeStyle="rgba(255,255,255,.055)";x.beginPath();x.arc(cx,cy,r+12,0,Math.PI*2);x.stroke();x.beginPath();x.arc(cx,cy,r-18,0,Math.PI*2);x.stroke();x.restore();
+
+    if(total>0){
+      const palette=["#72E6BA","#8B91FF","#FFC76E","#FF8CAB","#63B9FF","#B9D66B"];
+      let start=-Math.PI/2;
+      clean.forEach((it,i)=>{
+        const portion=n(it.value)/total,full=portion*Math.PI*2,gap=Math.min(.045,full*.18),a0=start+gap/2,a1=start+full-gap/2;
+        x.save();x.lineWidth=lw;x.lineCap="round";x.strokeStyle=palette[i%palette.length];x.shadowColor=palette[i%palette.length];x.shadowBlur=7;x.beginPath();x.arc(cx,cy,r,a0,a1);x.stroke();x.restore();start+=full
+      });
+    }
+    const g=x.createRadialGradient(cx-15,cy-18,4,cx,cy,r-19);g.addColorStop(0,"rgba(255,255,255,.12)");g.addColorStop(1,"rgba(255,255,255,.035)");x.fillStyle=g;x.beginPath();x.arc(cx,cy,r-20,0,Math.PI*2);x.fill();
+    x.textAlign="center";x.fillStyle="rgba(255,255,255,.58)";x.font="800 9px sans-serif";x.fillText(T("РАСХОДЫ","费用"),cx,cy-5);x.fillStyle="#FFFFFF";x.font="950 15px sans-serif";x.fillText(shortMoney(total),cx,cy+16);x.textAlign="left";
+
+    if(!total){
+      x.fillStyle="rgba(255,255,255,.52)";x.font="800 10px sans-serif";x.textAlign="center";x.fillText(T("Добавьте расходы","请添加费用"),cx,mobile?150:cy+r+32);x.textAlign="left";return
+    }
+
+    const palette=["#72E6BA","#8B91FF","#FFC76E","#FF8CAB","#63B9FF","#B9D66B"];
+    if(!mobile){
+      let ly=35,lx=w*.56;
+      clean.forEach((it,i)=>{
+        const pctv=n(it.value)/total*100;
+        x.fillStyle=palette[i%palette.length];roundRectPath(x,lx,ly-7,8,8,4);x.fill();
+        x.fillStyle="rgba(255,255,255,.83)";x.font="800 9px sans-serif";x.fillText(trimLabel(it.label,18),lx+15,ly);
+        x.fillStyle="rgba(255,255,255,.48)";x.font="700 8px sans-serif";x.fillText(num(pctv)+"% · "+shortMoney(it.value),lx+15,ly+14);ly+=31
+      })
+    }else{
+      const cols=2,colW=w/2-14,startY=160;
+      clean.forEach((it,i)=>{
+        const col=i%2,row=Math.floor(i/2),lx=12+col*colW,ly=startY+row*36,pctv=n(it.value)/total*100;
+        x.fillStyle=palette[i%palette.length];x.beginPath();x.arc(lx+4,ly-2,4,0,Math.PI*2);x.fill();
+        x.fillStyle="rgba(255,255,255,.82)";x.font="800 8px sans-serif";x.fillText(trimLabel(it.label,14),lx+13,ly);
+        x.fillStyle="rgba(255,255,255,.46)";x.font="700 7.5px sans-serif";x.fillText(num(pctv)+"% · "+shortMoney(it.value),lx+13,ly+12)
+      })
+    }
+  };
+
+  const prevRenderDashboard=renderDashboard;
+  renderDashboard=function(){
+    prevRenderDashboard();
+    const summary=scExpenseSummary(),expenseCard=document.querySelector("#pageRoot .dashviz-expense");
+    if(expenseCard){
+      expenseCard.querySelector(".sc-expense-analysis")?.remove();
+      const top=summary.top,share=top&&summary.total?top.value/summary.total*100:0;
+      expenseCard.insertAdjacentHTML("beforeend",`<div class="sc-expense-analysis"><div><span>${T("ГЛАВНАЯ СТАТЬЯ РАСХОДОВ","最大费用项目")}</span><b>${top?esc(top.label):T("Пока нет расходов","暂无费用")}</b></div><strong>${top?num(share)+"% · "+shortMoney(top.value):"0%"}</strong></div>`)
+    }
+    const series=dashboardRealWbMonthlySeries(dashboardRealWbRows()),cards=[...document.querySelectorAll("#pageRoot .real-wb-month-card")];
+    const max=Math.max(1,...series.map(v=>Math.abs(n(v.profit))));
+    cards.forEach((card,i)=>{
+      card.querySelector(".sc-month-visual")?.remove();
+      const v=series[i];if(!v)return;
+      const width=Math.max(8,Math.min(100,Math.abs(n(v.profit))/max*100));
+      card.insertAdjacentHTML("beforeend",`<div class="sc-month-visual"><i style="--w:${width}%"></i></div>`)
+    });
+  };
+})();
+</script>
+
+
+
+<!-- Seller Control: FBS full premium visual system v2 -->
+<style id="seller-control-fbs-full-premium-v2">
+/* ===== FBS Абдурахим — full visual system ===== */
+.fbsab-main-head,
+.fbsab-filter,
+.fbsab-overview,
+.fbsab-receipt-card,
+.fbsab-daily-card,
+.fbsab-stock-table-card,
+.fbsab-history-card,
+.fbsab-receipt-history-card{font-family:inherit}
+
+/* Main identity */
+.fbsab-main-head{
+  margin:2px 0 18px!important;padding:18px 20px!important;border-radius:26px!important;
+  background:
+    radial-gradient(circle at 88% -15%,rgba(100,232,200,.34),transparent 34%),
+    radial-gradient(circle at 4% 110%,rgba(116,105,255,.30),transparent 32%),
+    linear-gradient(128deg,#0C1537 0%,#253FA8 47%,#087D67 100%)!important;
+  box-shadow:0 24px 58px rgba(25,42,105,.20)!important;
+}
+.fbsab-main-head:before{content:"";position:absolute;inset:1px;border-radius:25px;border:1px solid rgba(255,255,255,.08);pointer-events:none}
+.fbsab-main-logo{width:50px!important;height:50px!important;flex-basis:50px!important;border-radius:17px!important;background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,.09))!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.30),0 10px 24px rgba(5,18,56,.18)!important}
+.fbsab-main-brand h3{font-size:20px!important;letter-spacing:-.35px!important}.fbsab-main-brand p{font-size:11.5px!important;color:rgba(255,255,255,.72)!important}
+.fbsab-main-pills span{padding:7px 10px!important;background:rgba(255,255,255,.10)!important;border-color:rgba(255,255,255,.16)!important;backdrop-filter:blur(8px)}
+
+/* Shared card language */
+.fbsab-receipt-card,.fbsab-daily-card,.fbsab-stock-table-card,.fbsab-history-card,.fbsab-receipt-history-card,.fbsab-filter{
+  border-radius:24px!important;border:1px solid rgba(43,65,124,.10)!important;
+  box-shadow:0 14px 36px rgba(32,50,105,.075)!important;
+}
+.fbsab-receipt-card,.fbsab-daily-card,.fbsab-stock-table-card,.fbsab-history-card,.fbsab-receipt-history-card{padding:18px!important}
+.fbsab-receipt-card:before,.fbsab-daily-card:before,.fbsab-stock-table-card:before,.fbsab-history-card:before,.fbsab-receipt-history-card:before{width:5px!important;border-radius:0 999px 999px 0}
+
+.fbsab-receipt-card{background:radial-gradient(circle at 96% 0%,rgba(88,103,255,.14),transparent 27%),linear-gradient(145deg,#FCFDFF,#F1F4FF)!important}
+.fbsab-daily-card{background:radial-gradient(circle at 96% 0%,rgba(0,188,145,.14),transparent 28%),linear-gradient(145deg,#FBFFFD,#ECFAF5)!important}
+.fbsab-stock-table-card{background:radial-gradient(circle at 96% 0%,rgba(255,182,66,.14),transparent 28%),linear-gradient(145deg,#FFFDF9,#FFF6E7)!important}
+.fbsab-history-card{background:radial-gradient(circle at 96% 0%,rgba(123,91,255,.12),transparent 29%),linear-gradient(145deg,#FEFDFF,#F4F1FF)!important}
+.fbsab-receipt-history-card{background:radial-gradient(circle at 96% 0%,rgba(45,149,231,.12),transparent 28%),linear-gradient(145deg,#FCFEFF,#EDF7FF)!important}
+
+/* Section label */
+.fbsab-step{display:inline-flex!important;align-items:center;gap:7px;padding:7px 11px!important;border-radius:999px!important;font-size:9px!important;letter-spacing:.8px!important;font-weight:950!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
+.fbsab-receipt-card .fbsab-step{background:linear-gradient(135deg,#E7ECFF,#F0EFFF)!important;color:#3F50B6!important;border-color:#D9E0FF!important}
+.fbsab-daily-card .fbsab-step{background:linear-gradient(135deg,#DFF6ED,#E9FBF5)!important;color:#08755F!important;border-color:#CFEDE3!important}
+.fbsab-section-soft .table-tools b,.fbsab-history-card .table-tools b,.fbsab-receipt-history-card .table-tools b{font-size:15px;color:#1E2947;letter-spacing:-.15px}
+.table-tools .muted{color:#7B8497!important}
+.auto-pill{border-radius:999px!important;padding:5px 9px!important;font-size:8px!important;font-weight:950!important;letter-spacing:.7px!important;background:linear-gradient(135deg,#E8ECFF,#E5F7F0)!important;color:#3550A4!important;border:1px solid #D8E3F4!important}
+
+/* Filter = control deck */
+.fbsab-filter{position:relative;overflow:hidden;padding:14px 16px!important;gap:10px!important;background:radial-gradient(circle at 100% 0%,rgba(57,205,172,.15),transparent 34%),linear-gradient(135deg,#F0F4FF,#EFFAF6)!important}
+.fbsab-filter:after{content:"FILTER";position:absolute;right:16px;bottom:-9px;font-size:40px;line-height:1;font-weight:950;letter-spacing:4px;color:rgba(52,79,146,.035);pointer-events:none}
+.fbsab-filter-icon{width:38px!important;height:38px!important;border-radius:13px!important;box-shadow:0 8px 18px rgba(29,83,144,.14)}
+.fbsab-filter-current{border-radius:999px!important;padding:8px 11px!important;font-weight:850!important;font-size:10px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
+
+/* Fields */
+.fbsab-receipt-card .field,.fbsab-daily-card .field,.fbsab-filter .field{min-width:0}
+.fbsab-receipt-card .field label,.fbsab-daily-card .field label,.fbsab-filter .field label{display:block;margin-bottom:6px;color:#65718A;font-size:10px;font-weight:900;letter-spacing:.24px}
+.fbsab-receipt-card input,.fbsab-receipt-card select,.fbsab-daily-card input,.fbsab-daily-card select,.fbsab-filter select{
+  min-height:42px!important;border-radius:13px!important;border:1px solid #DCE4F2!important;background:rgba(255,255,255,.86)!important;color:#22304F!important;box-shadow:inset 0 1px 0 #fff,0 3px 10px rgba(33,52,105,.035)!important;transition:.18s ease!important
+}
+.fbsab-receipt-card input:focus,.fbsab-receipt-card select:focus,.fbsab-daily-card input:focus,.fbsab-daily-card select:focus,.fbsab-filter select:focus{outline:none!important;border-color:#7790EA!important;box-shadow:0 0 0 4px rgba(93,112,225,.10),inset 0 1px 0 #fff!important}
+.fbsab-auto{font-weight:900!important;color:#244D8C!important;background:linear-gradient(135deg,#EAF0FF,#E7F8F1)!important;border-color:#D6E4EE!important}
+
+/* Buttons */
+.fbsab-receipt-card .btn,.fbsab-daily-card .btn,.fbsab-filter .btn,.fbsab-history-card .btn,.fbsab-receipt-history-card .btn{border-radius:12px!important;font-weight:900!important;transition:transform .16s ease,box-shadow .16s ease!important}
+.fbsab-receipt-card .btn:hover,.fbsab-daily-card .btn:hover,.fbsab-filter .btn:hover,.fbsab-history-card .btn:hover,.fbsab-receipt-history-card .btn:hover{transform:translateY(-1px)}
+.fbsab-receipt-card .btn.primary{background:linear-gradient(135deg,#5064E9,#7A5DE5)!important;box-shadow:0 9px 20px rgba(83,96,218,.20)!important}
+.fbsab-daily-card .btn.primary{background:linear-gradient(135deg,#039B78,#29C59E)!important;box-shadow:0 9px 20px rgba(1,151,116,.18)!important}
+.fbsab-filter .btn.primary{background:linear-gradient(135deg,#4561DE,#0E9B7E)!important;box-shadow:0 8px 18px rgba(46,91,157,.16)!important}
+
+/* Overview = mini dashboard */
+.fbsab-overview{gap:12px!important;margin:16px 0 18px!important}
+.fbsab-overview-card{position:relative;overflow:hidden;padding:17px!important;border-radius:24px!important;border-width:1px!important;box-shadow:0 14px 34px rgba(29,48,101,.075)!important}
+.fbsab-overview-card:after{content:"";position:absolute;width:105px;height:105px;right:-42px;bottom:-50px;border-radius:50%;border:1px solid rgba(69,88,140,.07);box-shadow:0 0 0 20px rgba(83,102,155,.025);pointer-events:none}
+.fbsab-overview-card.stock{background:radial-gradient(circle at 96% 0%,rgba(49,221,170,.22),transparent 38%),linear-gradient(145deg,#F6FFFB,#E8F8F1)!important}
+.fbsab-overview-card.pack{background:radial-gradient(circle at 96% 0%,rgba(103,101,255,.20),transparent 37%),linear-gradient(145deg,#F9FAFF,#ECEFFF)!important}
+.fbsab-overview-card.activity{background:radial-gradient(circle at 96% 0%,rgba(255,188,70,.21),transparent 35%),linear-gradient(145deg,#FFFDF8,#FFF4DF)!important}
+.fbsab-overview-label{font-size:10px!important;font-weight:950!important;letter-spacing:.55px!important;text-transform:uppercase;color:#7C879C!important}
+.fbsab-overview-value{display:block;margin-top:8px!important;font-size:27px!important;line-height:1!important;letter-spacing:-.8px;color:#172644!important}
+.fbsab-overview-card.stock .fbsab-overview-value{color:#08745E!important}.fbsab-overview-card.pack .fbsab-overview-value{color:#4F50B3!important}
+.fbsab-overview-hint{display:block;margin-top:7px!important;font-size:10px!important;line-height:1.45!important;color:#7C8492!important}
+.fbsab-mini-grid{gap:7px!important;margin-top:10px!important}.fbsab-mini{min-height:60px;padding:10px 11px!important;border-radius:15px!important;background:rgba(255,255,255,.78)!important;border:1px solid rgba(83,96,138,.09)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 4px 12px rgba(39,54,94,.035)!important}
+.fbsab-mini span{font-size:9px!important;color:#8790A0!important;font-weight:850!important}.fbsab-mini strong{display:block;margin-top:5px!important;font-size:14px!important;color:#263657!important}
+
+/* Daily summary */
+.fbsab-summary{gap:8px!important;margin-top:13px!important}.fbsab-summary>div{padding:11px 12px!important;border-radius:16px!important;background:rgba(255,255,255,.80)!important;border:1px solid rgba(45,85,112,.09)!important;box-shadow:inset 0 1px 0 #fff,0 5px 14px rgba(26,65,75,.035)!important}
+.fbsab-summary span{font-size:9px!important;color:#7E899B!important;font-weight:850!important}.fbsab-summary strong{display:block;margin-top:4px!important;font-size:15px!important;color:#173F39!important}
+
+/* Tables */
+.fbsab-stock-table,.fbsab-table{margin-top:12px!important;border-radius:18px!important;overflow:auto!important;border:1px solid rgba(44,67,121,.09)!important;background:rgba(255,255,255,.75)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.9)!important}
+.fbsab-stock-table table,.fbsab-table table{border-collapse:separate!important;border-spacing:0!important;width:100%!important;background:transparent!important}
+.fbsab-stock-table thead th,.fbsab-table thead th{position:sticky;top:0;z-index:1;padding:11px 10px!important;border-bottom:1px solid #E3E8F1!important;background:rgba(244,247,252,.96)!important;color:#68738B!important;font-size:9px!important;font-weight:950!important;letter-spacing:.22px!important;white-space:nowrap!important;backdrop-filter:blur(8px)}
+.fbsab-stock-table tbody td,.fbsab-table tbody td{padding:11px 10px!important;border-bottom:1px solid rgba(225,230,239,.78)!important;color:#2D3851!important;font-size:10px!important;background:rgba(255,255,255,.64)!important;transition:.16s ease!important}
+.fbsab-stock-table tbody tr:nth-child(even) td,.fbsab-table tbody tr:nth-child(even) td{background:rgba(247,249,253,.76)!important}
+.fbsab-stock-table tbody tr:hover td,.fbsab-table tbody tr:hover td{background:#F1F5FF!important}
+.fbsab-stock-table tbody tr:last-child td,.fbsab-table tbody tr:last-child td{border-bottom:none!important}
+.fbsab-stock-table td b,.fbsab-table td b{color:#223B77!important}
+.fbsab-table .stock-good{color:#08765F!important;font-weight:950!important}.fbsab-table .stock-low{color:#B77700!important;font-weight:950!important}.fbsab-table .stock-out{color:#C9445E!important;font-weight:950!important}
+
+/* Empty state */
+.fbsab-empty{min-height:100px!important;display:grid!important;place-items:center!important;padding:22px!important;border-radius:16px!important;border:1px dashed #D5DFED!important;background:linear-gradient(135deg,rgba(247,249,255,.92),rgba(241,249,246,.92))!important;color:#8490A2!important;text-align:center!important;font-size:11px!important}
+
+/* Form layout polish */
+.fbsab-receipt-form,.fbsab-form{gap:11px!important}.fbsab-receipt-card .form-actions,.fbsab-daily-card .form-actions{margin-top:13px!important;padding-top:12px!important;border-top:1px solid rgba(100,119,157,.09)!important}
+.fbsab-stock-table-card .table-tools,.fbsab-history-card .table-tools,.fbsab-receipt-history-card .table-tools{padding:1px 2px 0!important}
+
+/* Mobile */
+@media(max-width:760px){
+  .fbsab-main-head{border-radius:22px!important;padding:15px!important}.fbsab-main-logo{width:44px!important;height:44px!important;flex-basis:44px!important;border-radius:15px!important}
+  .fbsab-receipt-card,.fbsab-daily-card,.fbsab-stock-table-card,.fbsab-history-card,.fbsab-receipt-history-card,.fbsab-filter,.fbsab-overview-card{border-radius:20px!important}
+  .fbsab-receipt-card,.fbsab-daily-card,.fbsab-stock-table-card,.fbsab-history-card,.fbsab-receipt-history-card{padding:14px!important}
+  .fbsab-overview-value{font-size:23px!important}.fbsab-mini-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .fbsab-stock-table thead th,.fbsab-table thead th,.fbsab-stock-table tbody td,.fbsab-table tbody td{padding:9px 8px!important}
+}
+</style>
+<!-- /Seller Control: FBS full premium visual system v2 -->
+
+
+
+<!-- Seller Control: global section harmonization v1 -->
+<style id="seller-control-global-section-harmony-v1">
+/* Keep custom hero / analytics surfaces untouched; harmonize ordinary working sections */
+#pageRoot .form-card:not(.fbsab-receipt-card):not(.fbsab-daily-card),
+#pageRoot .table-card:not(.fbsab-stock-table-card):not(.fbsab-history-card):not(.fbsab-receipt-history-card):not(.dashviz-card),
+#pageRoot .panel:not(.dashboard-finance-panel):not(.progress-panel){
+  border-radius:22px!important;
+  border:1px solid rgba(42,63,118,.09)!important;
+  background:radial-gradient(circle at 100% 0%,rgba(91,108,219,.055),transparent 30%),linear-gradient(145deg,#FCFDFF,#F6F8FC)!important;
+  box-shadow:0 12px 30px rgba(32,49,99,.055)!important;
+}
+#pageRoot .section-title h3{letter-spacing:-.22px}
+#pageRoot .section-title p{color:#7D8798}
+#pageRoot .form-card:not(.fbsab-receipt-card):not(.fbsab-daily-card) .field label{font-size:10px;font-weight:850;color:#6F7A90;letter-spacing:.18px}
+#pageRoot .form-card:not(.fbsab-receipt-card):not(.fbsab-daily-card) input,
+#pageRoot .form-card:not(.fbsab-receipt-card):not(.fbsab-daily-card) select,
+#pageRoot .form-card:not(.fbsab-receipt-card):not(.fbsab-daily-card) textarea{
+  border-radius:12px!important;border-color:#DDE4EF!important;background:rgba(255,255,255,.88)!important;box-shadow:inset 0 1px 0 #fff,0 3px 9px rgba(34,54,103,.025)!important
+}
+#pageRoot .form-card:not(.fbsab-receipt-card):not(.fbsab-daily-card) input:focus,
+#pageRoot .form-card:not(.fbsab-receipt-card):not(.fbsab-daily-card) select:focus,
+#pageRoot .form-card:not(.fbsab-receipt-card):not(.fbsab-daily-card) textarea:focus{outline:none!important;border-color:#7A8EE2!important;box-shadow:0 0 0 4px rgba(92,111,213,.09)!important}
+#pageRoot .table-card:not(.fbsab-stock-table-card):not(.fbsab-history-card):not(.fbsab-receipt-history-card):not(.dashviz-card) .table-wrap{border-radius:16px!important;border:1px solid #E4E9F1!important;background:rgba(255,255,255,.72)!important;overflow:auto!important}
+#pageRoot .table-card:not(.fbsab-stock-table-card):not(.fbsab-history-card):not(.fbsab-receipt-history-card):not(.dashviz-card) table{border-collapse:separate!important;border-spacing:0!important}
+#pageRoot .table-card:not(.fbsab-stock-table-card):not(.fbsab-history-card):not(.fbsab-receipt-history-card):not(.dashviz-card) thead th{background:#F5F7FB!important;color:#6E7890!important;font-size:9px!important;font-weight:900!important}
+#pageRoot .table-card:not(.fbsab-stock-table-card):not(.fbsab-history-card):not(.fbsab-receipt-history-card):not(.dashviz-card) tbody tr:hover td{background:#F3F6FC!important}
+#pageRoot .btn{border-radius:11px}
+</style>
+<!-- /Seller Control: global section harmonization v1 -->
+
+
+<!-- Seller Control colorful section theme v1 -->
+<style id="sc-colorful-section-theme-v1">
+:root{--sc-ink:#17213a;--sc-soft-ink:#536078}
+body{background:#eaf0f7!important}
+.main{min-height:100vh;background:
+  radial-gradient(circle at 8% 5%,rgba(72,96,220,.10),transparent 24%),
+  radial-gradient(circle at 95% 88%,rgba(0,166,125,.09),transparent 26%),
+  linear-gradient(145deg,#e9eef7 0%,#eef4f8 45%,#e8f2ef 100%)!important}
+.content{max-width:1700px!important;padding:24px!important}
+#pageRoot.sc-color-page{position:relative;padding:16px;border-radius:30px;min-height:420px;color:var(--sc-ink);overflow:visible;background:
+  radial-gradient(circle at 7% 9%,var(--sc-glow-a),transparent 25%),
+  radial-gradient(circle at 93% 12%,var(--sc-glow-b),transparent 24%),
+  linear-gradient(145deg,var(--sc-bg-a),var(--sc-bg-b))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.48),0 18px 48px rgba(33,48,90,.08)}
+#pageRoot.sc-color-page .section-title h3,#pageRoot.sc-color-page h2,#pageRoot.sc-color-page h3,#pageRoot.sc-color-page h4{color:#17213a}
+#pageRoot.sc-color-page .section-title p,#pageRoot.sc-color-page .muted,#pageRoot.sc-color-page .hint,#pageRoot.sc-color-page small{color:#5b667b}
+#pageRoot.sc-color-page .card:not(.hero):not(.fbsab-hero):not(.module-hero):not(.unit-hero):not(.profit-motivation):not(.ai-hero):not(.general-report-hero):not(.docs-hero):not(.settings-hero):not(.finance-hero){
+  background:linear-gradient(145deg,var(--sc-card-a),var(--sc-card-b))!important;
+  border:1px solid var(--sc-line)!important;
+  box-shadow:0 10px 28px rgba(26,42,84,.075)!important;
+}
+#pageRoot.sc-color-page .field input,#pageRoot.sc-color-page .field select,#pageRoot.sc-color-page input:not([type="checkbox"]):not([type="radio"]),#pageRoot.sc-color-page select,#pageRoot.sc-color-page textarea{
+  background:var(--sc-input)!important;border-color:var(--sc-line)!important;color:#18213a!important
+}
+#pageRoot.sc-color-page input::placeholder,#pageRoot.sc-color-page textarea::placeholder{color:#7c879b!important}
+#pageRoot.sc-color-page .table-wrap,#pageRoot.sc-color-page .table-shell,#pageRoot.sc-color-page .data-table-wrap{background:var(--sc-table)!important;border-color:var(--sc-line)!important}
+#pageRoot.sc-color-page table{background:transparent!important}
+#pageRoot.sc-color-page th{background:var(--sc-th)!important;color:#25304a!important;border-color:var(--sc-line)!important}
+#pageRoot.sc-color-page td{background:rgba(255,255,255,.12)!important;border-color:var(--sc-line)!important;color:#273149!important}
+#pageRoot.sc-color-page tbody tr:nth-child(even) td{background:rgba(255,255,255,.22)!important}
+#pageRoot.sc-color-page tbody tr:hover td{background:rgba(255,255,255,.40)!important}
+#pageRoot.sc-color-page .productivity-bar{background:linear-gradient(145deg,var(--sc-card-a),var(--sc-card-b))!important;border-color:var(--sc-line)!important}
+
+/* Dashboard: no flat white surfaces, stronger text contrast */
+#pageRoot[data-page="dashboard"]{--sc-bg-a:#e4ebff;--sc-bg-b:#dff3eb;--sc-glow-a:rgba(73,91,220,.20);--sc-glow-b:rgba(0,166,125,.18);--sc-card-a:#edf1ff;--sc-card-b:#e5f5ef;--sc-line:#cbd7ea;--sc-input:#e8eefb;--sc-table:#e7eef9;--sc-th:#dce6f6}
+#pageRoot[data-page="dashboard"] .kpis .card:nth-child(1){background:linear-gradient(145deg,#e4ecff,#d9e5ff)!important}
+#pageRoot[data-page="dashboard"] .kpis .card:nth-child(2){background:linear-gradient(145deg,#fff0da,#f8e2c0)!important}
+#pageRoot[data-page="dashboard"] .kpis .card:nth-child(3){background:linear-gradient(145deg,#eee5ff,#e3dbfb)!important}
+#pageRoot[data-page="dashboard"] .kpis .card:nth-child(4){background:linear-gradient(145deg,#dff4e9,#d2ebdf)!important}
+#pageRoot[data-page="dashboard"] .kpis .card:nth-child(5){background:linear-gradient(145deg,#dff2f8,#d5eaf2)!important}
+#pageRoot[data-page="dashboard"] .kpis .card:nth-child(6){background:linear-gradient(145deg,#f9e3eb,#f0d8e2)!important}
+#pageRoot[data-page="dashboard"] .kpi .label,#pageRoot[data-page="dashboard"] .kpi .hint{color:#4e5b73!important}
+#pageRoot[data-page="dashboard"] .kpi .value{color:#15223d!important;-webkit-text-fill-color:#15223d!important;background:none!important}
+#pageRoot[data-page="dashboard"] .insight:nth-child(4n+1){background:linear-gradient(145deg,#e5edff,#dce7fb)!important}
+#pageRoot[data-page="dashboard"] .insight:nth-child(4n+2){background:linear-gradient(145deg,#dff5ed,#d6ece5)!important}
+#pageRoot[data-page="dashboard"] .insight:nth-child(4n+3){background:linear-gradient(145deg,#f4e9ff,#eadff8)!important}
+#pageRoot[data-page="dashboard"] .insight:nth-child(4n){background:linear-gradient(145deg,#fff0df,#f6e4cc)!important}
+#pageRoot[data-page="dashboard"] .store-card{background:linear-gradient(145deg,#e8ebff,#dceeea)!important}
+#pageRoot[data-page="dashboard"] .calendar-period{background:linear-gradient(145deg,#dfe8fb,#d9eee7)!important}
+#pageRoot[data-page="dashboard"] .dashviz-card,#pageRoot[data-page="dashboard"] .chart-card{background:linear-gradient(145deg,#e6ecfa,#e0efe9)!important}
+
+/* Each section gets its own tinted palette, same visual language as FBS */
+#pageRoot[data-page="generalReport"]{--sc-bg-a:#e8e7fb;--sc-bg-b:#dcefea;--sc-glow-a:rgba(91,74,204,.18);--sc-glow-b:rgba(0,143,110,.16);--sc-card-a:#edeafa;--sc-card-b:#e1f1ec;--sc-line:#cdcfe3;--sc-input:#e8e9f6;--sc-table:#e4e8f4;--sc-th:#dadff0}
+#pageRoot[data-page="profit"]{--sc-bg-a:#f5e3eb;--sc-bg-b:#f5ead8;--sc-glow-a:rgba(205,72,112,.16);--sc-glow-b:rgba(222,149,51,.16);--sc-card-a:#f8e9ef;--sc-card-b:#f2e5d4;--sc-line:#e2cbd0;--sc-input:#f3e6e8;--sc-table:#f3e5e9;--sc-th:#ead8dc}
+#pageRoot[data-page="store"]{--sc-bg-a:#dfeaff;--sc-bg-b:#dceff5;--sc-glow-a:rgba(50,88,220,.17);--sc-glow-b:rgba(24,151,189,.15);--sc-card-a:#e5edfb;--sc-card-b:#deedf1;--sc-line:#c7d5e6;--sc-input:#e4ebf5;--sc-table:#e2eaf3;--sc-th:#d6e1ed}
+#pageRoot[data-page="purchases"]{--sc-bg-a:#f6e7cc;--sc-bg-b:#e8efe1;--sc-glow-a:rgba(222,151,42,.17);--sc-glow-b:rgba(80,151,92,.13);--sc-card-a:#f6ead8;--sc-card-b:#e9efe1;--sc-line:#ded2b9;--sc-input:#f1e8d8;--sc-table:#efe7d8;--sc-th:#e8ddc7}
+#pageRoot[data-page="fulfillment"]{--sc-bg-a:#def1e8;--sc-bg-b:#dcebf5;--sc-glow-a:rgba(0,148,103,.16);--sc-glow-b:rgba(51,118,188,.14);--sc-card-a:#e2f2ea;--sc-card-b:#dfebf3;--sc-line:#c7dbd4;--sc-input:#e0eee9;--sc-table:#e0ecea;--sc-th:#d5e3df}
+#pageRoot[data-page="fbsAbdurahim"]{--sc-bg-a:#dfe8ff;--sc-bg-b:#d9efe8;--sc-glow-a:rgba(44,69,190,.20);--sc-glow-b:rgba(0,144,106,.18);--sc-card-a:#e7ecfb;--sc-card-b:#e0f0ea;--sc-line:#c8d5e5;--sc-input:#e5ebf5;--sc-table:#e3ebf4;--sc-th:#d8e3ef}
+#pageRoot[data-page="installments"]{--sc-bg-a:#eee2f8;--sc-bg-b:#e7e6f8;--sc-glow-a:rgba(138,72,190,.16);--sc-glow-b:rgba(77,78,199,.15);--sc-card-a:#f0e8f7;--sc-card-b:#e9e8f5;--sc-line:#d9cce6;--sc-input:#ede6f2;--sc-table:#ece6f2;--sc-th:#e2d9ea}
+#pageRoot[data-page="unitEconomics"]{--sc-bg-a:#dff0f4;--sc-bg-b:#e6e4f8;--sc-glow-a:rgba(31,148,170,.16);--sc-glow-b:rgba(105,76,190,.15);--sc-card-a:#e2eff1;--sc-card-b:#e7e5f4;--sc-line:#c8dce0;--sc-input:#e2ecef;--sc-table:#e1ebef;--sc-th:#d7e4e9}
+#pageRoot[data-page="finance"]{--sc-bg-a:#dbeee9;--sc-bg-b:#dde8f5;--sc-glow-a:rgba(0,132,96,.18);--sc-glow-b:rgba(55,94,177,.14);--sc-card-a:#e0eee9;--sc-card-b:#e0e9f2;--sc-line:#c5dad4;--sc-input:#deebe7;--sc-table:#dfeae9;--sc-th:#d4e2df}
+#pageRoot[data-page="investments"]{--sc-bg-a:#f3e6c8;--sc-bg-b:#dcefe6;--sc-glow-a:rgba(197,137,29,.18);--sc-glow-b:rgba(0,142,96,.15);--sc-card-a:#f3ead4;--sc-card-b:#dfefe8;--sc-line:#ddcfad;--sc-input:#efe7d4;--sc-table:#eee7d6;--sc-th:#e6dcc2}
+#pageRoot[data-page="loans"]{--sc-bg-a:#f2dfe6;--sc-bg-b:#e3e8f1;--sc-glow-a:rgba(194,68,105,.16);--sc-glow-b:rgba(73,92,142,.13);--sc-card-a:#f3e5ea;--sc-card-b:#e5e9ef;--sc-line:#dec9d0;--sc-input:#eee4e8;--sc-table:#eee5e8;--sc-th:#e5d9de}
+#pageRoot[data-page="returnMoney"]{--sc-bg-a:#dcefe5;--sc-bg-b:#dbe8f6;--sc-glow-a:rgba(0,148,92,.17);--sc-glow-b:rgba(48,91,190,.15);--sc-card-a:#e0eee6;--sc-card-b:#dfe8f2;--sc-line:#c4d9cf;--sc-input:#deebe5;--sc-table:#dfeae7;--sc-th:#d4e2dd}
+#pageRoot[data-page="ai"]{--sc-bg-a:#e6e0f7;--sc-bg-b:#dceef1;--sc-glow-a:rgba(103,70,193,.17);--sc-glow-b:rgba(28,142,160,.15);--sc-card-a:#eae5f5;--sc-card-b:#e0edef;--sc-line:#d2cce3;--sc-input:#e6e4f0;--sc-table:#e5e5f0;--sc-th:#dcddec}
+#pageRoot[data-page="documents"]{--sc-bg-a:#efe6d7;--sc-bg-b:#dfe9f5;--sc-glow-a:rgba(183,128,52,.14);--sc-glow-b:rgba(61,101,176,.14);--sc-card-a:#efe9df;--sc-card-b:#e2e9f2;--sc-line:#d8d0c1;--sc-input:#ebe6df;--sc-table:#ebe6df;--sc-th:#e2ddd5}
+#pageRoot[data-page="settings"]{--sc-bg-a:#e2e8f1;--sc-bg-b:#dceee7;--sc-glow-a:rgba(72,91,139,.14);--sc-glow-b:rgba(0,136,92,.14);--sc-card-a:#e6eaf0;--sc-card-b:#dfece7;--sc-line:#cbd5d8;--sc-input:#e3e8ea;--sc-table:#e3e8ea;--sc-th:#d9e1e2}
+
+/* Keep FBS specially polished, while eliminating remaining pure whites */
+#pageRoot[data-page="fbsAbdurahim"] .fbsab-stock-card{background:linear-gradient(145deg,#dff2e9,#dceaf7)!important}
+#pageRoot[data-page="fbsAbdurahim"] .fbsab-form-note{background:linear-gradient(145deg,#e6ebf7,#e1efe9)!important}
+#pageRoot[data-page="fbsAbdurahim"] .fbsab-summary>div{background:linear-gradient(145deg,#e7ebf8,#e1efe9)!important}
+#pageRoot[data-page="fbsAbdurahim"] .fbsab-step,#pageRoot[data-page="fbsAbdurahim"] .fbsab-filter-current{background:#dbe6fa!important}
+
+/* Compact responsive spacing */
+@media(max-width:900px){.content{padding:14px!important}#pageRoot.sc-color-page{padding:10px;border-radius:22px}}
+</style>
+<script id="sc-colorful-section-theme-js-v1">
+(function(){
+  function applyColorPage(){
+    const root=document.getElementById('pageRoot');
+    if(!root)return;
+    const page=(typeof currentPage!=='undefined'&&currentPage)?String(currentPage):'dashboard';
+    root.dataset.page=page;
+    root.classList.add('sc-color-page');
+  }
+  function boot(){
+    const app=document.getElementById('appRoot');
+    if(app)new MutationObserver(()=>requestAnimationFrame(applyColorPage)).observe(app,{childList:true,subtree:true});
+    applyColorPage();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  const previousRender=window.renderApp;
+  if(typeof previousRender==='function'&&!previousRender.__scColorWrapped){
+    const wrapped=function(){const r=previousRender.apply(this,arguments);requestAnimationFrame(applyColorPage);return r};
+    wrapped.__scColorWrapped=true;window.renderApp=wrapped;
+  }
+})();
+</script>
+<!-- /Seller Control colorful section theme v1 -->
+
+
+
+<!-- Seller Control: dashboard deep-color final override -->
+<script id="sc-dashboard-deep-color-final-js">
+(function(){
+  function syncDashboardClass(){
+    var root=document.getElementById('pageRoot');
+    var isDash=!!(root && root.dataset && root.dataset.page==='dashboard');
+    document.body.classList.toggle('sc-dashboard-active',isDash);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){syncDashboardClass();setTimeout(syncDashboardClass,60)});else{syncDashboardClass();setTimeout(syncDashboardClass,60)}
+  var target=document.getElementById('appRoot')||document.body;
+  if(target)new MutationObserver(function(){requestAnimationFrame(syncDashboardClass)}).observe(target,{childList:true,subtree:true,attributes:true,attributeFilter:['data-page','class']});
+})();
+</script>
+<!-- /Seller Control: dashboard deep-color final override -->
+
+
+<!-- Seller Control: dashboard FBS-style final override -->
+<!-- /Seller Control: dashboard FBS-style final override -->
+
+
+<!-- FINAL DASHBOARD: EXACT FBS HIGH-CONTRAST THEME -->
+<!-- /FINAL DASHBOARD: EXACT FBS HIGH-CONTRAST THEME -->
+
+
+
+<!-- FINAL DASHBOARD: EXACT FBS PAGE PALETTE -->
+<style id="sc-dashboard-exact-fbs-final">
+/* EXACT FBS language: soft blue + mint page, colored FBS cards, dark readable type. */
+#pageRoot[data-page="dashboard"],
+#pageRoot[data-page="dashboard"].sc-color-page{
+  color:#233553!important;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(61,202,174,.12),transparent 34%),
+    radial-gradient(circle at 0% 100%,rgba(89,106,255,.10),transparent 32%),
+    linear-gradient(135deg,#F4F7FF 0%,#F5FCF9 100%)!important;
+  border:1px solid #DDE6F8!important;
+  border-radius:28px!important;
+  box-shadow:0 18px 46px rgba(41,66,127,.08)!important;
+}
+#pageRoot[data-page="dashboard"] h2,
+#pageRoot[data-page="dashboard"] h3,
+#pageRoot[data-page="dashboard"] h4,
+#pageRoot[data-page="dashboard"] strong,
+#pageRoot[data-page="dashboard"] b,
+#pageRoot[data-page="dashboard"] .value{color:#233553!important;-webkit-text-fill-color:currentColor!important}
+#pageRoot[data-page="dashboard"] p,
+#pageRoot[data-page="dashboard"] small,
+#pageRoot[data-page="dashboard"] .sub,
+#pageRoot[data-page="dashboard"] .hint,
+#pageRoot[data-page="dashboard"] .label{color:#66758F!important}
+
+/* Exact FBS card surfaces */
+#pageRoot[data-page="dashboard"] .calendar-period,
+#pageRoot[data-page="dashboard"] .card,
+#pageRoot[data-page="dashboard"] .panel,
+#pageRoot[data-page="dashboard"] .chart-card,
+#pageRoot[data-page="dashboard"] .dashviz-card{
+  border-radius:22px!important;
+  border:1px solid rgba(39,61,126,.10)!important;
+  box-shadow:0 12px 30px rgba(33,52,108,.065)!important;
+}
+#pageRoot[data-page="dashboard"] .calendar-period{
+  background:radial-gradient(circle at 100% 0%,rgba(61,202,174,.10),transparent 35%),linear-gradient(135deg,#F4F7FF,#F5FCF9)!important;
+  border-color:#DDE6F8!important;
+}
+/* KPI = the same three FBS overview families, repeated */
+#pageRoot[data-page="dashboard"] .kpis .card:nth-child(3n+1){
+  background:radial-gradient(circle at 100% 0%,rgba(54,221,171,.19),transparent 35%),linear-gradient(145deg,#F7FFFB,#EAF9F2)!important;
+  border-color:#D6EFE4!important
+}
+#pageRoot[data-page="dashboard"] .kpis .card:nth-child(3n+2){
+  background:radial-gradient(circle at 100% 0%,rgba(103,104,255,.17),transparent 35%),linear-gradient(145deg,#FAFAFF,#EEF0FF)!important;
+  border-color:#DDE1FF!important
+}
+#pageRoot[data-page="dashboard"] .kpis .card:nth-child(3n){
+  background:radial-gradient(circle at 100% 0%,rgba(255,190,82,.17),transparent 30%),linear-gradient(145deg,#FFFDF8,#FFF6E7)!important;
+  border-color:#F4E4C4!important
+}
+#pageRoot[data-page="dashboard"] .kpi .value{color:#233553!important;text-shadow:none!important}
+#pageRoot[data-page="dashboard"] .kpi .label,
+#pageRoot[data-page="dashboard"] .kpi .hint{color:#65748C!important}
+
+/* Insights follow FBS receipt/daily/history colors */
+#pageRoot[data-page="dashboard"] .insight:nth-child(4n+1){background:radial-gradient(circle at 100% 0%,rgba(89,106,255,.09),transparent 28%),linear-gradient(145deg,#FBFCFF,#F3F6FF)!important}
+#pageRoot[data-page="dashboard"] .insight:nth-child(4n+2){background:radial-gradient(circle at 100% 0%,rgba(0,179,139,.10),transparent 30%),linear-gradient(145deg,#FBFFFD,#F0FBF7)!important}
+#pageRoot[data-page="dashboard"] .insight:nth-child(4n+3){background:radial-gradient(circle at 100% 0%,rgba(255,184,72,.11),transparent 28%),linear-gradient(145deg,#FFFEFB,#FFF8EC)!important}
+#pageRoot[data-page="dashboard"] .insight:nth-child(4n){background:radial-gradient(circle at 100% 0%,rgba(114,91,255,.08),transparent 30%),linear-gradient(145deg,#FEFDFF,#F7F4FF)!important}
+#pageRoot[data-page="dashboard"] .insight strong{color:#233553!important}
+#pageRoot[data-page="dashboard"] .insight span,
+#pageRoot[data-page="dashboard"] .insight small{color:#68778F!important}
+
+/* WB analytics = FBS colored surfaces, not plain white */
+#pageRoot[data-page="dashboard"] .real-wb-dashboard-card,
+#pageRoot[data-page="dashboard"] .real-wb-monthly-card{
+  background:radial-gradient(circle at 100% 0%,rgba(89,106,255,.09),transparent 28%),linear-gradient(145deg,#FBFCFF,#F3F6FF)!important;
+}
+#pageRoot[data-page="dashboard"] .dashviz-expense{
+  background:radial-gradient(circle at 100% 0%,rgba(255,184,72,.11),transparent 28%),linear-gradient(145deg,#FFFEFB,#FFF8EC)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-card{
+  background:linear-gradient(145deg,#EEF3FF,#EAF8F3)!important;
+  border:1px solid #D9E4F1!important
+}
+#pageRoot[data-page="dashboard"] .dashviz-title h3,
+#pageRoot[data-page="dashboard"] .dashviz-total strong,
+#pageRoot[data-page="dashboard"] .real-wb-month-value{color:#233553!important}
+#pageRoot[data-page="dashboard"] .dashviz-title p,
+#pageRoot[data-page="dashboard"] .dashviz-total span,
+#pageRoot[data-page="dashboard"] .real-wb-month-name{color:#6B7890!important}
+
+/* Stores */
+#pageRoot[data-page="dashboard"] .store-card:nth-child(odd){
+  background:radial-gradient(circle at 100% 0%,rgba(54,221,171,.15),transparent 35%),linear-gradient(145deg,#F7FFFB,#EAF9F2)!important;
+  border-color:#D6EFE4!important
+}
+#pageRoot[data-page="dashboard"] .store-card:nth-child(even){
+  background:radial-gradient(circle at 100% 0%,rgba(103,104,255,.14),transparent 35%),linear-gradient(145deg,#FAFAFF,#EEF0FF)!important;
+  border-color:#DDE1FF!important
+}
+#pageRoot[data-page="dashboard"] .store-card h3,
+#pageRoot[data-page="dashboard"] .store-card strong,
+#pageRoot[data-page="dashboard"] .store-card .value{color:#233553!important}
+#pageRoot[data-page="dashboard"] .store-card p,
+#pageRoot[data-page="dashboard"] .store-card span,
+#pageRoot[data-page="dashboard"] .store-card small{color:#68778F!important}
+
+/* Finance = FBS mint */
+#pageRoot[data-page="dashboard"] .dashboard-finance-panel{
+  background:radial-gradient(circle at 100% 0%,rgba(0,179,139,.10),transparent 30%),linear-gradient(145deg,#FBFFFD,#F0FBF7)!important;
+}
+#pageRoot[data-page="dashboard"] .dashboard-finance-balance,
+#pageRoot[data-page="dashboard"] .dashboard-finance-stat{
+  background:rgba(255,255,255,.72)!important;
+  border:1px solid rgba(63,84,138,.10)!important;
+  border-radius:15px!important
+}
+#pageRoot[data-page="dashboard"] .dashboard-finance-balance strong,
+#pageRoot[data-page="dashboard"] .dashboard-finance-stat b{color:#233553!important}
+#pageRoot[data-page="dashboard"] .dashboard-finance-balance span,
+#pageRoot[data-page="dashboard"] .dashboard-finance-balance small,
+#pageRoot[data-page="dashboard"] .dashboard-finance-stat span{color:#68778F!important}
+
+/* Return panel: keep premium but use the FBS light language */
+#pageRoot[data-page="dashboard"] .dashboard-return-panel{
+  background:radial-gradient(circle at 100% 0%,rgba(31,139,226,.08),transparent 30%),linear-gradient(145deg,#FCFEFF,#F1F8FF)!important;
+  border:1px solid #DCE9F7!important;
+  color:#233553!important
+}
+#pageRoot[data-page="dashboard"] .dashboard-return-panel h3,
+#pageRoot[data-page="dashboard"] .dashboard-return-panel strong,
+#pageRoot[data-page="dashboard"] .dashboard-return-panel b{color:#233553!important}
+#pageRoot[data-page="dashboard"] .dashboard-return-panel p,
+#pageRoot[data-page="dashboard"] .dashboard-return-panel span{color:#68778F!important}
+#pageRoot[data-page="dashboard"] .dashboard-return-title small{color:#24528B!important;background:linear-gradient(135deg,#E9EEFF,#E8F8F2)!important;border:1px solid #D8E5F6!important}
+
+/* FBS summary card itself stays exactly its original rich FBS card. */
+#pageRoot[data-page="dashboard"] .dashboard-fbs-card{
+  color:#fff!important;
+  background:radial-gradient(circle at 92% 0%,rgba(54,222,175,.22),transparent 30%),radial-gradient(circle at 3% 100%,rgba(115,90,255,.22),transparent 27%),linear-gradient(128deg,#10193F 0%,#233893 50%,#0D675B 100%)!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  box-shadow:0 20px 48px rgba(20,36,92,.18)!important
+}
+#pageRoot[data-page="dashboard"] .dashboard-fbs-card h3,
+#pageRoot[data-page="dashboard"] .dashboard-fbs-card strong{color:#fff!important;-webkit-text-fill-color:#fff!important}
+#pageRoot[data-page="dashboard"] .dashboard-fbs-card p,
+#pageRoot[data-page="dashboard"] .dashboard-fbs-card span,
+#pageRoot[data-page="dashboard"] .dashboard-fbs-card small{color:rgba(255,255,255,.72)!important}
+#pageRoot[data-page="dashboard"] .dashboard-fbs-metric{background:rgba(255,255,255,.085)!important;border-color:rgba(255,255,255,.10)!important}
+
+/* Controls use the exact FBS filter language */
+#pageRoot[data-page="dashboard"] input:not([type="checkbox"]):not([type="radio"]),
+#pageRoot[data-page="dashboard"] select,
+#pageRoot[data-page="dashboard"] textarea{
+  background:linear-gradient(135deg,#F7F9FF,#F4FBF8)!important;
+  color:#233553!important;
+  border:1px solid #D8E5F6!important;
+  box-shadow:none!important
+}
+#pageRoot[data-page="dashboard"] input::placeholder,
+#pageRoot[data-page="dashboard"] textarea::placeholder{color:#8B98AA!important}
+#pageRoot[data-page="dashboard"] .calendar-field label{color:#5F6E86!important}
+#pageRoot[data-page="dashboard"] .btn.primary{background:linear-gradient(135deg,#3D5CE4,#0E9A7D)!important;border-color:transparent!important;color:#fff!important}
+#pageRoot[data-page="dashboard"] .btn:not(.primary){background:linear-gradient(135deg,#E9EEFF,#E8F8F2)!important;color:#294DA5!important;border:1px solid #D8E5F6!important}
+
+/* Topbar: same FBS filter shell, not white and not dark. */
+body.sc-dashboard-active .topbar{
+  background:radial-gradient(circle at 100% 0%,rgba(61,202,174,.10),transparent 35%),linear-gradient(135deg,#F4F7FF,#F5FCF9)!important;
+  border-bottom:1px solid #DDE6F8!important;
+  box-shadow:0 9px 24px rgba(41,66,127,.06)!important
+}
+body.sc-dashboard-active .topbar h2{color:#233553!important}
+body.sc-dashboard-active .topbar .sub{color:#6A7890!important}
+
+@media(max-width:900px){
+ #pageRoot[data-page="dashboard"],#pageRoot[data-page="dashboard"].sc-color-page{border-radius:22px!important}
+}
+</style>
+<!-- /FINAL DASHBOARD: EXACT FBS PAGE PALETTE -->
+
+<style id="seller-control-dashboard-wb-panels-dark-fix">
+/* Fix dashboard 01/02 panels: remove pale/white backgrounds and make charts more visible */
+#pageRoot[data-page="dashboard"] .real-wb-dashboard-card,
+#pageRoot[data-page="dashboard"] .real-wb-monthly-card{
+  background:
+    radial-gradient(circle at 90% 4%,rgba(91,231,184,.22),transparent 31%),
+    radial-gradient(circle at -5% 105%,rgba(90,112,255,.28),transparent 40%),
+    linear-gradient(140deg,#111B3D 0%,#1B2E63 52%,#0D665A 115%)!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  box-shadow:0 22px 54px rgba(22,34,73,.18)!important;
+}
+#pageRoot[data-page="dashboard"] .dashviz-expense{
+  background:
+    radial-gradient(circle at 90% 0%,rgba(255,198,96,.26),transparent 34%),
+    radial-gradient(circle at 0% 115%,rgba(119,100,255,.22),transparent 42%),
+    linear-gradient(142deg,#251A3D 0%,#3B254F 48%,#674322 120%)!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  box-shadow:0 22px 54px rgba(22,34,73,.18)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-card{
+  background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.065))!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 10px 25px rgba(0,0,0,.10)!important;
+  backdrop-filter:blur(12px)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-card.latest{
+  background:linear-gradient(145deg,rgba(112,238,195,.20),rgba(255,255,255,.07))!important;
+  border-color:rgba(116,238,198,.30)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-card.loss{
+  background:linear-gradient(145deg,rgba(255,109,137,.18),rgba(255,255,255,.06))!important;
+}
+#pageRoot[data-page="dashboard"] .dashviz-title h3,
+#pageRoot[data-page="dashboard"] .dashviz-total strong,
+#pageRoot[data-page="dashboard"] .real-wb-month-value,
+#pageRoot[data-page="dashboard"] .real-wb-monthly-head h3{color:#fff!important}
+#pageRoot[data-page="dashboard"] .dashviz-title p,
+#pageRoot[data-page="dashboard"] .dashviz-total span,
+#pageRoot[data-page="dashboard"] .real-wb-month-name,
+#pageRoot[data-page="dashboard"] .real-wb-month-empty{color:rgba(255,255,255,.66)!important}
+#pageRoot[data-page="dashboard"] .dashviz-expense .dashviz-chart-shell{
+  background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.035))!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06)!important;
+}
+#pageRoot[data-page="dashboard"] .sc-expense-analysis{
+  background:rgba(255,255,255,.075)!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+}
+#pageRoot[data-page="dashboard"] .sc-expense-analysis span{color:rgba(255,255,255,.58)!important}
+#pageRoot[data-page="dashboard"] .sc-expense-analysis b{color:#fff!important}
+#pageRoot[data-page="dashboard"] .sc-expense-analysis strong{color:#FFD797!important}
+</style>
+
+
+<style id="seller-control-dashboard-clean-panels-fix">
+/* Remove extra FBS top pills */
+.fbsab-main-pills{display:none!important}
+
+/* Dashboard 01/02: no white backgrounds, bright brand colors */
+#pageRoot[data-page="dashboard"] .real-wb-dashboard-card,
+#pageRoot[data-page="dashboard"] .real-wb-monthly-card{
+  background:
+    radial-gradient(circle at 92% 6%,rgba(108,230,198,.30),transparent 32%),
+    radial-gradient(circle at 2% 98%,rgba(110,128,255,.26),transparent 40%),
+    linear-gradient(145deg,#163864 0%,#1F5D86 48%,#1E8B81 115%)!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.13)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-card{
+  background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.08))!important;
+  border:1px solid rgba(255,255,255,.14)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 10px 24px rgba(0,0,0,.12)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-card.latest{
+  background:linear-gradient(145deg,rgba(115,243,206,.24),rgba(255,255,255,.10))!important;
+  border-color:rgba(143,245,214,.32)!important;
+}
+#pageRoot[data-page="dashboard"] .dashviz-expense{
+  background:
+    radial-gradient(circle at 90% 4%,rgba(255,205,111,.34),transparent 34%),
+    radial-gradient(circle at 5% 102%,rgba(124,111,255,.22),transparent 38%),
+    linear-gradient(145deg,#5A3520 0%,#8B4E27 44%,#D68938 118%)!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.13)!important;
+}
+#pageRoot[data-page="dashboard"] .dashviz-expense .dashviz-chart-shell{
+  background:linear-gradient(145deg,rgba(255,255,255,.11),rgba(255,255,255,.05))!important;
+  border:1px solid rgba(255,255,255,.11)!important;
+}
+#pageRoot[data-page="dashboard"] .sc-expense-analysis{
+  background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.06))!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+}
+#pageRoot[data-page="dashboard"] .sc-expense-analysis span{color:rgba(255,248,233,.72)!important}
+#pageRoot[data-page="dashboard"] .sc-expense-analysis b{color:#fff!important}
+#pageRoot[data-page="dashboard"] .sc-expense-analysis strong{color:#FFF0B8!important}
+#pageRoot[data-page="dashboard"] .dashviz-title h3,
+#pageRoot[data-page="dashboard"] .dashviz-total strong,
+#pageRoot[data-page="dashboard"] .real-wb-month-value,
+#pageRoot[data-page="dashboard"] .real-wb-monthly-head h3{color:#fff!important}
+#pageRoot[data-page="dashboard"] .dashviz-title p,
+#pageRoot[data-page="dashboard"] .dashviz-total span,
+#pageRoot[data-page="dashboard"] .real-wb-month-name,
+#pageRoot[data-page="dashboard"] .real-wb-month-empty{color:rgba(244,249,255,.72)!important}
+</style>
+
+<style id="seller-control-wb-no-white-final">
+/* FINAL: dashboard WB analytics 01 + 02 — absolutely no white surfaces */
+#pageRoot[data-page="dashboard"] .dashviz-grid{
+  padding:14px!important;
+  border-radius:30px!important;
+  background:
+    radial-gradient(circle at 8% 12%,rgba(76,105,255,.28),transparent 34%),
+    radial-gradient(circle at 94% 88%,rgba(20,198,155,.28),transparent 36%),
+    linear-gradient(135deg,#173C6B 0%,#1E6181 48%,#187E73 100%)!important;
+  border:1px solid rgba(255,255,255,.15)!important;
+  box-shadow:0 22px 55px rgba(22,54,92,.20)!important;
+}
+#pageRoot[data-page="dashboard"] .dashviz-grid > .dashviz-card{
+  border-radius:24px!important;
+  border:1px solid rgba(255,255,255,.15)!important;
+  box-shadow:0 16px 36px rgba(9,35,62,.18)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-dashboard-card,
+#pageRoot[data-page="dashboard"] .real-wb-monthly-card{
+  background:
+    radial-gradient(circle at 92% 8%,rgba(111,242,205,.24),transparent 32%),
+    linear-gradient(145deg,#214E83 0%,#286A8A 52%,#218D7C 115%)!important;
+  background-color:#214E83!important;
+  color:#fff!important;
+}
+#pageRoot[data-page="dashboard"] .dashviz-expense{
+  background:
+    radial-gradient(circle at 90% 8%,rgba(121,231,209,.23),transparent 34%),
+    linear-gradient(145deg,#274B79 0%,#315F86 50%,#327E78 118%)!important;
+  background-color:#274B79!important;
+  color:#fff!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-months{
+  margin-top:10px!important;
+  padding:10px!important;
+  border-radius:18px!important;
+  background:linear-gradient(145deg,rgba(8,37,69,.32),rgba(13,87,83,.30))!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-empty{
+  min-height:108px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:15px!important;
+  background:linear-gradient(145deg,rgba(87,126,213,.34),rgba(42,173,143,.28))!important;
+  border:1px solid rgba(255,255,255,.13)!important;
+  color:#F4FCFF!important;
+  font-weight:850!important;
+  text-shadow:0 1px 2px rgba(0,0,0,.14)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-card{
+  background:linear-gradient(145deg,rgba(111,143,220,.36),rgba(47,177,146,.26))!important;
+  background-color:#326C86!important;
+  border:1px solid rgba(255,255,255,.14)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact,
+#pageRoot[data-page="dashboard"] .dashviz-expense .dashviz-chart-shell,
+#pageRoot[data-page="dashboard"] .sc-expense-analysis{
+  background:linear-gradient(145deg,rgba(22,53,91,.54),rgba(28,110,103,.44))!important;
+  background-color:#244F72!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+}
+#pageRoot[data-page="dashboard"] .dashviz-title h3,
+#pageRoot[data-page="dashboard"] .real-wb-monthly-head h3,
+#pageRoot[data-page="dashboard"] .real-wb-month-value,
+#pageRoot[data-page="dashboard"] .sc-expense-analysis b,
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact b{color:#FFFFFF!important}
+#pageRoot[data-page="dashboard"] .dashviz-title p,
+#pageRoot[data-page="dashboard"] .dashviz-total span,
+#pageRoot[data-page="dashboard"] .real-wb-month-name,
+#pageRoot[data-page="dashboard"] .sc-expense-analysis span{color:#D5EAF6!important}
+#pageRoot[data-page="dashboard"] .dashviz-total strong,
+#pageRoot[data-page="dashboard"] .sc-expense-analysis strong{color:#8FF0CF!important}
+#pageRoot[data-page="dashboard"] .dashviz-index{
+  color:#EAF6FF!important;
+  background:#315F8D!important;
+  border:1px solid rgba(255,255,255,.16)!important;
+}
+</style>
+
+<style id="seller-control-dashboard-text-black-fbs-light-fix">
+/* Dashboard heading and plan badge: dark readable text */
+body.sc-dashboard-active .topbar h2,
+body.sc-dashboard-active .topbar .sub{color:#1A2746!important}
+.sc-trial-banner.sc-paid-inline{
+  background:linear-gradient(145deg,#EAF8F2,#E4EEFF)!important;
+  border:1px solid #CFE0EC!important;
+  box-shadow:0 8px 22px rgba(30,58,95,.08)!important;
+}
+.sc-paid-inline .sc-trial-icon{background:#CFEFDE!important;color:#155A44!important}
+.sc-paid-inline .sc-trial-copy strong,
+.sc-paid-inline .sc-trial-copy span,
+.sc-paid-inline .sc-trial-plan{color:#15284B!important}
+.sc-paid-inline .sc-trial-plan{background:#DCE8FF!important;border:1px solid #C7D9FF!important}
+
+/* Dashboard FBS summary card: lighter brand surface + all dark text */
+#pageRoot[data-page="dashboard"] .dashboard-fbs-card{
+  background:
+    radial-gradient(circle at 92% 0%,rgba(68,214,177,.22),transparent 31%),
+    radial-gradient(circle at 5% 100%,rgba(104,114,255,.18),transparent 32%),
+    linear-gradient(145deg,#F3FBF8 0%,#EAF6F9 48%,#E6F0FF 100%)!important;
+  border:1px solid #D7E4EE!important;
+  box-shadow:0 18px 42px rgba(25,56,92,.10)!important;
+  color:#17284A!important;
+}
+#pageRoot[data-page="dashboard"] .dashboard-fbs-card:before{
+  border-color:rgba(31,70,110,.08)!important;
+  box-shadow:0 0 0 28px rgba(38,95,154,.03),0 0 0 56px rgba(38,95,154,.02)!important;
+}
+#pageRoot[data-page="dashboard"] .dashboard-fbs-card h3,
+#pageRoot[data-page="dashboard"] .dashboard-fbs-card strong{color:#17284A!important;-webkit-text-fill-color:#17284A!important}
+#pageRoot[data-page="dashboard"] .dashboard-fbs-card p,
+#pageRoot[data-page="dashboard"] .dashboard-fbs-card span,
+#pageRoot[data-page="dashboard"] .dashboard-fbs-card small{color:#5E6E88!important}
+#pageRoot[data-page="dashboard"] .dashboard-fbs-logo{
+  background:linear-gradient(135deg,#233FAF,#159578)!important;
+  color:#fff!important;
+}
+#pageRoot[data-page="dashboard"] .dashboard-fbs-metric{
+  background:linear-gradient(145deg,rgba(255,255,255,.74),rgba(248,251,255,.82))!important;
+  border:1px solid #D8E4EE!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 8px 18px rgba(24,51,88,.06)!important;
+}
+#pageRoot[data-page="dashboard"] .dashboard-fbs-metric strong.good{color:#0F8A67!important}
+#pageRoot[data-page="dashboard"] .dashboard-fbs-metric strong.warn{color:#AF7A00!important}
+#pageRoot[data-page="dashboard"] .dashboard-fbs-open{
+  background:linear-gradient(145deg,#EEF5FF,#E8F8F1)!important;
+  border:1px solid #D5E2EF!important;
+  color:#17284A!important;
+}
+#pageRoot[data-page="dashboard"] .dashboard-fbs-open:hover{background:linear-gradient(145deg,#E6F0FF,#E0F6EC)!important}
+#pageRoot[data-page="dashboard"] .dashboard-fbs-chart{
+  background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(244,250,255,.95))!important;
+  border:1px solid #D8E4EF!important;
+  box-shadow:0 10px 26px rgba(18,43,76,.08),inset 0 1px 0 rgba(255,255,255,.75)!important;
+}
+#pageRoot[data-page="dashboard"] .dashboard-fbs-chart-empty,
+#pageRoot[data-page="dashboard"] .dashboard-fbs-chart-legend span{color:#5E6E88!important}
+</style>
+
+
+<style id="seller-control-wb-headings-black-fix">
+/* Dashboard WB section headings: dark readable text */
+#pageRoot[data-page="dashboard"] .real-wb-monthly-head h3,
+#pageRoot[data-page="dashboard"] .dashviz-expense .dashviz-title h3{
+  color:#17284A!important;
+  -webkit-text-fill-color:#17284A!important;
+  font-weight:900!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact,
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact span{
+  color:#17284A!important;
+  -webkit-text-fill-color:#17284A!important;
+  font-weight:850!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact{
+  background:rgba(255,255,255,.74)!important;
+  border:1px solid rgba(25,55,92,.12)!important;
+}
+</style>
+
+
+<style id="seller-control-store-pill-black">
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact,
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact span{
+  color:#111827!important;
+  -webkit-text-fill-color:#111827!important;
+}
+</style>
+
+
+<style id="seller-control-wb-month-name-black">
+#pageRoot[data-page="dashboard"] .real-wb-month-name{
+  color:#111827!important;
+  -webkit-text-fill-color:#111827!important;
+}
+</style>
+
+
+<style id="seller-control-admin-headings-white-fix">
+.sc-admin-hero h3{
+  color:#FFFFFF!important;
+  -webkit-text-fill-color:#FFFFFF!important;
+}
+</style>
+
+
+<style id="seller-control-return-money-text-black-fix">
+#pageRoot[data-page="dashboard"] .dashboard-return-title small,
+#pageRoot[data-page="dashboard"] .dashboard-return-title h3,
+#pageRoot[data-page="dashboard"] .dashboard-return-store{
+  color:#111827!important;
+  -webkit-text-fill-color:#111827!important;
+}
+</style>
+
+
+<style id="seller-control-return-percent-white-fix">
+#pageRoot[data-page="dashboard"] .dashboard-return-ring strong,
+#pageRoot[data-page="dashboard"] .dashboard-return-ring span{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+</style>
+
+
+<style id="seller-control-wb01-brighter-white-text-final">
+/* 01 — Реальная прибыль WB: brighter brand background, all text white */
+#pageRoot[data-page="dashboard"] .real-wb-dashboard-card,
+#pageRoot[data-page="dashboard"] .real-wb-monthly-card{
+  background:
+    radial-gradient(circle at 92% 5%,rgba(146,255,221,.40),transparent 34%),
+    radial-gradient(circle at 2% 102%,rgba(105,139,255,.34),transparent 38%),
+    linear-gradient(140deg,#2E67B4 0%,#2F86A8 50%,#23A184 112%)!important;
+  background-color:#2E67B4!important;
+  border:1px solid rgba(255,255,255,.24)!important;
+  box-shadow:0 18px 42px rgba(24,76,128,.22)!important;
+  color:#fff!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-monthly-head h3,
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact,
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact span,
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact b,
+#pageRoot[data-page="dashboard"] .real-wb-month-name,
+#pageRoot[data-page="dashboard"] .real-wb-month-value,
+#pageRoot[data-page="dashboard"] .real-wb-month-empty{
+  color:#FFFFFF!important;
+  -webkit-text-fill-color:#FFFFFF!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-monthly-head h3{
+  font-weight:950!important;
+  text-shadow:0 1px 2px rgba(0,0,0,.16)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact{
+  background:linear-gradient(145deg,rgba(19,65,121,.42),rgba(20,116,105,.34))!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-months{
+  background:linear-gradient(145deg,rgba(18,76,137,.30),rgba(15,120,105,.28))!important;
+  border:1px solid rgba(255,255,255,.16)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-card,
+#pageRoot[data-page="dashboard"] .real-wb-month-card.latest{
+  background:linear-gradient(145deg,rgba(74,117,211,.48),rgba(35,173,143,.38))!important;
+  background-color:#347F9D!important;
+  border:1px solid rgba(255,255,255,.23)!important;
+  box-shadow:0 10px 24px rgba(18,67,111,.17),inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-value{
+  font-weight:950!important;
+  text-shadow:0 1px 3px rgba(0,0,0,.18)!important;
+}
+</style>
+
+
+<style id="seller-control-wb01-darker-white-fix">
+/* 01 — Реальная прибыль WB: darker background + white text for readability */
+#pageRoot[data-page="dashboard"] .real-wb-dashboard-card,
+#pageRoot[data-page="dashboard"] .real-wb-monthly-card{
+  background:
+    radial-gradient(circle at 88% 6%,rgba(95,230,190,.22),transparent 32%),
+    radial-gradient(circle at 5% 100%,rgba(88,112,255,.24),transparent 42%),
+    linear-gradient(145deg,#0E1D46 0%,#173670 48%,#0E766B 115%)!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  box-shadow:0 20px 48px rgba(15,31,76,.22)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-monthly-head h3,
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact,
+#pageRoot[data-page="dashboard"] .real-wb-month-name,
+#pageRoot[data-page="dashboard"] .real-wb-month-value,
+#pageRoot[data-page="dashboard"] .real-wb-month-empty,
+#pageRoot[data-page="dashboard"] .real-wb-month-delta,
+#pageRoot[data-page="dashboard"] .dashviz-title h3,
+#pageRoot[data-page="dashboard"] .dashviz-total strong,
+#pageRoot[data-page="dashboard"] .dashviz-title p,
+#pageRoot[data-page="dashboard"] .dashviz-total span{
+  color:#fff!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact,
+#pageRoot[data-page="dashboard"] .real-wb-month-delta{
+  background:rgba(255,255,255,.10)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-card{
+  background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.07))!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 10px 24px rgba(0,0,0,.14)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-card.latest{
+  background:linear-gradient(145deg,rgba(112,238,195,.24),rgba(255,255,255,.09))!important;
+  border-color:rgba(120,241,201,.30)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-card.loss{
+  background:linear-gradient(145deg,rgba(255,109,137,.22),rgba(255,255,255,.08))!important;
+}
+</style>
+
+
+<style id="seller-control-wb01-dark-blue-strong-fix">
+/* Stronger darker blue background for 01 — Реальная прибыль WB */
+#pageRoot[data-page="dashboard"] .real-wb-dashboard-card,
+#pageRoot[data-page="dashboard"] .real-wb-monthly-card{
+  background:
+    radial-gradient(circle at 85% 8%,rgba(78,225,196,.16),transparent 28%),
+    radial-gradient(circle at 8% 100%,rgba(82,108,255,.20),transparent 38%),
+    linear-gradient(145deg,#081735 0%,#0C2352 42%,#134E9A 100%)!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  box-shadow:0 22px 52px rgba(8,23,53,.32)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-monthly-head h3,
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact,
+#pageRoot[data-page="dashboard"] .real-wb-month-name,
+#pageRoot[data-page="dashboard"] .real-wb-month-value,
+#pageRoot[data-page="dashboard"] .real-wb-month-empty,
+#pageRoot[data-page="dashboard"] .real-wb-month-delta{color:#FFFFFF!important}
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact,
+#pageRoot[data-page="dashboard"] .real-wb-month-delta{
+  background:rgba(255,255,255,.09)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-card{
+  background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.05))!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 12px 24px rgba(0,0,0,.16)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-card.latest{
+  background:linear-gradient(145deg,rgba(95,160,255,.22),rgba(255,255,255,.07))!important;
+  border-color:rgba(145,191,255,.28)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-card.loss{
+  background:linear-gradient(145deg,rgba(255,109,137,.20),rgba(255,255,255,.06))!important;
+}
+</style>
+
+
+<style id="seller-control-wb01-match-expense-final">
+/* 01 exactly matches 02 — Структура расходов */
+#pageRoot[data-page="dashboard"] .real-wb-dashboard-card,
+#pageRoot[data-page="dashboard"] .real-wb-monthly-card{
+  background:
+    radial-gradient(circle at 90% 8%,rgba(121,231,209,.23),transparent 34%),
+    linear-gradient(145deg,#274B79 0%,#315F86 50%,#327E78 118%)!important;
+  background-color:#274B79!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.15)!important;
+  box-shadow:0 16px 36px rgba(9,35,62,.18)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-monthly-head h3,
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact,
+#pageRoot[data-page="dashboard"] .real-wb-month-name,
+#pageRoot[data-page="dashboard"] .real-wb-month-value,
+#pageRoot[data-page="dashboard"] .real-wb-month-empty,
+#pageRoot[data-page="dashboard"] .real-wb-month-delta{color:#fff!important}
+</style>
+
+
+<style id="seller-control-wb01-expense-bg-exact-final">
+/* FINAL: 01 uses exactly the same background as 02 Структура расходов */
+#pageRoot[data-page="dashboard"] .real-wb-dashboard-card,
+#pageRoot[data-page="dashboard"] .real-wb-monthly-card{
+  background:
+    radial-gradient(circle at 90% 8%,rgba(121,231,209,.23),transparent 34%),
+    linear-gradient(145deg,#274B79 0%,#315F86 50%,#327E78 118%)!important;
+  background-color:#274B79!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.15)!important;
+  box-shadow:0 16px 36px rgba(9,35,62,.18)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-monthly-head h3,
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact,
+#pageRoot[data-page="dashboard"] .real-wb-month-name,
+#pageRoot[data-page="dashboard"] .real-wb-month-value,
+#pageRoot[data-page="dashboard"] .real-wb-month-empty,
+#pageRoot[data-page="dashboard"] .real-wb-month-delta{color:#fff!important}
+#pageRoot[data-page="dashboard"] .real-wb-store-pill-compact{
+  background:linear-gradient(145deg,rgba(22,53,91,.54),rgba(28,110,103,.44))!important;
+  background-color:#244F72!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-months{
+  margin-top:10px!important;
+  padding:10px!important;
+  border-radius:18px!important;
+  background:linear-gradient(145deg,rgba(22,53,91,.54),rgba(28,110,103,.44))!important;
+  background-color:#244F72!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-card{
+  background:linear-gradient(145deg,rgba(111,143,220,.36),rgba(47,177,146,.26))!important;
+  background-color:#326C86!important;
+  border:1px solid rgba(255,255,255,.14)!important;
+}
+#pageRoot[data-page="dashboard"] .real-wb-month-card.latest{
+  background:linear-gradient(145deg,rgba(128,230,206,.34),rgba(70,145,211,.28))!important;
+}
+</style>
+
+
+<style id="seller-control-main-headings-black-final">
+/* Dashboard: requested text in black/dark */
+#pageRoot[data-page="dashboard"] .real-wb-monthly-head h3,
+#pageRoot[data-page="dashboard"] .dashviz-expense .dashviz-title h3,
+#pageRoot[data-page="dashboard"] .dashviz-expense .dashviz-title p,
+#pageRoot[data-page="dashboard"] .dashviz-expense .dashviz-total span,
+#pageRoot[data-page="dashboard"] .dashviz-expense .dashviz-total strong{
+  color:#111827!important;
+  -webkit-text-fill-color:#111827!important;
+  text-shadow:none!important;
+}
+</style>
+
 </body>
+
+
+
 </html>
