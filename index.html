@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <meta name="theme-color" content="#32288E">
 <title>Seller Control — Premium</title>
 <style>
@@ -89,7 +89,7 @@ button,input,select{font:inherit}button{cursor:pointer}
 .nav-title{padding:0 10px;color:rgba(255,255,255,.55);font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.8px}.nav{display:flex;flex-direction:column;gap:6px}
 .nav button{border:0;text-align:left;padding:12px 13px;border-radius:14px;color:rgba(255,255,255,.82);background:transparent;font-weight:800;display:flex;align-items:center;gap:10px}
 .nav button:hover,.nav button.active{color:#fff;background:rgba(255,255,255,.17);box-shadow:inset 0 0 0 1px rgba(255,255,255,.10)}.nav .ico{display:grid;place-items:center;width:29px;height:29px;border-radius:9px;background:rgba(255,255,255,.10)}
-.side-foot{margin-top:auto;padding:16px 8px 0;border-top:1px solid rgba(255,255,255,.16);font-size:13px;line-height:1.55;color:rgba(255,255,255,.75)}
+.side-foot{margin-top:auto;padding:16px 8px 0;border-top:1px solid rgba(255,255,255,.16);font-size:13px;line-height:1.55;color:rgba(255,255,255,.75)}.founder-side-foot{display:grid;gap:5px}.founder-side-foot span{font-size:10px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:rgba(255,255,255,.55)}.founder-side-foot strong{font-size:13px;line-height:1.35;color:#fff;font-weight:950}
 .main{min-width:0}.topbar{position:sticky;top:0;z-index:30;min-height:80px;padding:14px 27px;background:rgba(255,255,255,.88);border-bottom:1px solid rgba(226,229,236,.95);backdrop-filter:blur(18px);display:flex;align-items:center;justify-content:space-between;gap:15px}
 .topbar h2{margin:0;font-size:23px}.topbar .sub{margin-top:4px;color:var(--muted);font-size:14px}.top-actions{display:flex;align-items:center;gap:9px}.account{padding:9px 12px;border-radius:999px;background:#EAF7F2;color:#006E50;font-size:13px;font-weight:850}
 .content{max-width:1700px;margin:auto;padding:27px}.hero{padding:27px 29px;color:#fff;overflow:hidden;position:relative;border-radius:29px;background:linear-gradient(120deg,var(--wb),var(--deep) 55%,var(--shop));box-shadow:0 23px 58px rgba(21,42,104,.22)}
@@ -3826,7 +3826,7 @@ function renderOnboarding(){
       <p><b>${T("Магазины","店铺")}:</b> ${onboardingDraft.stores.map(esc).join(", ")}</p>
       <p><b>${T("Налог","税率")}:</b> ${num(onboardingDraft.taxRate)}% · <b>${T("Банк","银行")}:</b> ${num(onboardingDraft.bankRate)}%</p>
       <p><b>${T("Валюта","货币")}:</b> ${onboardingDraft.currency} · <b>${T("1 юань","1元")}:</b> ${num(onboardingDraft.yuanRate)}</p>
-    </div><div class="form-actions"><button class="btn" onclick="onboardingStep=2;renderOnboarding()">${T("Назад","返回")}</button><button class="btn primary" onclick="completeOnboarding()">${T("Открыть Dashboard","打开数据看板")}</button></div>`;
+    </div><div class="form-actions"><button type="button" class="btn" onclick="onboardingStep=2;renderOnboarding()">${T("Назад","返回")}</button><button type="button" class="btn primary" id="openDashboardBtn" onclick="completeOnboarding(event)">${T("Открыть Dashboard","打开数据看板")}</button></div>`;
   document.getElementById("onboardingRoot").innerHTML=`
     <div class="onboarding"><div class="onboard-wrap"><div class="onboard-head"><div class="logo-mark sc-monogram"><span class="s-part">S</span><span class="c-part">C</span></div><h1>${T("Настройка бизнеса","业务设置")}</h1><p>${T("Один аккаунт — собственные магазины и отдельные данные","一个账户 — 自己的店铺和独立数据")}</p></div>
       <div class="progress"><span class="${onboardingStep>=1?"active":""}"></span><span class="${onboardingStep>=2?"active":""}"></span><span class="${onboardingStep>=3?"active":""}"></span></div>
@@ -3837,9 +3837,49 @@ function readOnboardStores(){return Array.from(document.querySelectorAll(".obSto
 function addOnboardStore(){onboardingDraft.stores=readOnboardStores();onboardingDraft.stores.push(T("Новый магазин","新店铺"));renderOnboarding()}
 function removeOnboardStore(i){onboardingDraft.stores=readOnboardStores();if(onboardingDraft.stores.length<=1)return alert(T("Нужен хотя бы один магазин","至少需要一个店铺"));onboardingDraft.stores.splice(i,1);renderOnboarding()}
 function saveOnboardStep2(){onboardingDraft.stores=readOnboardStores();if(!onboardingDraft.stores.length)return alert(T("Добавьте хотя бы один магазин","请至少添加一个店铺"));onboardingStep=3;renderOnboarding()}
-function completeOnboarding(){
-  const ws=getWorkspace();Object.assign(ws,{businessName:onboardingDraft.businessName,currency:onboardingDraft.currency,taxRate:onboardingDraft.taxRate,bankRate:onboardingDraft.bankRate,yuanRate:onboardingDraft.yuanRate,onboarded:true});
-  ws.stores=onboardingDraft.stores.map(name=>({id:id(),name,enabled:true,reports:[]}));ws.partners=ws.partners||[];ws.profitEntries=ws.profitEntries||[];ws.purchases=ws.purchases||[];ws.investments=ws.investments||[];ws.unitEconomics=ws.unitEconomics||[];ws.issuedLoans=ws.issuedLoans||[];ws.installments=ws.installments||[];ws.fulfillment=ws.fulfillment||[];ws.documents=ws.documents||[];saveWorkspace(ws);document.getElementById("onboardingRoot").innerHTML="";showApp()
+function completeOnboarding(e){
+  if(e&&typeof e.preventDefault==="function")e.preventDefault();
+  const btn=document.getElementById("openDashboardBtn");
+  if(btn){btn.disabled=true;btn.textContent=T("Открываем…","正在打开…")}
+  try{
+    const session=getSession();
+    if(!session?.userId)throw new Error(T("Сессия аккаунта не найдена. Войдите ещё раз.","未找到账户会话，请重新登录。"));
+    let ws=getWorkspace();
+    if(!ws){
+      ws={id:id(),businessName:"",currency:"RUB",language:lang,taxRate:7,bankRate:0,yuanRate:11,onboarded:false,stores:[],partners:[],profitEntries:[],purchases:[],investments:[],unitEconomics:[],issuedLoans:[],installments:[],fulfillment:[],documents:[],flowSales:[],financeEntries:[],_ownerId:session.userId,_localUpdatedAt:Date.now()};
+    }
+    const stores=(onboardingDraft?.stores||[]).map(x=>String(x||"").trim()).filter(Boolean);
+    if(!stores.length)throw new Error(T("Добавьте хотя бы один магазин.","请至少添加一个店铺。"));
+    Object.assign(ws,{businessName:onboardingDraft?.businessName||T("Мой бизнес","我的业务"),currency:onboardingDraft?.currency||"RUB",taxRate:n(onboardingDraft?.taxRate),bankRate:n(onboardingDraft?.bankRate),yuanRate:n(onboardingDraft?.yuanRate)||11,onboarded:true});
+    ws.stores=stores.map(name=>({id:id(),name,enabled:true,reports:[]}));
+    ws.partners=Array.isArray(ws.partners)?ws.partners:[];
+    ws.profitEntries=Array.isArray(ws.profitEntries)?ws.profitEntries:[];
+    ws.purchases=Array.isArray(ws.purchases)?ws.purchases:[];
+    ws.investments=Array.isArray(ws.investments)?ws.investments:[];
+    ws.unitEconomics=Array.isArray(ws.unitEconomics)?ws.unitEconomics:[];
+    ws.issuedLoans=Array.isArray(ws.issuedLoans)?ws.issuedLoans:[];
+    ws.installments=Array.isArray(ws.installments)?ws.installments:[];
+    ws.fulfillment=Array.isArray(ws.fulfillment)?ws.fulfillment:[];
+    ws.documents=Array.isArray(ws.documents)?ws.documents:[];
+    ws.flowSales=Array.isArray(ws.flowSales)?ws.flowSales:[];
+    ws.financeEntries=Array.isArray(ws.financeEntries)?ws.financeEntries:[];
+    ws._ownerId=ws._ownerId||session.userId;
+    ws._localUpdatedAt=Date.now();
+    saveWorkspace(ws);
+    currentPage="dashboard";currentStoreId=null;
+    const ob=document.getElementById("onboardingRoot");if(ob)ob.innerHTML="";
+    showApp();
+    requestAnimationFrame(()=>{
+      try{
+        if(!document.querySelector(".app-shell")&&typeof renderApp==="function")renderApp();
+        if(typeof sellerControlSyncNow==="function")Promise.resolve(sellerControlSyncNow()).catch(err=>console.warn("Dashboard sync:",err));
+      }catch(err){console.error("Dashboard post-open:",err)}
+    });
+  }catch(err){
+    console.error("Open Dashboard:",err);
+    if(btn){btn.disabled=false;btn.textContent=T("Открыть Dashboard","打开数据看板")}
+    alert(T("Не удалось открыть Dashboard: ","无法打开数据看板：")+(err?.message||err));
+  }
 }
 
 
@@ -3944,7 +3984,7 @@ function pageTitle(){
   if(currentPage==="unitEconomics")return[T("Юнит-экономика","单品经济模型"),T("Прибыль, маржинальность и все расходы на одну единицу товара","单件商品的利润、毛利率与全部成本")];
   if(currentPage==="investments")return[T("Учёт инвестиций","投资记录"),T("Инвестиции в юанях и рублях по магазинам","按店铺记录人民币与卢布投资")];
   if(currentPage==="loans")return[T("Выданные займы","已发放借款"),T("Удобный контроль выданных сумм, возвратов и остатка долга","便捷管理借款金额、归还与未还余额")];
-  if(currentPage==="finance")return[T("Финансы","财务"),T("Движение денег, расходы, пополнения и аналитика","资金流动、支出、充值与分析")];
+  if(currentPage==="finance")return[T("Финансы","财务"),T("Расходы, пополнения и контроль баланса","支出、充值与余额控制")];
   if(currentPage==="profit")return[T("Аналитика прибыли","利润分析"),T("Графики, динамика и распределение прибыли","利润图表、趋势与分配")];
   if(currentPage==="ai")return[T("WB AI Аналитик","WB AI 分析师"),T("Умный анализ показателей и рекомендации по бизнесу","智能分析业务指标并提供建议")];
   if(currentPage==="generalReport")return[T("Общий отчёт","总报表"),T("Полный отчёт по каждому магазину и всем расходам","按店铺汇总全部收入与支出")];
@@ -3954,7 +3994,7 @@ function pageTitle(){
   const s=ws.stores.find(x=>x.id===currentStoreId);return[s?.name||T("Магазин","店铺"),T("Ежедневный финансовый отчёт","每日财务报表")]
 }
 function navButton(page,icon,label){return`<button class="${currentPage===page?"active":""}" onclick="go('${page}')"><span class="ico">${icon}</span><span>${esc(label)}</span></button>`}
-function go(page,storeId=null){currentPage=page;currentStoreId=storeId;editingReportId=null;editingPurchaseId=null;editingInvestmentId=null;editingUnitId=null;editingLoanId=null;editingInstallmentId=null;editingFulfillmentId=null;renderApp();window.scrollTo({top:0,behavior:"smooth"})}
+function go(page,storeId=null){if(typeof capturePurchaseDraftNow==="function")capturePurchaseDraftNow();currentPage=page;currentStoreId=storeId;editingReportId=null;editingPurchaseId=null;editingInvestmentId=null;editingUnitId=null;editingLoanId=null;editingInstallmentId=null;editingFulfillmentId=null;renderApp();window.scrollTo({top:0,behavior:"smooth"})}
 function renderApp(){
   const ws=getWorkspace(),user=getCurrentUser();const [title,sub]=pageTitle();
   document.getElementById("appRoot").innerHTML=`
@@ -3997,7 +4037,7 @@ function renderApp(){
           ${navButton("settings","⚙",T("Настройки","设置"))}
         </nav>
       </section>
-      <div class="side-foot">${T("Каждый точный отчёт — новый шаг к сильному бизнесу。","每一份精准报表，都是打造强大事业的新一步。")}</div>
+      <div class="side-foot founder-side-foot"><span>${T("Основатель платформы","平台创始人")}</span><strong>Шерали Туйчибой Зафар</strong></div>
     </aside>
     <main class="main"><header class="topbar"><div><h2>${esc(title)}</h2><div class="sub">${esc(sub)}</div></div>
       <div class="top-actions">
@@ -4286,10 +4326,46 @@ function renderDashboard(){
     <div class="card calendar-period"><div class="calendar-period-info"><strong>📅 ${T("Период отчёта","报表期间")}</strong><span>${dashboardRangeText()} · ${T("Магазинов","店铺")}: ${activeStores().length} · ${T("Отчётов","报表")}: ${rows.length}</span></div><div class="calendar-controls"><div class="calendar-field"><label>${T("Дата начала","开始日期")}</label><input id="dashboardDateFrom" type="date" value="${esc(dashboardDateFrom)}"></div><div class="calendar-field"><label>${T("Дата окончания","结束日期")}</label><input id="dashboardDateTo" type="date" value="${esc(dashboardDateTo)}"></div><button class="btn primary small" onclick="applyDashboardDateRange()">${T("Применить","应用")}</button><button class="btn small" onclick="clearDashboardDateRange()">${T("Сбросить","重置")}</button></div></div>
     <div class="grid kpis">${kpi(T("Общая выручка","总营业额"),money(total.revenue),T("Все активные магазины","全部启用店铺"))}${kpi(T("Все расходы","全部费用"),money(total.allExpenses),T("С учётом налога и банка","含税费和银行手续费"))}${kpi(T("Налог","税费"),money(total.tax),num(ws.taxRate)+"%")}${kpi(T("Чистая прибыль","净利润"),money(total.net),T("После всех расходов","扣除全部费用后"))}${kpi(T("Заказы","订单"),num(total.orders),T("По всем магазинам","全部店铺"))}${kpi(T("Рентабельность","盈利率"),num(pct(total.net,total.revenue))+"%",T("Чистая маржа","净利率"))}</div>
     <div class="grid insight-grid"><div class="insight"><span>${T("Средний чек","平均客单价")}</span><strong>${money(avg)}</strong><small>${T("Выручка делённая на количество заказов","营业额除以订单数量")}</small></div><div class="insight"><span>${T("Лучшая точка роста","最佳增长店铺")}</span><strong>${esc(bestStore.name)}</strong><small>${T("Чистая прибыль","净利润")}: ${money(bestStore.net)} · ${T("Выручка","营业额")}: ${money(bestStore.revenue)}</small></div><div class="insight"><span>${T("Заказы с рекламы","广告订单")}</span><strong>${num(pct(total.adOrders,total.orders))}%</strong><small>${num(total.adOrders)} / ${num(total.orders)} ${T("заказов","订单")}</small></div><div class="insight"><span>${T("Возвраты FBO / FBS","FBO / FBS退货")}</span><strong>${num(returns)}</strong><small>FBO ${num(total.fbo)} · FBS ${num(total.fbs)}</small></div></div>
-    <div class="section grid chart-grid">
-      <div class="card chart-card premium featured-chart"><div class="section-title"><div><h3>${T("Путь выручки и чистой прибыли","营业额与净利润走势")}</h3><p>${T("Зелёная линия показывает результат, красные участки — точки для улучшения","绿色线表示成果，红色区段表示需要改进的位置")}</p></div></div><div class="legend"><span><i style="background:#32288E"></i>${T("Выручка","营业额")}</span><span><i style="background:#00A67B"></i>${T("Прибыль","利润")}</span><span><i style="background:#D52D58"></i>${T("Минус","亏损")}</span></div><div class="chart-message"><i>↗</i><div>${T("Не бойтесь красной точки: она не ставит оценку бизнесу, а точно показывает, где скрыта следующая возможность для роста。","不要害怕红色点：它不是给业务打分，而是在准确指出下一个增长机会隐藏在哪里。")}</div></div><canvas id="revNetChart"></canvas><div class="chart-caption">${T("Смотрите на направление линии, находите причину изменения и принимайте одно точное решение за раз。","观察线条方向，找到变化原因，并一次做出一个准确决定。")}</div></div>
-      <div class="card chart-card premium"><div class="section-title"><div><h3>${T("Сравнение магазинов","店铺对比")}</h3><p>${T("Кто зарабатывает сильнее","谁的表现更强")}</p></div></div><div class="legend"><span><i style="background:#32288E"></i>${T("Выручка","营业额")}</span><span><i style="background:#87D252"></i>${T("Чистая прибыль","净利润")}</span></div><canvas id="storeBarsChart"></canvas></div>
-      <div class="card chart-card premium"><div class="section-title"><div><h3>${T("Структура расходов","费用结构")}</h3><p>${T("Куда уходят деньги","钱花在哪里")}</p></div></div><canvas id="expenseDonut"></canvas></div>
+    <div class="section grid chart-grid dashviz-grid">
+      <div class="card chart-card premium dashviz-card dashviz-hero">
+        <div class="dashviz-orb dashviz-orb-a"></div><div class="dashviz-orb dashviz-orb-b"></div>
+        <div class="dashviz-head">
+          <div class="dashviz-index">01</div>
+          <div class="dashviz-title"><span class="dashviz-kicker">${T("PERFORMANCE MAP","经营表现地图")}</span><h3>${T("Путь выручки и чистой прибыли","营业额与净利润走势")}</h3><p>${T("Зелёная линия показывает результат, красные участки — точки для улучшения","绿色线表示成果，红色区段表示需要改进的位置")}</p></div>
+          <div class="dashviz-live"><i></i>${T("Живые данные","实时数据")}</div>
+        </div>
+        <div class="dashviz-metrics">
+          <div><span>${T("Выручка","营业额")}</span><strong>${money(total.revenue)}</strong></div>
+          <div><span>${T("Чистая прибыль","净利润")}</span><strong class="${total.net>=0?'good':'bad'}">${money(total.net)}</strong></div>
+          <div><span>${T("Маржа","利润率")}</span><strong>${num(pct(total.net,total.revenue))}%</strong></div>
+        </div>
+        <div class="dashviz-chart-shell dashviz-chart-shell-dark">
+          <div class="dashviz-legend"><span><i class="revenue"></i>${T("Выручка","营业额")}</span><span><i class="profit"></i>${T("Прибыль","利润")}</span><span><i class="loss"></i>${T("Минус","亏损")}</span></div>
+          <canvas id="revNetChart"></canvas>
+        </div>
+        <div class="dashviz-foot"><span class="dashviz-arrow">↗</span><div><b>${T("Смотрите на направление","观察趋势方向")}</b><span>${T("Не бойтесь красной точки: она показывает, где скрыта следующая возможность для роста. Находите причину изменения и принимайте одно точное решение за раз.","不要害怕红色点：它会指出下一个增长机会。找到变化原因，并一次做出一个准确决定。")}</span></div></div>
+      </div>
+
+      <div class="card chart-card premium dashviz-card dashviz-store">
+        <div class="dashviz-head dashviz-head-light">
+          <div class="dashviz-index">02</div>
+          <div class="dashviz-title"><span class="dashviz-kicker">${T("STORE RANKING","店铺排行")}</span><h3>${T("Сравнение магазинов","店铺对比")}</h3><p>${T("Кто зарабатывает сильнее","谁的表现更强")}</p></div>
+          <div class="dashviz-count"><strong>${activeStores().length}</strong><span>${T("магазинов","家店铺")}</span></div>
+        </div>
+        <div class="dashviz-chart-shell">
+          <div class="dashviz-legend"><span><i class="revenue"></i>${T("Выручка","营业额")}</span><span><i class="profit-alt"></i>${T("Чистая прибыль","净利润")}</span></div>
+          <canvas id="storeBarsChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card chart-card premium dashviz-card dashviz-expense">
+        <div class="dashviz-head dashviz-head-light">
+          <div class="dashviz-index">03</div>
+          <div class="dashviz-title"><span class="dashviz-kicker">${T("COST X-RAY","费用透视")}</span><h3>${T("Структура расходов","费用结构")}</h3><p>${T("Куда уходят деньги","钱花在哪里")}</p></div>
+          <div class="dashviz-total"><span>${T("Всего расходов","总费用")}</span><strong>${money(total.allExpenses)}</strong></div>
+        </div>
+        <div class="dashviz-chart-shell dashviz-donut-shell"><canvas id="expenseDonut"></canvas></div>
+      </div>
     </div>
     <div class="section"><div class="section-title"><div><h3>${T("Магазины","店铺")}</h3><p>${T("Каждый магазин рассчитывается отдельно","每个店铺独立计算")}</p></div></div><div class="grid store-grid">${activeStores().map(storeCard).join("")||`<div class="card empty">${T("Добавьте первый магазин в настройках","请在设置中添加第一个店铺")}</div>`}</div></div>
     <div class="section grid three-col"><div class="card panel dashboard-finance-panel">${dashboardFinancePanel()}</div><div class="card panel progress-panel"><div class="section-title progress-title"><div><span class="progress-kicker">${T("РЕЗУЛЬТАТ · ДВИЖЕНИЕ · РОСТ","成果 · 前进 · 成长")}</span><h3>🚀 ${T("Твой прогресс","你的进展")}</h3><p>${T("Главные показатели твоего движения вперёд","展示你持续前进的核心指标")}</p></div></div>${progressHtml(rows,total)}</div><div class="card panel"><div class="section-title"><h3>${T("Вклад магазинов","店铺贡献")}</h3></div>${contributionHtml(total)}</div></div>`;
@@ -4372,21 +4448,57 @@ const purchaseFields=[
   ["chinaExpensesCny","number"],["deliveryCny","number"],["packagingPerUnitRub","number"],["transitTotalRub","number"]
 ];
 function purchaseFieldName(k){const d={date:T("Дата","日期"),flow:T("Поток №","批次编号"),source:T("Откуда брал товар","采购来源"),product:T("Название товара","商品名称"),article:T("Артикул","货号"),boxes:T("Коробок","箱数"),unitsPerBox:T("Штук в коробке","每箱数量"),priceCny:T("Цена 1 шт., юань","单件价格，人民币"),yuanRate:T("Курс юань → рубль","人民币兑卢布汇率"),chinaExpensesCny:T("Расходы в Китае, юань","中国费用，人民币"),deliveryCny:T("Доставка Китай → Россия, юань","中国到俄罗斯运费，人民币"),packagingPerUnitRub:T("Упаковка 1 шт., руб","单件包装费，卢布"),transitTotalRub:T("Транзит за товар, руб","商品中转费，卢布")};return d[k]||k}
-function getPurchaseDraft(){const ws=ensureWorkspaceData(),d=ws?.purchaseDraft;return d&&typeof d==="object"?d:null}
+const PURCHASE_DRAFT_PREFIX="seller_control_purchase_draft_v3_";
+function purchaseDraftKey(){
+  const s=typeof getSession==="function"?getSession():null;
+  const u=typeof getCurrentUser==="function"?getCurrentUser():null;
+  return PURCHASE_DRAFT_PREFIX+String(s?.userId||u?.id||"guest");
+}
+function readPurchaseDraftLocal(){
+  try{const d=JSON.parse(localStorage.getItem(purchaseDraftKey())||"null");return d&&typeof d==="object"?d:null}catch(e){return null}
+}
+function writePurchaseDraftLocal(draft){
+  try{localStorage.setItem(purchaseDraftKey(),JSON.stringify(draft))}catch(e){}
+}
+function clearPurchaseDraftLocal(){try{localStorage.removeItem(purchaseDraftKey())}catch(e){}}
+function getPurchaseDraft(){
+  const ws=ensureWorkspaceData(),cloud=ws?.purchaseDraft&&typeof ws.purchaseDraft==="object"?ws.purchaseDraft:null,local=readPurchaseDraftLocal();
+  if(local&&cloud){return String(local.savedAt||"")>=String(cloud.savedAt||"")?local:cloud}
+  return local||cloud||null;
+}
 function purchaseDraftMatches(draft,editingId){return !!draft&&((draft.editingId||null)===(editingId||null))&&draft.values&&typeof draft.values==="object"}
+function persistPurchaseDraft(draft){
+  if(!draft)return;
+  writePurchaseDraftLocal(draft); // immediate, survives tab/window switches and reloads
+  const ws=ensureWorkspaceData();
+  if(ws){ws.purchaseDraft=draft;saveWorkspace(ws)} // mirrored to normal online sync
+}
 function autoSavePurchaseDraft(form){
   if(!form)return;
-  const ws=ensureWorkspaceData();
-  ws.purchaseDraft={editingId:editingPurchaseId||null,values:Object.fromEntries(new FormData(form).entries()),savedAt:new Date().toISOString()};
-  saveWorkspace(ws);
+  const draft={editingId:editingPurchaseId||null,values:Object.fromEntries(new FormData(form).entries()),savedAt:new Date().toISOString()};
+  persistPurchaseDraft(draft);
   previewPurchase(form);
   const status=document.getElementById("purchaseDraftStatus");
   if(status)status.textContent="✓ "+T("Черновик сохранён автоматически","草稿已自动保存");
 }
-function cancelPurchaseEdit(){editingPurchaseId=null;renderPurchases()}
+function capturePurchaseDraftNow(){
+  if(typeof currentPage==="undefined"||currentPage!=="purchases")return;
+  const form=document.querySelector('#pageRoot form[onsubmit="savePurchase(event)"]');
+  if(form)autoSavePurchaseDraft(form);
+}
+function clearPurchaseDraft(){
+  clearPurchaseDraftLocal();
+  const ws=ensureWorkspaceData();
+  if(ws&&ws.purchaseDraft){delete ws.purchaseDraft;saveWorkspace(ws)}
+}
+function cancelPurchaseEdit(){clearPurchaseDraft();editingPurchaseId=null;renderPurchases()}
 function renderPurchases(){
-  const ws=ensureWorkspaceData(),rows=ws.purchases.map(calcPurchase).sort((a,b)=>(b.date||"").localeCompare(a.date||"")),t=purchaseTotals(rows),edit=editingPurchaseId?ws.purchases.find(x=>x.id===editingPurchaseId):null,avg=t.units?t.totalCost/t.units:0;
-  const draft=getPurchaseDraft(),draftMatches=purchaseDraftMatches(draft,editingPurchaseId||null),formData=edit?(draftMatches?Object.assign({},edit,draft.values):edit):(draftMatches?draft.values:null),selectedStoreId=formData?.storeId||"";
+  const ws=ensureWorkspaceData(),rows=ws.purchases.map(calcPurchase).sort((a,b)=>(b.date||"").localeCompare(a.date||"")),t=purchaseTotals(rows),avg=t.units?t.totalCost/t.units:0;
+  const draft=getPurchaseDraft();
+  if(!editingPurchaseId&&draft?.editingId&&ws.purchases.some(x=>x.id===draft.editingId))editingPurchaseId=draft.editingId;
+  const edit=editingPurchaseId?ws.purchases.find(x=>x.id===editingPurchaseId):null;
+  const draftMatches=!!(draft?.values&&typeof draft.values==="object"&&(!draft.editingId||draft.editingId===editingPurchaseId));
+  const formData=edit?(draftMatches?Object.assign({},edit,draft.values):edit):(draft?.values||null),selectedStoreId=formData?.storeId||"";
   document.getElementById("pageRoot").innerHTML=`
     <section class="module-hero motivational-module"><div class="module-kicker">${T("ТОЧНАЯ ЗАКУПКА · СИЛЬНАЯ ПРИБЫЛЬ","精准采购 · 强劲利润")}</div><h3>${T("Прибыль начинается с правильной закупки","利润始于正确采购")}</h3><p>${T("Считайте себестоимость заранее, контролируйте расходы и выбирайте товар с реальной прибылью.","提前计算成本，控制费用，选择真正有利润的商品。")}</p></section>
     <div class="grid module-kpis">${kpi(T("Количество позиций","商品条目"),num(t.positions),T("Записей закупок","采购记录"))}${kpi(T("Всего штук","总件数"),num(t.units),T("Коробки × штук","箱数 × 每箱数量"))}${kpi(T("Общая себестоимость","总成本"),money(t.totalCost),T("Все закупки","全部采购"))}${kpi(T("Средняя себестоимость","平均单件成本"),money(avg),T("На 1 единицу","每件"))}${kpi(T("Расходы в Китае","中国费用"),money(t.china),"")}${kpi(T("Доставка и транзит","运输与中转"),money(t.delivery+t.transit),"")}</div>
@@ -4394,14 +4506,16 @@ function renderPurchases(){
       <form onsubmit="savePurchase(event)"><div class="report-form"><div class="field"><label>${T("Магазин","店铺")} *</label><select name="storeId" required onchange="autoSavePurchaseDraft(this.form)"><option value="">${T("Выберите магазин","请选择店铺")}</option>${ws.stores.filter(x=>x.enabled).map(x=>`<option value="${x.id}" ${selectedStoreId===x.id?"selected":""}>${esc(x.name)}</option>`).join("")}<option value="general" ${selectedStoreId==="general"?"selected":""}>${T("Общий расход","公共费用")}</option></select></div>${purchaseFields.map(([k,type])=>`<div class="field"><label>${purchaseFieldName(k)}</label><input name="${k}" type="${type}" ${type==="number"?'step="0.001"':''} value="${formData?esc(formData[k]??''):(k==='date'?today():k==='yuanRate'?esc(ws.yuanRate):'')}" ${['date','product'].includes(k)?'required':''} oninput="autoSavePurchaseDraft(this.form)"></div>`).join("")}</div>
       <div class="calc-preview"><div><span>${T("Всего штук","总件数")}</span><strong id="buyUnits">0</strong></div><div><span>${T("Цена 1 шт., руб","单件价格，卢布")}</span><strong id="buyUnitRub">0</strong></div><div><span>${T("Расходы в Китае, руб","中国费用，卢布")}</span><strong id="buyChinaRub">0</strong></div><div><span>${T("Доставка, руб","运费，卢布")}</span><strong id="buyDeliveryRub">0</strong></div><div><span>${T("Себестоимость 1 шт.","单件成本")}</span><strong id="buyCostUnit">0</strong></div><div><span>${T("Себестоимость общая","总成本")}</span><strong id="buyCostTotal">0</strong></div></div>
       <div class="form-actions"><button class="btn primary">${edit?T("Сохранить изменения","保存修改"):T("Добавить закупку","添加采购")}</button>${edit?`<button type="button" class="btn" onclick="cancelPurchaseEdit()">${T("Отмена","取消")}</button>`:""}<button type="button" class="btn shop" onclick="exportPurchasesCSV()">${T("Скачать CSV","下载CSV")}</button></div></form></div>
-    <div class="section grid two-col"><div class="card compact-chart"><div class="section-title"><div><h3>${T("Динамика себестоимости закупок","采购成本趋势")}</h3><p>${T("Общая себестоимость по датам","按日期统计总成本")}</p></div></div><canvas id="purchaseChart"></canvas></div><div class="card panel"><div class="section-title"><h3>${T("Как считается","计算方式")}</h3></div><div class="module-note"><b>${T("Всего штук","总件数")}</b> = ${T("коробки × штук в коробке","箱数 × 每箱数量")}<br><br><b>${T("Себестоимость 1 шт.","单件成本")}</b> = ${T("цена в рублях + расходы Китая на 1 шт. + доставка на 1 шт. + упаковка + транзит на 1 шт.","卢布单价 + 单件中国费用 + 单件运费 + 包装 + 单件中转费")}<br><br><b>${T("Общая себестоимость","总成本")}</b> = ${T("себестоимость 1 шт. × всего штук","单件成本 × 总件数")}</div></div></div>
     <div class="section card table-card"><div class="table-tools"><strong>${T("История закупок","采购历史")}</strong><span class="muted">${rows.length}</span></div><div class="table-wrap module-table">${rows.length?purchaseTable(rows):`<div class="empty">${T("Закупок пока нет","暂无采购记录")}</div>`}</div></div>`;
-  setTimeout(()=>{const f=document.querySelector('.report-form')?.closest('form');if(f)previewPurchase(f);drawSimpleLine('purchaseChart',purchaseChartData(rows),'#32288E')},0)
+  setTimeout(()=>{const f=document.querySelector('.report-form')?.closest('form');if(f)previewPurchase(f)},0)
 }
 function previewPurchase(form){const p=calcPurchase(Object.fromEntries(new FormData(form).entries()));const values={buyUnits:num(p.totalUnits),buyUnitRub:money(p.unitPriceRub),buyChinaRub:money(p.chinaExpensesRub),buyDeliveryRub:money(p.deliveryRub),buyCostUnit:money(p.costPerUnit),buyCostTotal:money(p.totalCost)};Object.entries(values).forEach(([k,v])=>{const el=document.getElementById(k);if(el)el.textContent=v})}
-function savePurchase(e){e.preventDefault();const ws=ensureWorkspaceData(),raw=Object.fromEntries(new FormData(e.target).entries()),savedEditingId=editingPurchaseId||null;if(!raw.storeId)return alert(T("Выберите магазин","请选择店铺"));const p={id:editingPurchaseId||id(),storeId:raw.storeId};purchaseFields.forEach(([k,type])=>p[k]=type==='number'?n(raw[k]):raw[k].trim());if(editingPurchaseId){const i=ws.purchases.findIndex(x=>x.id===editingPurchaseId);ws.purchases[i]=p}else ws.purchases.push(p);if(purchaseDraftMatches(ws.purchaseDraft,savedEditingId))delete ws.purchaseDraft;editingPurchaseId=null;saveWorkspace(ws);renderPurchases();showSaveToast(T("✓ Закупка сохранена","✓ 采购已保存"))}
+function savePurchase(e){e.preventDefault();const ws=ensureWorkspaceData(),raw=Object.fromEntries(new FormData(e.target).entries());if(!raw.storeId)return alert(T("Выберите магазин","请选择店铺"));const p={id:editingPurchaseId||id(),storeId:raw.storeId};purchaseFields.forEach(([k,type])=>p[k]=type==='number'?n(raw[k]):raw[k].trim());if(editingPurchaseId){const i=ws.purchases.findIndex(x=>x.id===editingPurchaseId);ws.purchases[i]=p}else ws.purchases.push(p);delete ws.purchaseDraft;clearPurchaseDraftLocal();editingPurchaseId=null;saveWorkspace(ws);renderPurchases();showSaveToast(T("✓ Закупка сохранена","✓ 采购已保存"))}
 function editPurchase(pid){editingPurchaseId=pid;renderPurchases();window.scrollTo({top:0,behavior:'smooth'})}
 function deletePurchase(pid){if(!confirm(T("Удалить эту закупку?","确定删除此采购吗？")))return;const ws=ensureWorkspaceData();ws.purchases=ws.purchases.filter(x=>x.id!==pid);saveWorkspace(ws);renderPurchases()}
+document.addEventListener("visibilitychange",()=>{if(document.hidden)capturePurchaseDraftNow()});
+window.addEventListener("pagehide",capturePurchaseDraftNow);
+window.addEventListener("blur",capturePurchaseDraftNow);
 function purchaseTable(rows){return`<table><thead><tr><th>${T("Дата","日期")}</th><th>${T("Магазин","店铺")}</th><th>${T("Поток","批次")}</th><th>${T("Источник","来源")}</th><th>${T("Товар","商品")}</th><th>${T("Артикул","货号")}</th><th>${T("Коробок","箱数")}</th><th>${T("Шт./кор.","每箱")}</th><th>${T("Всего шт.","总件数")}</th><th>${T("Цена ¥","价格¥")}</th><th>${T("Курс","汇率")}</th><th>${T("Цена ₽","价格₽")}</th><th>${T("Китай ¥","中国费用¥")}</th><th>${T("Китай ₽","中国费用₽")}</th><th>${T("Доставка ¥","运费¥")}</th><th>${T("Доставка ₽","运费₽")}</th><th>${T("Упаковка/шт.","包装/件")}</th><th>${T("Транзит общий","中转总额")}</th><th>${T("Транзит/шт.","中转/件")}</th><th>${T("Себест./шт.","成本/件")}</th><th>${T("Себест. общая","总成本")}</th><th></th></tr></thead><tbody>${rows.map(p=>{const sn=p.storeId==="general"?T("Общий расход","公共费用"):(getWorkspace().stores.find(x=>x.id===p.storeId)?.name||"—");return`<tr><td>${fmtDate(p.date)}</td><td><b>${esc(sn)}</b></td><td>${esc(p.flow)}</td><td>${esc(p.source)}</td><td>${esc(p.product)}</td><td>${esc(p.article)}</td><td>${num(p.boxes)}</td><td>${num(p.unitsPerBox)}</td><td><b>${num(p.totalUnits)}</b></td><td>${num(p.priceCny)}</td><td>${num(p.yuanRate)}</td><td>${money(p.unitPriceRub)}</td><td>${num(p.chinaExpensesCny)}</td><td>${money(p.chinaExpensesRub)}</td><td>${num(p.deliveryCny)}</td><td>${money(p.deliveryRub)}</td><td>${money(p.packagingPerUnitRub)}</td><td>${money(p.transitTotalRub)}</td><td>${money(p.transitPerUnit)}</td><td class="good"><b>${money(p.costPerUnit)}</b></td><td class="good"><b>${money(p.totalCost)}</b></td><td><button class="btn small" onclick="editPurchase('${p.id}')">${T("Изм.","修改")}</button> <button class="btn small danger" onclick="deletePurchase('${p.id}')">${T("Удал.","删除")}</button></td></tr>`}).join("")}</tbody></table>`}
 function purchaseChartData(rows){const m={};rows.forEach(p=>{const d=p.date||T("Без даты","无日期");m[d]=(m[d]||0)+n(p.totalCost)});return Object.entries(m).sort((a,b)=>a[0].localeCompare(b[0]))}
 function exportPurchasesCSV(){const rows=ensureWorkspaceData().purchases.map(calcPurchase);const data=[[T("Дата","日期"),T("Поток","批次"),T("Источник","来源"),T("Товар","商品"),T("Артикул","货号"),T("Коробок","箱数"),T("Штук в коробке","每箱数量"),T("Всего штук","总件数"),T("Цена, юань","价格，人民币"),T("Курс","汇率"),T("Цена 1 шт., руб","单价，卢布"),T("Расходы Китай, юань","中国费用，人民币"),T("Расходы Китай, руб","中国费用，卢布"),T("Доставка, юань","运费，人民币"),T("Доставка, руб","运费，卢布"),T("Упаковка 1 шт.","单件包装"),T("Транзит общий","中转总额"),T("Транзит 1 шт.","单件中转"),T("Себестоимость 1 шт.","单件成本"),T("Себестоимость общая","总成本")],...rows.map(p=>[p.date,p.flow,p.source,p.product,p.article,p.boxes,p.unitsPerBox,p.totalUnits,p.priceCny,p.yuanRate,p.unitPriceRub,p.chinaExpensesCny,p.chinaExpensesRub,p.deliveryCny,p.deliveryRub,p.packagingPerUnitRub,p.transitTotalRub,p.transitPerUnit,p.costPerUnit,p.totalCost])];downloadCSV('purchases.csv',data)}
@@ -4664,9 +4778,9 @@ function renderInvestments(){
     <div class="grid module-kpis">${kpi(T("Количество инвестиций","投资笔数"),num(t.count),"")}${kpi(T("Общий объём, юань","总额，人民币"),money(t.cny,'CNY'),"")}${kpi(T("Общий объём, руб.","总额，卢布"),money(t.rub),"")}${kpi(T("Средняя инвестиция","平均投资"),money(avg),"")}${kpi(T("Крупнейшая инвестиция","最大投资"),money(t.max),"")}${kpi(T("Последняя инвестиция","最近投资"),last?money(last.amountRub):money(0),last?fmtDate(last.date):'—')}</div>
     <div class="section card form-card"><div class="section-title"><div><h3>${edit?T("Изменить инвестицию","修改投资"):T("Добавить инвестицию","添加投资")}</h3><p>${T("Сумма в рублях рассчитывается автоматически","卢布金额自动计算")}</p></div><span class="auto-pill">✓ ${T("Автоматический курс","自动汇率")}</span></div>
       <form onsubmit="saveInvestment(event)"><div class="report-form"><div class="field"><label>${T("Дата","日期")}</label><input name="date" type="date" value="${edit?esc(edit.date):today()}" required></div><div class="field"><label>${T("Магазин","店铺")}</label><select name="storeId">${ws.stores.map(s=>`<option value="${s.id}" ${edit?.storeId===s.id?'selected':''}>${esc(s.name)}</option>`).join("")}</select></div><div class="field"><label>${T("Поток","批次")}</label><input name="flow" value="${edit?esc(edit.flow):''}"></div><div class="field"><label>${T("Сумма, юань","金额，人民币")}</label><input name="amountCny" type="number" step="0.01" value="${edit?esc(edit.amountCny):''}" required oninput="previewInvestment(this.form)"></div><div class="field"><label>${T("Курс юань → рубль","人民币兑卢布汇率")}</label><input name="yuanRate" type="number" step="0.001" value="${edit?esc(edit.yuanRate):esc(ws.yuanRate)}" required oninput="previewInvestment(this.form)"></div><div class="field"><label>${T("Комментарий","备注")}</label><input name="comment" value="${edit?esc(edit.comment):''}"></div></div><div class="calc-preview"><div><span>${T("Сумма, юань","金额，人民币")}</span><strong id="invCny">0</strong></div><div><span>${T("Курс","汇率")}</span><strong id="invRate">0</strong></div><div><span>${T("Сумма, рубль","金额，卢布")}</span><strong id="invRub">0</strong></div></div><div class="form-actions"><button class="btn primary">${edit?T("Сохранить изменения","保存修改"):T("Добавить инвестицию","添加投资")}</button>${edit?`<button type="button" class="btn" onclick="editingInvestmentId=null;renderInvestments()">${T("Отмена","取消")}</button>`:""}<button type="button" class="btn shop" onclick="exportInvestmentsCSV()">${T("Скачать CSV","下载CSV")}</button></div></form></div>
-    <div class="section grid two-col"><div class="card compact-chart"><div class="section-title"><div><h3>${T("Динамика инвестиций","投资趋势")}</h3><p>${T("Вложения в рублях по датам","按日期统计卢布投资")}</p></div></div><canvas id="investmentChart"></canvas></div><div class="card panel"><div class="section-title"><h3>${T("Сводка по магазинам","按店铺汇总")}</h3></div>${investmentByStoreHtml(rows)}</div></div>
+    <div class="section"><div class="card panel"><div class="section-title"><h3>${T("Сводка по магазинам","按店铺汇总")}</h3></div>${investmentByStoreHtml(rows)}</div></div>
     <div class="section card table-card"><div class="table-tools"><strong>${T("История инвестиций","投资历史")}</strong><span class="muted">${rows.length}</span></div><div class="table-wrap investment-table">${rows.length?investmentTable(rows):`<div class="empty">${T("Инвестиций пока нет","暂无投资记录")}</div>`}</div></div>`;
-  setTimeout(()=>{const f=document.querySelector('.report-form')?.closest('form');if(f)previewInvestment(f);drawSimpleLine('investmentChart',investmentChartData(rows),'#00A67B')},0)
+  setTimeout(()=>{const f=document.querySelector('.report-form')?.closest('form');if(f)previewInvestment(f)},0)
 }
 function previewInvestment(form){const v=calcInvestment(Object.fromEntries(new FormData(form).entries()));const a=document.getElementById('invCny'),b=document.getElementById('invRate'),c=document.getElementById('invRub');if(a)a.textContent=money(v.amountCny,'CNY');if(b)b.textContent=num(v.yuanRate);if(c)c.textContent=money(v.amountRub)}
 function saveInvestment(e){e.preventDefault();const ws=ensureWorkspaceData(),d=Object.fromEntries(new FormData(e.target).entries()),v={id:editingInvestmentId||id(),date:d.date,storeId:d.storeId,flow:d.flow.trim(),amountCny:n(d.amountCny),yuanRate:n(d.yuanRate),comment:d.comment.trim()};if(editingInvestmentId){const i=ws.investments.findIndex(x=>x.id===editingInvestmentId);ws.investments[i]=v}else ws.investments.push(v);editingInvestmentId=null;saveWorkspace(ws);renderInvestments()}
@@ -5023,17 +5137,15 @@ function renderProfit(){
     <section class="profit-motivation"><div class="profit-kicker">${T("ПРИБЫЛЬ · КОНТРОЛЬ · РОСТ","利润 · 控制 · 成长")}</div><h3>${T("Прибыль — результат точных решений","利润是精准决策的结果")}</h3><p>${T("Считайте честно, распределяйте справедливо и часть направляйте на рост.","如实核算，公平分配，并把一部分投入成长。")}</p></section>
     <div class="section card form-card"><div class="section-title"><h3>${T("Добавить прибыль","添加利润")}</h3></div><form onsubmit="addProfit(event)"><div class="report-form"><div class="field"><label>${T("Дата","日期")}</label><input name="date" type="date" value="${today()}" required></div><div class="field"><label>${T("Магазин","店铺")}</label><select name="storeId" required>${storeOptions}</select></div><div class="field"><label>${T("Сумма прибыли","利润金额")} (${ws.currency})</label><input name="amount" type="number" step="0.01" required></div></div><button class="btn primary">${T("Добавить","添加")}</button></form></div>
     ${profitAnalyticsHtml(entries)}
-    <div class="section card profit-chart-card"><div class="section-title"><div><h3>${T("Динамика прибыли","利润趋势")}</h3><p>${T("Как меняется прибыль по датам","利润随日期的变化")}</p></div></div><canvas id="profitAnalyticsChart"></canvas></div>
-    <div class="section">${activeStores().map(s=>profitStoreBlock(s)).join("")||`<div class="card empty">${T("Добавьте магазин","请添加店铺")}</div>`}</div>
-    <div class="section"><div class="section-title"><div><h3>${T("Графики прибыли по магазинам","各店铺利润图表")}</h3><p>${T("Динамика прибыли каждого магазина отдельно","分别查看每个店铺的利润趋势")}</p></div></div><div class="grid store-profit-chart-grid">${activeStores().map(s=>`<div class="card profit-chart-card store-profit-chart-card"><div class="section-title"><div><h3>${esc(s.name)}</h3><p>${T("Прибыль по датам","按日期的利润")}</p></div></div><canvas id="profitStoreChart_${s.id}"></canvas></div>`).join("")||`<div class="card empty">${T("Добавьте магазин","请添加店铺")}</div>`}</div></div>`;
-  setTimeout(()=>{drawProfitAnalyticsChart(entries);activeStores().forEach(s=>drawProfitStoreChart(s.id,entries.filter(e=>e.storeId===s.id)))},0)
+    <div class="section">${activeStores().map(s=>profitStoreBlock(s)).join("")||`<div class="card empty">${T("Добавьте магазин","请添加店铺")}</div>`}</div>`;
+  setTimeout(()=>{activeStores().forEach(s=>drawProfitStoreChart(s.id,entries.filter(e=>e.storeId===s.id)))},0)
 }
 function profitAnalyticsHtml(entries){const vals=entries.map(e=>n(e.amount)),total=vals.reduce((a,b)=>a+b,0),avg=vals.length?total/vals.length:0,best=vals.length?Math.max(...vals):0,last=vals.length?vals[vals.length-1]:0;return `<div class="grid profit-analytics-grid"><div class="card profit-analytics-card"><span>${T("Общая прибыль","总利润")}</span><strong>${money(total)}</strong><small>${entries.length} ${T("операций","笔记录")}</small></div><div class="card profit-analytics-card"><span>${T("Средняя прибыль","平均利润")}</span><strong>${money(avg)}</strong><small>${T("На одну запись","每条记录")}</small></div><div class="card profit-analytics-card"><span>${T("Лучшая прибыль","最高利润")}</span><strong class="good">${money(best)}</strong><small>${T("Максимальная запись","最高单笔")}</small></div><div class="card profit-analytics-card"><span>${T("Последняя прибыль","最近利润")}</span><strong>${money(last)}</strong><small>${T("По последней записи","按最近记录")}</small></div></div>`}
 function drawProfitAnalyticsChart(entries){const c=document.getElementById("profitAnalyticsChart"),z=prepCanvas(c);if(!z)return;const{x,w,h}=z,p=38;x.clearRect(0,0,w,h);x.strokeStyle="#E4E8F0";x.lineWidth=1;for(let i=0;i<5;i++){const y=p+i*(h-2*p)/4;x.beginPath();x.moveTo(p,y);x.lineTo(w-p,y);x.stroke()}if(!entries.length){x.fillStyle="#7B8190";x.textAlign="center";x.fillText(T("Нет данных","暂无数据"),w/2,h/2);return}const rows=entries.slice().sort((a,b)=>a.date.localeCompare(b.date)),vals=rows.map(e=>n(e.amount)),mn=Math.min(0,...vals),mx=Math.max(1,...vals),range=mx-mn||1;x.strokeStyle="#254CB6";x.lineWidth=3;x.beginPath();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);x.fillStyle=v>=0?"#00A67B":"#D52D58";x.beginPath();x.arc(px,py,4,0,Math.PI*2);x.fill()})}
 function drawProfitStoreChart(storeId,entries){const c=document.getElementById("profitStoreChart_"+storeId),z=prepCanvas(c);if(!z)return;const{x,w,h}=z,p=36;x.clearRect(0,0,w,h);x.strokeStyle="#E7EAF1";x.lineWidth=1;for(let i=0;i<5;i++){const y=p+i*(h-2*p)/4;x.beginPath();x.moveTo(p,y);x.lineTo(w-p,y);x.stroke()}if(!entries.length){x.fillStyle="#7B8190";x.textAlign="center";x.font="12px sans-serif";x.fillText(T("Нет данных по магазину","该店铺暂无数据"),w/2,h/2);return}const rows=entries.slice().sort((a,b)=>a.date.localeCompare(b.date)),vals=rows.map(e=>n(e.amount)),mn=Math.min(0,...vals),mx=Math.max(1,...vals),range=mx-mn||1,grad=x.createLinearGradient(0,p,0,h-p);grad.addColorStop(0,"rgba(37,76,182,.24)");grad.addColorStop(1,"rgba(0,128,96,.03)");x.beginPath();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);i?x.lineTo(px,py):x.moveTo(px,py)});x.lineTo(w-p,h-p);x.lineTo(p,h-p);x.closePath();x.fillStyle=grad;x.fill();x.strokeStyle="#254CB6";x.lineWidth=3;x.beginPath();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);x.fillStyle=v>=0?"#00A67B":"#D52D58";x.beginPath();x.arc(px,py,4,0,Math.PI*2);x.fill()})}
 
 function storeProfitTotal(storeId){return (getWorkspace().profitEntries||[]).filter(e=>e.storeId===storeId).reduce((a,e)=>a+n(e.amount),0)}
-function profitStoreBlock(s){const ws=getWorkspace(),total=storeProfitTotal(s.id),parts=(ws.partners||[]).filter(p=>p.storeId===s.id);return`<div class="section"><div class="section-title"><div><h3>${esc(s.name)}</h3><p>${T("Курс","汇率")}: 1 CNY = ${num(ws.yuanRate)} ${ws.currency}</p></div></div><div class="grid profit-summary"><div class="card summary"><span>${T("Общая прибыль","总利润")}</span><strong>${money(total)}</strong><small>${money(total/(ws.yuanRate||1),"CNY")}</small></div>${parts.map(p=>`<div class="card summary"><span>${esc(p.name)} · ${num(p.share)}%</span><strong>${money(total*p.share/100)}</strong><small>${money(total*p.share/100/(ws.yuanRate||1),"CNY")}</small></div>`).join("")||`<div class="card summary"><span>${T("Партнёры","合作伙伴")}</span><strong>—</strong><small>${T("Добавьте в настройках","请在设置中添加")}</small></div>`}</div></div>`}
+function profitStoreBlock(s){const ws=getWorkspace(),total=storeProfitTotal(s.id),parts=(ws.partners||[]).filter(p=>p.storeId===s.id);return`<div class="section profit-store-group"><div class="section-title"><div><h3>${esc(s.name)}</h3><p>${T("Курс","汇率")}: 1 CNY = ${num(ws.yuanRate)} ${ws.currency}</p></div></div><div class="grid profit-summary"><div class="card summary"><span>${T("Общая прибыль","总利润")}</span><strong>${money(total)}</strong><small>${money(total/(ws.yuanRate||1),"CNY")}</small></div>${parts.map(p=>`<div class="card summary"><span>${esc(p.name)} · ${num(p.share)}%</span><strong>${money(total*p.share/100)}</strong><small>${money(total*p.share/100/(ws.yuanRate||1),"CNY")}</small></div>`).join("")||`<div class="card summary"><span>${T("Партнёры","合作伙伴")}</span><strong>—</strong><small>${T("Добавьте в настройках","请在设置中添加")}</small></div>`}</div><div class="card profit-chart-card store-profit-chart-card" style="margin-top:14px"><div class="section-title"><div><h3>${T("Динамика прибыли","利润趋势")}</h3><p>${T("Как меняется прибыль по датам","利润随日期的变化")}</p></div></div><canvas id="profitStoreChart_${s.id}"></canvas></div></div>`}
 function addProfit(e){e.preventDefault();const ws=getWorkspace(),d=Object.fromEntries(new FormData(e.target).entries());ws.profitEntries.push({id:id(),date:d.date,storeId:d.storeId,amount:n(d.amount)});saveWorkspace(ws);renderProfit()}
 function deleteProfit(pid){if(!confirm(T("Удалить запись?","确定删除记录吗？")))return;const ws=getWorkspace();ws.profitEntries=ws.profitEntries.filter(x=>x.id!==pid);saveWorkspace(ws);renderProfit()}
 function profitTable(entries){const ws=getWorkspace();return`<table style="min-width:850px"><thead><tr><th>${T("Дата","日期")}</th><th>${T("Магазин","店铺")}</th><th>${T("Сумма","金额")}</th><th>${T("Распределение","分配")}</th><th></th></tr></thead><tbody>${entries.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(e=>{const s=ws.stores.find(x=>x.id===e.storeId),ps=ws.partners.filter(p=>p.storeId===e.storeId);return`<tr><td>${fmtDate(e.date)}</td><td>${esc(s?.name||"—")}</td><td>${money(e.amount)}</td><td>${ps.map(p=>esc(p.name)+" "+num(p.share)+"%").join(" · ")||"—"}</td><td><button class="btn small danger" onclick="deleteProfit('${e.id}')">${T("Удал.","删除")}</button></td></tr>`}).join("")}</tbody></table>`}
@@ -5142,8 +5254,12 @@ function returnMoneyApply(){returnMoneyStore=document.getElementById("returnMone
 function returnMoneyClear(){const ws=ensureWorkspaceData();returnMoneyStore=ws.stores.find(s=>s.enabled)?.id||"";returnMoneyFrom="";returnMoneyTo="";renderReturnMoney()}
 
 const FINANCE_KEY="seller_control_finance_v1";
-function financeRows(){try{return JSON.parse(localStorage.getItem(FINANCE_KEY)||"[]")}catch(e){return[]}}
-function saveFinanceRows(rows){localStorage.setItem(FINANCE_KEY,JSON.stringify(rows))}
+function financeStorageKey(){
+  const s=typeof getSession==="function"?getSession():null;
+  return FINANCE_KEY+"_"+String(s?.userId||"guest");
+}
+function financeRows(){try{return JSON.parse(localStorage.getItem(financeStorageKey())||"[]")}catch(e){return[]}}
+function saveFinanceRows(rows){localStorage.setItem(financeStorageKey(),JSON.stringify(rows))}
 function financeNum(v){return Number(v)||0}
 function financeDateLabel(v){if(!v)return"—";try{return new Date(v+"T00:00:00").toLocaleDateString(lang==="zh"?"zh-CN":"ru-RU")}catch(e){return v}}
 function financeTotals(rows){return rows.reduce((a,r)=>{a.open+=financeNum(r.opening);a.topup+=financeNum(r.topup);a.expense+=financeNum(r.expense);a.balance+=financeNum(r.balance);return a},{open:0,topup:0,expense:0,balance:0})}
@@ -5173,7 +5289,7 @@ function renderFinance(){
   </div>
   <div class="card panel"><div class="section-title"><div><h3>${T("Финансовая аналитика","财务分析")}</h3><p>${T("Главные выводы по деньгам, расходам и балансу","关于资金、支出与余额的关键结论")}</p></div></div><div class="finance-analysis">${financeAnalysisHtml(rows,t,latest)}</div></div>
  </div>
- <div class="grid finance-charts"><div class="card finance-chart"><div class="section-title"><div><h3>${T("Движение денег","余额走势")}</h3><p>${T("Как меняется баланс после каждой операции","每笔操作后余额如何变化")}</p></div></div><canvas id="financeLineChart"></canvas></div><div class="card finance-chart"><div class="section-title"><div><h3>${T("Главные статьи расходов","按类别支出")}</h3><p>${T("Какие расходы занимают самую большую долю","哪些支出占比最高")}</p></div></div><canvas id="financeExpenseChart"></canvas></div></div>
+ <div class="section"><div class="card finance-chart"><div class="section-title"><div><h3>${T("Главные статьи расходов","按类别支出")}</h3><p>${T("Какие расходы занимают самую большую долю","哪些支出占比最高")}</p></div></div><canvas id="financeExpenseChart"></canvas></div></div>
  <div class="section"><div class="section-title"><div><h3>${T("Журнал финансов","财务历史")}</h3><p>${T("Все операции в одном аккуратном журнале","所有操作都集中在一个整洁的记录中")}</p></div></div><div class="card table-card finance-table"><div class="table-wrap"><table><thead><tr><th>№</th><th>Дата</th><th>Магазин</th><th>Ответственный / имя</th><th>Остаток до, ₽</th><th>Пополнение, ₽</th><th>Расход, ₽</th><th>Для чего</th><th>Комментарий</th><th>Остаток после, ₽</th><th></th></tr></thead><tbody>${rows.length?rows.map((r,i)=>`<tr><td>${i+1}</td><td>${financeDateLabel(r.date)}</td><td>${esc(r.store)}</td><td>${esc(r.person)}</td><td>${money(r.opening)}</td><td class="good">${money(r.topup)}</td><td class="bad">${money(r.expense)}</td><td>${esc(r.purpose||'—')}</td><td>${esc(r.comment||'—')}</td><td><b>${money(r.balance)}</b></td><td><button class="btn danger small" onclick="deleteFinanceRow('${r.id}')">✕</button></td></tr>`).join(''):`<tr><td colspan="11" class="empty">${T("Операций пока нет","暂无操作")}</td></tr>`}</tbody></table></div></div></div>`;
  requestAnimationFrame(()=>drawFinanceCharts(rows));
 }
@@ -5322,10 +5438,6 @@ function renderSettings(){
         <div class="section">${ws.stores.map(s=>partnerBlock(s)).join("")}</div>
       </div>
       <div class="card setting-card" style="grid-column:1/-1"><h3>${T("Данные и резервная копия","数据与备份")}</h3><div class="form-actions"><button class="btn shop" onclick="downloadBackup()">${T("Скачать backup","下载备份")}</button><label class="btn">${T("Загрузить backup","导入备份")}<input type="file" accept=".json" style="display:none" onchange="importBackup(this.files[0])"></label><button class="btn danger" onclick="resetWorkspace()">${T("Сбросить бизнес-профиль","重置业务资料")}</button></div><div class="note">${T("Backup содержит магазины, отчёты, закупки, юнит-экономику, инвестиции, прибыль и настройки только текущего аккаунта。","备份仅包含当前账户的店铺、报表、采购、单品经济、投资、利润和设置。")}</div></div>
-      <div class="card setting-card" style="grid-column:1/-1;text-align:center;padding:16px 20px;background:linear-gradient(135deg,#F7F9FF,#F1F8F5);border:1px solid #DCE3F0;box-shadow:0 10px 28px rgba(24,42,96,.07)">
-        <div style="font-size:13px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">${T("Основатель платформы","平台创始人")}</div>
-        <div style="font-size:17px;font-weight:950;color:var(--deep)">Шерали Туйчибой Зафар</div>
-      </div>
     </div>`
 }
 function saveBusiness(e){e.preventDefault();const ws=getWorkspace(),d=Object.fromEntries(new FormData(e.target).entries());ws.businessName=d.businessName.trim()||ws.businessName;ws.currency=d.currency;saveWorkspace(ws);renderApp()}
@@ -6841,11 +6953,11 @@ window.addEventListener("DOMContentLoaded",boot);
   }
 
   function scReadFinanceLocal(){
-    try{return JSON.parse(localStorage.getItem(FINANCE_KEY)||"[]")}catch(e){return[]}
+    try{return JSON.parse(localStorage.getItem(financeStorageKey())||"[]")}catch(e){return[]}
   }
 
   function scWriteFinanceLocal(rows){
-    try{localStorage.setItem(FINANCE_KEY,JSON.stringify(Array.isArray(rows)?rows:[]))}catch(e){}
+    try{localStorage.setItem(financeStorageKey(),JSON.stringify(Array.isArray(rows)?rows:[]))}catch(e){}
   }
 
   function scStableNumericId(uuid){
@@ -6857,12 +6969,10 @@ window.addEventListener("DOMContentLoaded",boot);
   function scFindLegacyWorkspace(userId){
     const all = getAllWorkspaces();
     if(all[userId]) return all[userId];
-    const candidates = Object.entries(all)
-      .filter(([key,w])=>key!==userId && w && typeof w==="object")
-      .map(([key,w])=>({key,w,score:(w.stores?.length||0)*100+(w.profitEntries?.length||0)+(w.purchases?.length||0)+(w.financeEntries?.length||0)+(w.businessName?20:0)}))
-      .sort((a,b)=>b.score-a.score);
-    if(candidates.length && candidates[0].score>0) return JSON.parse(JSON.stringify(candidates[0].w));
-    return null;
+    /* Security: never copy another account's local workspace into a new user.
+       Only accept an old workspace when it explicitly belongs to this same user. */
+    const owned = Object.values(all).find(w=>w && typeof w==="object" && String(w._ownerId||"")===String(userId));
+    return owned ? JSON.parse(JSON.stringify(owned)) : null;
   }
 
   function scStoreWorkspaceLocal(userId,ws){
@@ -7191,8 +7301,8 @@ window.addEventListener("DOMContentLoaded",boot);
 .sc-trial-banner.warning{border-color:#F0D49A;background:linear-gradient(135deg,#FFF8E8,#FFFDF7)}
 .sc-trial-banner.danger{border-color:#F1B6C4;background:linear-gradient(135deg,#FFF0F3,#FFF8FA)}
 .sc-trial-main{display:flex;align-items:center;gap:12px;min-width:0}.sc-trial-icon{width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;border-radius:14px;background:#DDF4E8;font-size:22px}.sc-trial-banner.warning .sc-trial-icon{background:#FFF0C9}.sc-trial-banner.danger .sc-trial-icon{background:#FFE0E7}
-.sc-trial-copy{min-width:0}.sc-trial-copy strong{display:block;font-size:14px}.sc-trial-copy span{display:block;margin-top:4px;color:var(--muted);font-size:12px}.sc-trial-countdown{font-size:22px;font-weight:950;letter-spacing:.4px;color:#00805F;white-space:nowrap}.sc-trial-banner.warning .sc-trial-countdown{color:#B97600}.sc-trial-banner.danger .sc-trial-countdown{color:#D52D58}
-.sc-trial-actions{display:flex;align-items:center;gap:9px}.sc-trial-plan{padding:7px 10px;border-radius:999px;background:#E7ECFF;color:#254CB6;font-size:11px;font-weight:900;white-space:nowrap}.sc-trial-paid-remaining{font-size:12px;font-weight:950;color:#007653;white-space:nowrap}.sc-trial-paid-remaining.warning{color:#B97600}.sc-trial-paid-remaining.danger{color:#D52D58}
+.sc-trial-copy{min-width:0}.sc-trial-copy strong{display:block;font-size:14px}.sc-trial-copy span{display:block;margin-top:4px;color:var(--muted);font-size:12px}.sc-trial-clockbox{min-width:132px;padding:8px 11px;border-radius:14px;background:#fff;border:1px solid #CFEBDD;box-shadow:0 8px 18px rgba(0,128,96,.08);text-align:center}.sc-trial-clocklabel{display:block;margin-bottom:2px;color:#708078;font-size:9px;font-weight:950;letter-spacing:.75px;text-transform:uppercase}.sc-trial-countdown{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;font-size:22px;font-weight:950;letter-spacing:1px;color:#00805F;white-space:nowrap;line-height:1.05}.sc-trial-clockdot{display:inline-block;width:6px;height:6px;margin:0 0 2px 5px;border-radius:50%;background:#00A67B;box-shadow:0 0 0 4px rgba(0,166,123,.11);animation:scClockPulse 1s steps(1,end) infinite}.sc-trial-progress{height:5px;margin-top:7px;border-radius:999px;background:#E8F1ED;overflow:hidden}.sc-trial-progress>i{display:block;height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,#00A67B,#87D252);transition:width .35s linear}.sc-trial-banner.warning .sc-trial-clockbox{border-color:#F0D49A}.sc-trial-banner.danger .sc-trial-clockbox{border-color:#F1B6C4}.sc-trial-banner.warning .sc-trial-countdown{color:#B97600}.sc-trial-banner.danger .sc-trial-countdown{color:#D52D58}.sc-trial-banner.warning .sc-trial-progress>i{background:linear-gradient(90deg,#D99A20,#FFC74D)}.sc-trial-banner.danger .sc-trial-progress>i{background:linear-gradient(90deg,#D52D58,#FF7999)}@keyframes scClockPulse{0%,49%{opacity:1}50%,100%{opacity:.18}}
+.sc-trial-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}.sc-trial-plan{padding:7px 10px;border-radius:999px;background:#E7ECFF;color:#254CB6;font-size:11px;font-weight:900;white-space:nowrap}.sc-trial-tariffs{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:12px;background:#fff;border:1px solid #DCE4F5;color:#344566;font-size:10px;font-weight:900;white-space:nowrap;box-shadow:0 6px 16px rgba(31,53,115,.06)}.sc-trial-tariffs b{color:#254CB6;font-weight:950}.sc-trial-paid-remaining{font-size:12px;font-weight:950;color:#007653;white-space:nowrap}.sc-trial-paid-remaining.warning{color:#B97600}.sc-trial-paid-remaining.danger{color:#D52D58}
 .sc-access-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(8,18,40,.72);backdrop-filter:blur(10px)}
 .sc-access-modal{width:min(920px,100%);max-height:94vh;overflow:auto;padding:25px;border-radius:26px;background:#fff;box-shadow:0 36px 100px rgba(0,0,0,.34)}
 .sc-access-head{text-align:center}.sc-access-clock{width:62px;height:62px;margin:0 auto 12px;display:grid;place-items:center;border-radius:20px;background:#FFF0F3;color:#D52D58;font-size:30px}.sc-access-head h2{margin:0;font-size:26px}.sc-access-head p{margin:9px auto 0;max-width:650px;color:var(--muted);line-height:1.55}
@@ -7200,11 +7310,21 @@ window.addEventListener("DOMContentLoaded",boot);
 .sc-payment-summary{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin-top:20px;padding:16px 18px;border-radius:18px;background:linear-gradient(135deg,#EEF2FF,#EFFAF6);border:1px solid #D8E0F4}.sc-payment-summary span{display:block;color:var(--muted);font-size:12px;font-weight:850}.sc-payment-summary strong{display:block;margin-top:4px;font-size:21px}.sc-payment-amount{text-align:right;font-size:29px!important;color:#254CB6}
 .sc-payment-card{margin-top:14px;padding:19px;border-radius:21px;color:#fff;background:radial-gradient(circle at 88% 8%,rgba(255,255,255,.18),transparent 28%),linear-gradient(135deg,#182655,#283FA8 58%,#00A67B);box-shadow:0 20px 44px rgba(24,38,85,.24)}.sc-payment-card-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.sc-payment-bank{font-size:18px;font-weight:950}.sc-payment-chip{width:42px;height:31px;border-radius:9px;background:linear-gradient(135deg,#FFE785,#D8A92E)}.sc-payment-number{margin-top:24px;font-size:23px;font-weight:950;letter-spacing:2px;word-spacing:5px}.sc-payment-meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}.sc-payment-meta span{display:block;color:rgba(255,255,255,.63);font-size:10px;text-transform:uppercase;letter-spacing:.7px}.sc-payment-meta strong{display:block;margin-top:4px;font-size:13px}
 .sc-payment-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:14px}.sc-payment-instructions{margin-top:15px;padding:14px 15px;border-radius:16px;background:#F7F8FC;border:1px solid var(--line);font-size:12px;line-height:1.65;color:#536078}.sc-payment-instructions b{color:var(--text)}.sc-payment-status{display:none;margin-top:12px;padding:11px 13px;border-radius:13px;background:#EAF7F2;color:#007453;font-size:12px;font-weight:850}.sc-payment-status.show{display:block}
-@media(max-width:760px){.sc-trial-banner{align-items:flex-start;padding:12px;margin-bottom:13px}.sc-trial-icon{width:36px;height:36px;flex-basis:36px;font-size:18px}.sc-trial-copy strong{font-size:12px}.sc-trial-copy span{font-size:10px}.sc-trial-countdown{font-size:17px}.sc-trial-actions{display:block;text-align:right}.sc-trial-plan{display:inline-block;margin-bottom:7px}.sc-trial-paid-remaining{display:block;font-size:10px;margin-bottom:7px}.sc-trial-actions .btn{padding:7px 9px;font-size:10px}.sc-access-modal{padding:18px;border-radius:22px}.sc-access-head h2{font-size:21px}.sc-plan-grid{grid-template-columns:1fr}.sc-plan-card{padding:17px}.sc-payment-summary{grid-template-columns:1fr;padding:14px}.sc-payment-amount{text-align:left;font-size:25px!important}.sc-payment-number{font-size:18px;letter-spacing:1px;word-spacing:2px}.sc-payment-meta{grid-template-columns:1fr}.sc-payment-actions{grid-template-columns:1fr}}
+@media(max-width:760px){.sc-trial-banner{align-items:flex-start;padding:12px;margin-bottom:13px;display:block}.sc-trial-main{align-items:flex-start}.sc-trial-icon{width:36px;height:36px;flex-basis:36px;font-size:18px}.sc-trial-copy strong{font-size:12px}.sc-trial-copy span{font-size:10px}.sc-trial-countdown{font-size:19px}.sc-trial-clockbox{min-width:126px;padding:8px 10px}.sc-trial-actions{display:flex;text-align:left;justify-content:flex-start;margin-top:10px;gap:7px}.sc-trial-plan{display:inline-block}.sc-trial-tariffs{width:100%;justify-content:center;font-size:9.5px;white-space:normal;text-align:center}.sc-trial-paid-remaining{display:block;font-size:10px}.sc-trial-actions .btn{padding:7px 9px;font-size:10px}.sc-access-modal{padding:18px;border-radius:22px}.sc-access-head h2{font-size:21px}.sc-plan-grid{grid-template-columns:1fr}.sc-plan-card{padding:17px}.sc-payment-summary{grid-template-columns:1fr;padding:14px}.sc-payment-amount{text-align:left;font-size:25px!important}.sc-payment-number{font-size:18px;letter-spacing:1px;word-spacing:2px}.sc-payment-meta{grid-template-columns:1fr}.sc-payment-actions{grid-template-columns:1fr}}
 </style>
 <script id="seller-control-trial-script">
 (function(){
   const SC_ACCESS_RPC="start_or_get_trial";
+  // TEMP TEST MODE: the server still creates the normal 24h trial,
+  // but the UI/access layer treats it as 30 minutes from the original start time.
+  // This keeps the countdown moving across refresh/logout/login because it is derived from trial_ends_at.
+  const SC_TRIAL_SERVER_MS=24*60*60*1000;
+  const SC_TRIAL_TEST_MS=30*60*1000;
+  function scTrialEffectiveEndMs(row){
+    if(!row?.trial_ends_at)return 0;
+    const serverEnd=new Date(row.trial_ends_at).getTime();
+    return serverEnd-SC_TRIAL_SERVER_MS+SC_TRIAL_TEST_MS;
+  }
   let scAccessRow=null;
   let scAccessTimer=null;
   let scAccessRefreshTimer=null;
@@ -7215,7 +7335,7 @@ window.addEventListener("DOMContentLoaded",boot);
   function scTrialRow(data){return Array.isArray(data)?data[0]:data}
   function scTrialRemaining(){
     if(!scAccessRow?.trial_ends_at)return 0;
-    return Math.max(0,new Date(scAccessRow.trial_ends_at).getTime()-Date.now());
+    return Math.max(0,scTrialEffectiveEndMs(scAccessRow)-Date.now());
   }
   function scTrialPaidActive(){
     if(scAccessRow?.status!=="active")return false;
@@ -7262,7 +7382,7 @@ window.addEventListener("DOMContentLoaded",boot);
       return `<div id="scTrialBanner" class="sc-trial-banner ${paidClass}"><div class="sc-trial-main"><div class="sc-trial-icon">✓</div><div class="sc-trial-copy"><strong>${scTrialT("Тариф активен","套餐已激活")}</strong><span>${days===null?scTrialT("Доступ бессрочный","永久访问"):scTrialT(`Действует до ${scTrialPaidDate()}`,`有效期至 ${scTrialPaidDate()}`)}</span></div></div><div class="sc-trial-actions"><span class="sc-trial-plan">${scTrialPlanName()}</span><span id="scTrialPaidRemaining" class="sc-trial-paid-remaining ${paidClass}">${scTrialPaidText()}</span></div></div>`;
     }
     const ms=scTrialRemaining();
-    return `<div id="scTrialBanner" class="sc-trial-banner ${scTrialBannerClass(ms)}"><div class="sc-trial-main"><div class="sc-trial-icon">⏱</div><div class="sc-trial-copy"><strong>${ms>0?scTrialT("Пробный период активен","试用期已激活"):scTrialT("Пробный период завершён","试用期已结束")}</strong><span>${ms>0?scTrialT("Полный доступ на 24 часа","24小时完整访问"):scTrialT("Выберите тариф для продолжения","请选择套餐继续使用")}</span></div></div><div class="sc-trial-actions"><span class="sc-trial-plan">${scTrialPlanName()}</span><div id="scTrialCountdown" class="sc-trial-countdown">${scTrialFormat(ms)}</div><button class="btn small primary" onclick="sellerControlOpenPlans()">${scTrialT("Тарифы","套餐")}</button></div></div>`;
+    return `<div id="scTrialBanner" class="sc-trial-banner ${scTrialBannerClass(ms)}"><div class="sc-trial-main"><div class="sc-trial-icon">⏱</div><div class="sc-trial-copy"><strong>${ms>0?scTrialT("Тест 30 минут — осталось времени","30分钟测试 — 剩余时间"):scTrialT("Бесплатные 30 минут закончились","30分钟免费试用已结束")}</strong><span>${ms>0?scTrialT("Тестовый бесплатный доступ на 30 минут. Таймер идёт даже после выхода и повторного входа. После окончания выберите тариф.","30分钟测试免费访问。退出并重新登录后计时仍会继续。结束后请选择套餐。"):scTrialT("Ваши данные сохранены. Выберите тариф, чтобы продолжить работу.","您的数据已保存。请选择套餐继续使用。")}</span></div></div><div class="sc-trial-actions"><div class="sc-trial-clockbox"><span class="sc-trial-clocklabel">${scTrialT("Осталось","剩余")}</span><div><span id="scTrialCountdown" class="sc-trial-countdown">${scTrialFormat(ms)}</span><i class="sc-trial-clockdot"></i></div><div class="sc-trial-progress"><i id="scTrialProgress" style="width:${Math.max(0,Math.min(100,ms/SC_TRIAL_TEST_MS*100))}%"></i></div></div><span class="sc-trial-tariffs"><b>Start 550 ₽</b> · Business 999 ₽ · Pro 1 499 ₽</span><button class="btn small primary" onclick="sellerControlOpenPlans()">${scTrialT("Смотреть тарифы","查看套餐")}</button></div></div>`;
   }
   function scTrialPlansHtml(expired){
     return `<div id="scAccessOverlay" class="sc-access-overlay"><div class="sc-access-modal"><div class="sc-access-head"><div class="sc-access-clock">⏱</div><h2>${expired?scTrialT("Пробный период завершён","试用期已结束"):scTrialT("Выберите тариф","选择套餐")}</h2><p>${expired?scTrialT("Ваши данные сохранены. Для продолжения работы выберите подходящий тариф.","您的数据已保存。请选择套餐继续使用。" ):scTrialT("Выберите план, который соответствует вашему бизнесу.","请选择适合您业务的套餐。")}</p></div><div class="sc-plan-grid">
@@ -7284,8 +7404,13 @@ window.addEventListener("DOMContentLoaded",boot);
   function scTrialTick(){
     if(!scAccessRow)return;
     const el=document.getElementById("scTrialCountdown");
+    const topEl=document.getElementById("scTrialTopCountdown");
     const ms=scTrialRemaining();
-    if(el)el.textContent=scTrialFormat(ms);
+    const formatted=scTrialFormat(ms);
+    if(el)el.textContent=formatted;
+    if(topEl)topEl.textContent=formatted;
+    const progress=document.getElementById("scTrialProgress");
+    if(progress)progress.style.width=Math.max(0,Math.min(100,ms/SC_TRIAL_TEST_MS*100))+"%";
     const banner=document.getElementById("scTrialBanner");
     if(scTrialPaidActive()){
       const days=scTrialPaidRemainingDays();
@@ -7306,7 +7431,7 @@ window.addEventListener("DOMContentLoaded",boot);
       scAccessRow=scTrialRow(data);
       window.sellerControlAccess=scAccessRow;
       scTrialRender();scTrialTick();
-      clearInterval(scAccessTimer);scAccessTimer=setInterval(scTrialTick,1000);
+      clearInterval(scAccessTimer);scAccessTimer=setInterval(scTrialTick,250);
     }catch(e){console.error("Seller Control trial:",e)}finally{scAccessBusy=false}
   }
   window.sellerControlOpenPlans=function(){
@@ -7487,7 +7612,7 @@ window.addEventListener("DOMContentLoaded",boot);
 .sc-plan-locked .ico{filter:grayscale(1)}
 .sc-plan-lock{margin-left:auto;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.16);font-size:10px;font-weight:950}
 .sc-plan-badge-top{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:#EEF2FF;color:#254CB6;border:1px solid #D9E0F4;font-size:11px;font-weight:950;white-space:nowrap}
-.sc-plan-badge-top.admin{background:#F1EAFE;color:#6935D8;border-color:#DED0F8}
+.sc-plan-badge-top.admin{background:#F1EAFE;color:#6935D8;border-color:#DED0F8}.sc-plan-badge-top .sc-plan-top-label{padding-left:2px;color:#007653}
 .sc-plan-limit-note{margin-top:9px;padding:10px 12px;border-radius:13px;background:#FFF8E8;border:1px solid #F1D79F;color:#8D5A00;font-size:12px;font-weight:850}
 .sc-plan-disabled-card{display:none!important}
 .sc-extra-store-locked{opacity:.48!important;pointer-events:none!important}
@@ -7500,7 +7625,7 @@ window.addEventListener("DOMContentLoaded",boot);
 .sc-payment-status-pill.approved{background:#E4F7EE;color:#007653}
 .sc-payment-status-pill.rejected{background:#FFE6EB;color:#C1264D}
 .sc-admin-actions{display:flex;gap:7px;flex-wrap:wrap}
-.sc-access-remaining{display:grid;gap:3px;min-width:132px}.sc-access-remaining b{font-size:12px}.sc-access-remaining small{font-size:10px;color:var(--muted)}.sc-access-remaining.good b{color:#007653}.sc-access-remaining.warning b{color:#B97600}.sc-access-remaining.danger b{color:#D52D58}.sc-access-remaining.permanent b{color:#254CB6}
+.sc-access-remaining{display:grid;gap:3px;min-width:132px}.sc-access-remaining b{font-size:12px}.sc-access-remaining small{font-size:10px;color:var(--muted)}.sc-access-remaining.good b{color:#007653}.sc-access-remaining.warning b{color:#B97600}.sc-access-remaining.danger b{color:#D52D58}.sc-access-remaining.permanent b{color:#254CB6}.sc-access-remaining.pending b{color:#254CB6}
 @media(max-width:760px){
   .sc-plan-badge-top{font-size:10px;padding:6px 8px}
   .sc-admin-kpis{grid-template-columns:1fr 1fr}
@@ -7523,12 +7648,19 @@ window.addEventListener("DOMContentLoaded",boot);
   function scClient(){return window.sellerControlSupabase||null}
   function scAccess(){return window.sellerControlAccess||null}
   function scNow(){return Date.now()}
+  // TEMP TEST MODE: 30-minute trial, derived from the server's normal 24h trial window.
+  const SC_TRIAL_SERVER_MS=24*60*60*1000;
+  const SC_TRIAL_TEST_MS=30*60*1000;
+  function scEffectiveTrialEnd(row){
+    if(!row?.trial_ends_at)return 0;
+    return new Date(row.trial_ends_at).getTime()-SC_TRIAL_SERVER_MS+SC_TRIAL_TEST_MS;
+  }
   function scPaidActive(row){
     if(!row||row.status!=="active")return false;
     return !row.paid_until||new Date(row.paid_until).getTime()>scNow();
   }
   function scTrialActive(row){
-    return !!(row&&row.status==="trial"&&row.trial_ends_at&&new Date(row.trial_ends_at).getTime()>scNow());
+    return !!(row&&row.status==="trial"&&row.trial_ends_at&&scEffectiveTrialEnd(row)>scNow());
   }
   function scPlan(){
     const row=scAccess();
@@ -7554,11 +7686,11 @@ window.addEventListener("DOMContentLoaded",boot);
     return i<0||i<scRule().maxStores;
   }
   function scPlanName(){
-    return ({trial:"TRIAL 24H",start:"START",business:"BUSINESS",pro:"PRO",free:"EXPIRED"})[scPlan()]||scPlan().toUpperCase();
+    return ({trial:"БЕСПЛАТНО",start:"START",business:"BUSINESS",pro:"PRO",free:"EXPIRED"})[scPlan()]||scPlan().toUpperCase();
   }
   function scPlanText(){
     const r=scRule();
-    if(scPlan()==="trial")return "Полный доступ на 24 часа";
+    if(scPlan()==="trial")return "Тестовый бесплатный доступ на 30 минут";
     if(scPlan()==="pro")return "Безлимитные магазины · все функции";
     if(scPlan()==="business")return "До 3 магазинов · расширенные функции";
     if(scPlan()==="start")return "1 магазин · отчёты · закупки · Unit Economics";
@@ -7674,6 +7806,37 @@ window.addEventListener("DOMContentLoaded",boot);
     const date=new Date(row.paid_until).toLocaleDateString("ru-RU");
     return `${scPlanText()} · Осталось ${days} дн. · до ${date}`;
   }
+  function scTrialVisualFallbackEnd(){
+    const user=typeof getCurrentUser==="function"?getCurrentUser():null;
+    const uid=user?.id||"guest";
+    const key="seller_control_trial30_visual_end_"+uid;
+    let end=Number(localStorage.getItem(key)||0);
+    if(!Number.isFinite(end)||end<=0){
+      end=Date.now()+SC_TRIAL_TEST_MS;
+      try{localStorage.setItem(key,String(end))}catch(e){}
+    }
+    return end;
+  }
+  function scTrialTopbarEnd(){
+    const row=window.sellerControlAccess;
+    if(row?.trial_ends_at)return scEffectiveTrialEnd(row);
+    return scTrialVisualFallbackEnd();
+  }
+  function scTrialTopbarTime(){
+    const total=Math.max(0,Math.floor((scTrialTopbarEnd()-Date.now())/1000));
+    const h=Math.floor(total/3600),m=Math.floor((total%3600)/60),sec=total%60;
+    return [h,m,sec].map(v=>String(v).padStart(2,"0")).join(":");
+  }
+  let scTrialTopbarTimer=null;
+  function scStartTrialTopbarClock(){
+    clearInterval(scTrialTopbarTimer);
+    const tick=()=>{
+      const el=document.getElementById("scTrialTopCountdown");
+      if(el)el.textContent=scTrialTopbarTime();
+    };
+    tick();
+    scTrialTopbarTimer=setInterval(tick,250);
+  }
   function scDecorateTopbar(){
     const top=document.querySelector(".topbar .top-actions");
     if(!top)return;
@@ -7682,7 +7845,13 @@ window.addEventListener("DOMContentLoaded",boot);
     badge.className="sc-plan-badge-top"+(scIsAdmin?" admin":"");
     const access=scCurrentAccessBadge();
     badge.title=scCurrentAccessTitle();
-    badge.textContent=(scIsAdmin?"ADMIN · ":"")+scPlanName()+(access?` · ${access}`:"");
+    if(!scIsAdmin&&scPlan()==="trial"){
+      badge.innerHTML=`⏱ <span id="scTrialTopCountdown">${scTrialTopbarTime()}</span> <span class="sc-plan-top-label">Бесплатно</span>`;
+      badge.onclick=()=>{if(typeof sellerControlOpenPlans==="function")sellerControlOpenPlans()};
+      badge.style.cursor="pointer";
+    }else{
+      badge.textContent=(scIsAdmin?"ADMIN · ":"")+scPlanName()+(access?` · ${access}`:"");
+    }
     top.insertBefore(badge,top.firstChild);
   }
 
@@ -7761,13 +7930,37 @@ window.addEventListener("DOMContentLoaded",boot);
     return "дней";
   }
   function scAccessRemainingHtml(r){
-    if(r.access_status==="active"&&!r.paid_until)return '<div class="sc-access-remaining permanent"><b>Бессрочно</b><small>Постоянный доступ</small></div>';
-    if(!r.paid_until)return '<span class="muted">—</span>';
-    const ms=new Date(r.paid_until).getTime()-Date.now();
-    const days=Math.max(0,Math.ceil(ms/86400000));
-    if(ms<=0)return `<div class="sc-access-remaining danger"><b>Срок истёк</b><small>до ${scShortDate(r.paid_until)}</small></div>`;
-    const cls=days<=2?"danger":days<=7?"warning":"good";
-    return `<div class="sc-access-remaining ${cls}"><b>Осталось ${days} ${scAdminDayWord(days)}</b><small>до ${scShortDate(r.paid_until)}</small></div>`;
+    const status=String(r?.status||"");
+    const accessStatus=String(r?.access_status||"");
+    const paidUntil=r?.paid_until||null;
+
+    if(accessStatus==="active"&&!paidUntil){
+      return '<div class="sc-access-remaining permanent"><b>Бессрочно</b><small>Постоянный доступ</small></div>';
+    }
+
+    if(paidUntil){
+      const untilMs=new Date(paidUntil).getTime();
+      if(Number.isFinite(untilMs)){
+        const ms=untilMs-Date.now();
+        const days=Math.max(0,Math.ceil(ms/86400000));
+        if(ms<=0){
+          return `<div class="sc-access-remaining danger"><b>Срок истёк</b><small>до ${scShortDate(paidUntil)}</small></div>`;
+        }
+        const cls=days<=2?"danger":days<=7?"warning":"good";
+        return `<div class="sc-access-remaining ${cls}"><b>Осталось ${days} ${scAdminDayWord(days)}</b><small>до ${scShortDate(paidUntil)}</small></div>`;
+      }
+    }
+
+    if(status==="pending"){
+      return '<div class="sc-access-remaining pending"><b>После подтверждения</b><small>1 календарный месяц</small></div>';
+    }
+    if(status==="rejected"){
+      return '<div class="sc-access-remaining danger"><b>Нет доступа</b><small>Заявка отклонена</small></div>';
+    }
+    if(status==="approved"){
+      return '<div class="sc-access-remaining warning"><b>Срок не получен</b><small>Нажмите «Обновить»</small></div>';
+    }
+    return '<span class="muted">—</span>';
   }
   function scAdminActionsHtml(r){
     if(r.status==="pending")return `<button class="btn small shop" onclick="sellerControlAdminApprove(${r.id})">✓ Подтвердить</button><button class="btn small danger" onclick="sellerControlAdminReject(${r.id})">Отклонить</button>`;
@@ -7831,7 +8024,7 @@ window.addEventListener("DOMContentLoaded",boot);
       return;
     }
     root.innerHTML=`
-      <div class="sc-admin-hero"><h3>Управление оплатами</h3><p>Проверяйте перевод в приложении Alif. Только после реального поступления денег нажимайте «Подтвердить».</p></div>
+      <div class="sc-admin-hero"><h3>Управление оплатами</h3><p>Проверяйте перевод в приложении Alif. После подтверждения в колонке «Осталось доступа» ежедневно показывается оставшийся срок тарифа. Только после реального поступления денег нажимайте «Подтвердить».</p></div>
       <div class="grid sc-admin-kpis">
         <div class="card kpi"><div class="label">Ожидают</div><div class="value" id="scPayPending">0</div></div>
         <div class="card kpi"><div class="label">Подтверждены</div><div class="value" id="scPayApproved">0</div></div>
@@ -7840,7 +8033,7 @@ window.addEventListener("DOMContentLoaded",boot);
       </div>
       <div class="section card table-card sc-admin-table">
         <div class="section-title"><div><h3>Заявки на оплату</h3><p>Чек клиент отправляет в WhatsApp; номер заявки помогает сопоставить перевод.</p></div><button class="btn" onclick="scLoadAdminPayments()">Обновить</button></div>
-        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Email клиента</th><th>Тариф</th><th>Сумма</th><th>Статус</th><th>Доступ</th><th>Дата заявки</th><th>Действие</th></tr></thead><tbody id="scAdminPaymentsBody"></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Email клиента</th><th>Тариф</th><th>Сумма</th><th>Статус</th><th>Осталось доступа</th><th>Дата заявки</th><th>Действие</th></tr></thead><tbody id="scAdminPaymentsBody"></tbody></table></div>
       </div>`;
     scLoadAdminPayments();
   }
@@ -7900,6 +8093,7 @@ window.addEventListener("DOMContentLoaded",boot);
       }else if(tries>80)clearInterval(timer);
     },150);
     requestAnimationFrame(scDecorate);
+    scStartTrialTopbarClock();
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 })();
@@ -7957,10 +8151,7 @@ window.addEventListener("DOMContentLoaded",boot);
   window.renderDocuments=function(){
     oldRenderDocuments();
     const note=document.querySelector(".storage-note");
-    if(note)note.textContent=T(
-      "Файлы защищённо сохраняются в Supabase Storage и доступны в этом аккаунте с телефона и компьютера.",
-      "文件安全保存在 Supabase Storage 中，可通过同一账户在手机和电脑上访问。"
-    );
+    if(note)note.remove();
   };
 
   window.addDocument=async function(e){
@@ -8201,14 +8392,32 @@ window.addEventListener("DOMContentLoaded",boot);
     return map[action]||action||"—";
   }
 
+  async function hardDeleteClientError(id){
+    if(!confirm("Удалить эту техническую ошибку из журнала?"))return;
+    const c=hardClient();if(!c)return alert("Supabase не подключён.");
+    const {data,error}=await c.rpc("admin_delete_client_error",{p_error_id:Number(id)});
+    if(error){alert("Не удалось удалить ошибку: "+(error.message||error));return}
+    await hardLoadSystemLogs();
+  }
+  window.sellerControlDeleteClientError=hardDeleteClientError;
+
+  async function hardClearClientErrors(){
+    if(!confirm("Очистить все технические ошибки? Журнал действий по оплатам останется."))return;
+    const c=hardClient();if(!c)return alert("Supabase не подключён.");
+    const {data,error}=await c.rpc("admin_clear_client_errors");
+    if(error){alert("Не удалось очистить ошибки: "+(error.message||error));return}
+    await hardLoadSystemLogs();
+  }
+  window.sellerControlClearClientErrors=hardClearClientErrors;
+
   async function hardLoadSystemLogs(){
     const auditBody=document.getElementById("scHardAuditBody");
     const errorBody=document.getElementById("scHardErrorBody");
     if(!auditBody||!errorBody)return;
     auditBody.innerHTML='<tr><td colspan="7">Загрузка...</td></tr>';
-    errorBody.innerHTML='<tr><td colspan="6">Загрузка...</td></tr>';
+    errorBody.innerHTML='<tr><td colspan="7">Загрузка...</td></tr>';
     const c=hardClient();
-    if(!c){auditBody.innerHTML='<tr><td colspan="7">Supabase не подключён.</td></tr>';errorBody.innerHTML='<tr><td colspan="6">Supabase не подключён.</td></tr>';return}
+    if(!c){auditBody.innerHTML='<tr><td colspan="7">Supabase не подключён.</td></tr>';errorBody.innerHTML='<tr><td colspan="7">Supabase не подключён.</td></tr>';return}
     const [auditRes,errorRes]=await Promise.all([
       c.rpc("admin_list_audit_logs",{p_limit:150}),
       c.rpc("admin_list_client_errors",{p_limit:150})
@@ -8230,7 +8439,7 @@ window.addEventListener("DOMContentLoaded",boot);
     }
 
     if(errorRes.error){
-      errorBody.innerHTML=`<tr><td colspan="6">Ошибка: ${hardEsc(errorRes.error.message)}</td></tr>`;
+      errorBody.innerHTML=`<tr><td colspan="7">Ошибка: ${hardEsc(errorRes.error.message)}</td></tr>`;
     }else{
       const rows=Array.isArray(errorRes.data)?errorRes.data:[];
       errorBody.innerHTML=rows.length?rows.map(r=>`<tr>
@@ -8240,7 +8449,8 @@ window.addEventListener("DOMContentLoaded",boot);
         <td><div class="sc-hard-error-msg">${hardEsc(r.message||"—")}</div></td>
         <td>${hardEsc(r.source||"—")}${r.line_no?`:${r.line_no}`:""}</td>
         <td><div class="sc-hard-json">${hardJson(r.context)}</div></td>
-      </tr>`).join(""):'<tr><td colspan="6">Ошибок пока нет.</td></tr>';
+        <td><button class="btn small danger" onclick="sellerControlDeleteClientError(${Number(r.id)})">Удалить</button></td>
+      </tr>`).join(""):'<tr><td colspan="7">Ошибок пока нет.</td></tr>';
     }
   }
   window.sellerControlLoadSystemLogs=hardLoadSystemLogs;
@@ -8263,8 +8473,8 @@ window.addEventListener("DOMContentLoaded",boot);
         <div class="table-wrap"><table><thead><tr><th>ID</th><th>Дата</th><th>Кто</th><th>Клиент</th><th>Действие</th><th>Объект</th><th>Детали</th></tr></thead><tbody id="scHardAuditBody"></tbody></table></div>
       </div>
       <div class="section card table-card sc-hard-table">
-        <div class="section-title"><div><h3>Технические ошибки</h3><p>Последние ошибки сайта, отправленные после входа в аккаунт.</p></div></div>
-        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Дата</th><th>Клиент</th><th>Ошибка</th><th>Источник</th><th>Контекст</th></tr></thead><tbody id="scHardErrorBody"></tbody></table></div>
+        <div class="section-title"><div><h3>Технические ошибки</h3><p>Последние ошибки сайта, отправленные после входа в аккаунт.</p></div><button class="btn danger" onclick="sellerControlClearClientErrors()">Очистить ошибки</button></div>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Дата</th><th>Клиент</th><th>Ошибка</th><th>Источник</th><th>Контекст</th><th>Действие</th></tr></thead><tbody id="scHardErrorBody"></tbody></table></div>
         <div class="sc-hard-system-note">Резервную копию бизнес-данных пользователь может скачать в «Настройки». Резервные копии всей базы Supabase настраиваются отдельно в панели проекта.</div>
       </div>`;
     hardLoadSystemLogs();
@@ -8315,5 +8525,636 @@ window.addEventListener("DOMContentLoaded",boot);
 </script>
 <!-- /Seller Control FINAL hardening -->
 
+
+
+<!-- Seller Control: FBS Абдурахим module v3 packaging-summary -->
+<style>
+/* Isolated FBS Абдурахим styles — no changes to other sections */
+.fbsab-hero{padding:22px 26px;border-radius:25px;color:#fff;background:linear-gradient(125deg,#11286F,#1B35B8 52%,#007D61);box-shadow:0 20px 52px rgba(20,38,94,.20)}
+.fbsab-hero h3{margin:0 0 6px;font-size:23px}.fbsab-hero p{margin:0;color:rgba(255,255,255,.84);line-height:1.55;max-width:980px}
+.fbsab-step{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:#EEF4FF;color:#254CB6;font-size:12px;font-weight:950;margin-bottom:10px}
+.fbsab-receipt-form{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.fbsab-receipt-form .field{margin:0}
+.fbsab-filter{display:grid;grid-template-columns:auto minmax(220px,.85fr) minmax(240px,1.15fr) auto auto;gap:12px;align-items:end;padding:17px;margin-top:18px}
+.fbsab-filter-icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;font-size:20px;background:linear-gradient(135deg,var(--wb),var(--shop));box-shadow:0 10px 24px rgba(30,52,120,.16)}
+.fbsab-filter .field{margin:0}.fbsab-filter-current{align-self:center;padding:9px 12px;border-radius:999px;background:#EEF4FF;color:#254CB6;font-size:13px;font-weight:900;white-space:nowrap}
+.fbsab-kpis{grid-template-columns:repeat(5,minmax(0,1fr));margin-top:18px}.fbsab-kpi{padding:17px;position:relative;overflow:hidden}.fbsab-kpi:before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--wb),var(--shop))}.fbsab-kpi span{display:block;color:var(--muted);font-size:13px;font-weight:850}.fbsab-kpi strong{display:block;margin-top:8px;font-size:22px}.fbsab-kpi small{display:block;margin-top:5px;color:var(--muted);font-size:12px;line-height:1.4}
+.fbsab-stock-hero{display:grid;grid-template-columns:1.3fr .7fr;gap:14px;margin-top:14px}.fbsab-stock-card{padding:20px;background:linear-gradient(135deg,#fff,#F5FBF8)}.fbsab-stock-card h3{margin:0 0 7px}.fbsab-stock-number{font-size:36px;font-weight:950;letter-spacing:-1px;color:#006E50}.fbsab-stock-number.low{color:#B97600}.fbsab-stock-number.out{color:#D52D58}
+.fbsab-form{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.fbsab-form .field{margin:0}.fbsab-auto{background:linear-gradient(135deg,#ECF9F3,#F4F7FB)!important;color:#17644E!important;font-weight:900}.fbsab-form-note{margin-top:13px;padding:12px 14px;border-radius:14px;background:#F4F7FB;border:1px solid var(--line);font-size:13px;color:var(--muted);line-height:1.55}.fbsab-form-note b{color:var(--text)}
+.fbsab-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.fbsab-summary>div{padding:12px;border-radius:14px;background:#F7F9FD;border:1px solid var(--line)}.fbsab-summary span{display:block;color:var(--muted);font-size:12px;font-weight:850}.fbsab-summary strong{display:block;margin-top:5px;font-size:16px}
+.fbsab-table table{min-width:1280px}.fbsab-stock-table table{min-width:1000px}.fbsab-table .stock-good,.fbsab-stock-table .stock-good{color:#006E50;font-weight:900}.fbsab-table .stock-low,.fbsab-stock-table .stock-low{color:#B97600;font-weight:900}.fbsab-table .stock-out,.fbsab-stock-table .stock-out{color:#D52D58;font-weight:900}.fbsab-empty{padding:34px;text-align:center;color:var(--muted)}
+.fbsab-nav-badge{margin-left:auto;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.14);font-size:10px;font-weight:950}
+.fbsab-input-hint{margin-top:8px;padding:10px 12px;border-radius:12px;background:#EFF6FF;border:1px solid #D9E7FF;color:#52617B;font-size:12px;line-height:1.5}.fbsab-input-hint b{color:#254CB6}
+.fbsab-overview{display:grid;grid-template-columns:minmax(210px,.8fr) minmax(250px,1fr) minmax(360px,1.7fr);gap:14px;margin-top:16px}.fbsab-overview-card{position:relative;overflow:hidden;padding:20px;border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:var(--soft)}.fbsab-overview-card:before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--wb),var(--shop))}.fbsab-overview-label{display:block;color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.35px}.fbsab-overview-value{display:block;margin-top:9px;font-size:31px;line-height:1;font-weight:950;letter-spacing:-.8px}.fbsab-overview-hint{display:block;margin-top:8px;color:var(--muted);font-size:12px;line-height:1.45}.fbsab-overview-card.stock{background:linear-gradient(145deg,#fff,#F0FBF6)}.fbsab-overview-card.pack{background:linear-gradient(145deg,#fff,#F3F5FF)}.fbsab-overview-card.pack .fbsab-overview-value{color:#254CB6}.fbsab-mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:11px}.fbsab-mini{padding:10px;border-radius:12px;background:#F7F9FD;border:1px solid #E7EBF4}.fbsab-mini span{display:block;color:var(--muted);font-size:11px;font-weight:850}.fbsab-mini strong{display:block;margin-top:4px;font-size:15px}.fbsab-total-formula{margin-top:11px;padding:9px 10px;border-radius:11px;background:#EEF4FF;color:#455779;font-size:12px;line-height:1.45}.fbsab-total-formula b{color:#254CB6}.fbsab-section-soft{background:linear-gradient(180deg,#fff,#FBFCFF)}
+@media(max-width:1250px){.fbsab-filter{grid-template-columns:auto 1fr 1fr auto}.fbsab-filter-current{grid-column:2/-1}.fbsab-kpis{grid-template-columns:repeat(3,1fr)}.fbsab-overview{grid-template-columns:1fr 1fr}.fbsab-overview-card.activity{grid-column:1/-1}.fbsab-form,.fbsab-receipt-form{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.fbsab-filter{grid-template-columns:1fr}.fbsab-filter-icon{display:none}.fbsab-filter-current{grid-column:auto}.fbsab-kpis,.fbsab-stock-hero,.fbsab-overview,.fbsab-form,.fbsab-receipt-form,.fbsab-summary{grid-template-columns:1fr}.fbsab-overview-card.activity{grid-column:auto}.fbsab-mini-grid{grid-template-columns:repeat(2,1fr)}.fbsab-hero{padding:18px}.fbsab-hero h3{font-size:20px}}
+</style>
+<script>
+(function(){
+  'use strict';
+  const PAGE='fbsAbdurahim';
+  let editingFbsAbId=null;
+  let editingFbsStockId=null;
+  window.fbsAbStoreFilter=window.fbsAbStoreFilter||'all';
+  window.fbsAbProductFilter=window.fbsAbProductFilter||'';
+
+  function wsFbs(){
+    const ws=typeof ensureWorkspaceData==='function'?ensureWorkspaceData():getWorkspace();
+    if(!ws)return null;
+    ws.fbsAbdurahim=Array.isArray(ws.fbsAbdurahim)?ws.fbsAbdurahim:[];
+    ws.fbsAbStockReceipts=Array.isArray(ws.fbsAbStockReceipts)?ws.fbsAbStockReceipts:[];
+    ws.stores=Array.isArray(ws.stores)?ws.stores:[];
+    return ws;
+  }
+  function key(v){return String(v||'').trim().toLocaleLowerCase('ru-RU')}
+  function productSame(a,b){return key(a)===key(b)}
+  function activeFbsStores(ws){return (ws.stores||[]).filter(s=>s.enabled)}
+  function storeNameById(ws,storeId){
+    if(storeId==='general')return T('Общий бизнес / общие расходы','整个业务 / 公共费用');
+    return ws.stores.find(s=>String(s.id)===String(storeId))?.name||T('Магазин','店铺');
+  }
+  function rowMatchesStore(row,storeId){
+    if(storeId==='all')return true;
+    return String(row?.storeId||'')===String(storeId)
+  }
+  function storeOptions(ws,selected,includeAll){
+    const out=[];
+    if(includeAll)out.push(`<option value="all" ${selected==='all'?'selected':''}>${T('Все магазины','全部店铺')}</option>`);
+    activeFbsStores(ws).forEach(s=>out.push(`<option value="${esc(s.id)}" ${String(selected)===String(s.id)?'selected':''}>${esc(s.name)}</option>`));
+    out.push(`<option value="general" ${selected==='general'?'selected':''}>${T('Общий бизнес / общие расходы','整个业务 / 公共费用')}</option>`);
+    return out.join('')
+  }
+  function allProductsForStore(ws,storeId){
+    const names=[];
+    (ws.fbsAbStockReceipts||[]).forEach(r=>{if(rowMatchesStore(r,storeId)&&String(r.product||'').trim())names.push(String(r.product).trim())});
+    (ws.fbsAbdurahim||[]).forEach(r=>{if(rowMatchesStore(r,storeId)&&String(r.product||'').trim())names.push(String(r.product).trim())});
+    const seen=new Set();
+    return names.filter(name=>{const k=key(name);if(!k||seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>a.localeCompare(b,'ru'))
+  }
+  function productOptions(ws,storeId,selected,includeAll=false){
+    const products=allProductsForStore(ws,storeId),out=[];
+    out.push(`<option value="">${includeAll?T('Все товары','全部商品'):T('Выберите товар','请选择商品')}</option>`);
+    products.forEach(p=>out.push(`<option value="${esc(p)}" ${productSame(selected,p)?'selected':''}>${esc(p)}</option>`));
+    return out.join('')
+  }
+  function receiptQty(ws,storeId,product,throughDate=''){
+    if(!product)return 0;
+    return (ws.fbsAbStockReceipts||[]).reduce((sum,r)=>{
+      if(!rowMatchesStore(r,storeId)||!productSame(r.product,product))return sum;
+      if(throughDate&&r.date&&String(r.date)>String(throughDate))return sum;
+      return sum+Math.max(0,n(r.qty))
+    },0)
+  }
+  function dailyRowsFor(ws,storeId,product,excludeId=''){
+    return (ws.fbsAbdurahim||[]).filter(r=>{
+      if(excludeId&&String(r.id)===String(excludeId))return false;
+      return rowMatchesStore(r,storeId)&&(!product||productSame(r.product,product))
+    })
+  }
+  function currentStock(ws,storeId,product,excludeId=''){
+    if(!product)return 0;
+    const base=receiptQty(ws,storeId,product);
+    return dailyRowsFor(ws,storeId,product,excludeId).reduce((stock,r)=>stock+Math.max(0,n(r.returns))-Math.max(0,n(r.shipped)),base)
+  }
+  function stockAtDateBeforeRow(ws,row,priorRows){
+    const storeId=String(row.storeId||'general'),product=row.product||'';
+    let stock=receiptQty(ws,storeId,product,row.date||'');
+    priorRows.forEach(r=>{
+      if(String(r.storeId||'general')===storeId&&productSame(r.product,product))stock+=Math.max(0,n(r.returns))-Math.max(0,n(r.shipped))
+    });
+    return stock
+  }
+  function calculatedRows(ws,rows){
+    const asc=[...(rows||[])].sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))||String(a.id||'').localeCompare(String(b.id||'')));
+    const prior=[];
+    const mapped=asc.map(r=>{
+      const before=stockAtDateBeforeRow(ws,r,prior);
+      const shipped=Math.max(0,n(r.shipped)),returns=Math.max(0,n(r.returns)),packagingPerUnit=Math.max(0,n(r.packagingPerUnit));
+      const packagingTotal=shipped*packagingPerUnit,after=before+returns-shipped;
+      const out={...r,shipped,returns,orders:Math.max(0,n(r.orders)),packagingPerUnit,packagingTotal,stockBefore:before,stockAfter:after};
+      prior.push(r);return out
+    });
+    return mapped.sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||String(b.id||'').localeCompare(String(a.id||'')))
+  }
+  function filteredHistory(ws){
+    const rows=(ws.fbsAbdurahim||[]).filter(r=>rowMatchesStore(r,window.fbsAbStoreFilter)&&(!window.fbsAbProductFilter||productSame(r.product,window.fbsAbProductFilter)));
+    return calculatedRows(ws,rows)
+  }
+  function totalsForSelection(ws){
+    const storeId=window.fbsAbStoreFilter||'all',product=window.fbsAbProductFilter||'';
+    const rows=(ws.fbsAbdurahim||[]).filter(r=>rowMatchesStore(r,storeId)&&(!product||productSame(r.product,product)));
+    let received=0;
+    (ws.fbsAbStockReceipts||[]).forEach(r=>{if(rowMatchesStore(r,storeId)&&(!product||productSame(r.product,product)))received+=Math.max(0,n(r.qty))});
+    const days=new Set();
+    const t=rows.reduce((a,r)=>{if(r.date)days.add(String(r.date));a.orders+=Math.max(0,n(r.orders));a.shipped+=Math.max(0,n(r.shipped));a.returns+=Math.max(0,n(r.returns));a.packaging+=Math.max(0,n(r.shipped))*Math.max(0,n(r.packagingPerUnit));return a},{orders:0,shipped:0,returns:0,packaging:0});
+    return {...t,received,stock:received+t.returns-t.shipped,activeDays:days.size,avgPackaging:t.shipped?t.packaging/t.shipped:0}
+  }
+  function stockClass(v){return v<=0?'out':v<=10?'low':''}
+  function stockClassTd(v){return v<=0?'stock-out':v<=10?'stock-low':'stock-good'}
+  function filterLabel(ws){
+    const store=window.fbsAbStoreFilter==='all'?T('Все магазины','全部店铺'):storeNameById(ws,window.fbsAbStoreFilter);
+    const product=window.fbsAbProductFilter||T('Все товары','全部商品');
+    return `${store} · ${product}`
+  }
+  function stockSummaryRows(ws){
+    const selectedStore=window.fbsAbStoreFilter||'all',selectedProduct=window.fbsAbProductFilter||'';
+    const pairs=new Map();
+    const addPair=r=>{
+      if(!rowMatchesStore(r,selectedStore))return;
+      if(selectedProduct&&!productSame(r.product,selectedProduct))return;
+      const storeId=String(r.storeId||'general'),product=String(r.product||'').trim();if(!product)return;
+      const k=storeId+'||'+key(product);if(!pairs.has(k))pairs.set(k,{storeId,product})
+    };
+    (ws.fbsAbStockReceipts||[]).forEach(addPair);(ws.fbsAbdurahim||[]).forEach(addPair);
+    return [...pairs.values()].map(p=>{
+      const received=receiptQty(ws,p.storeId,p.product);
+      const daily=dailyRowsFor(ws,p.storeId,p.product);
+      const shipped=daily.reduce((s,r)=>s+Math.max(0,n(r.shipped)),0),returns=daily.reduce((s,r)=>s+Math.max(0,n(r.returns)),0);
+      const packaging=daily.reduce((s,r)=>s+Math.max(0,n(r.shipped))*Math.max(0,n(r.packagingPerUnit)),0);
+      return {...p,received,shipped,returns,packaging,avgPackaging:shipped?packaging/shipped:0,stock:received+returns-shipped}
+    }).sort((a,b)=>storeNameById(ws,a.storeId).localeCompare(storeNameById(ws,b.storeId),'ru')||a.product.localeCompare(b.product,'ru'))
+  }
+  function stockSummaryTable(ws){
+    const rows=stockSummaryRows(ws);
+    if(!rows.length)return `<div class="fbsab-empty">${T('Сначала добавьте товар на склад.','请先添加商品库存。')}</div>`;
+    return `<table><thead><tr><th>№</th><th>${T('Магазин','店铺')}</th><th>${T('Товар','商品')}</th><th>${T('Поступило всего, шт','累计入库，件')}</th><th>${T('Отправлено, шт','已发货，件')}</th><th>${T('Возврат, шт','退货，件')}</th><th>${T('Упаковка/работа всего, ₽','包装/工作总计，₽')}</th><th>${T('Средняя на 1 отправл., ₽','每件平均费用，₽')}</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(storeNameById(ws,r.storeId))}</td><td><b>${esc(r.product)}</b></td><td>${num(r.received)}</td><td>${num(r.shipped)}</td><td>${num(r.returns)}</td><td><b>${money(r.packaging)}</b></td><td>${money(r.avgPackaging)}</td></tr>`).join('')}</tbody></table>`
+  }
+  function receiptTable(ws){
+    const rows=[...(ws.fbsAbStockReceipts||[])].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
+    if(!rows.length)return `<div class="fbsab-empty">${T('Поступлений пока нет.','暂无入库记录。')}</div>`;
+    return `<table><thead><tr><th>№</th><th>${T('Дата','日期')}</th><th>${T('Магазин','店铺')}</th><th>${T('Товар','商品')}</th><th>${T('Количество, шт','数量，件')}</th><th>${T('Комментарий','备注')}</th><th></th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${fmtDate(r.date)}</td><td>${esc(storeNameById(ws,r.storeId))}</td><td><b>${esc(r.product)}</b></td><td>${num(r.qty)}</td><td>${esc(r.comment||'—')}</td><td><button class="btn small" onclick="editFbsStock('${esc(r.id)}')">${T('Изм.','修改')}</button> <button class="btn small danger" onclick="deleteFbsStock('${esc(r.id)}')">${T('Удал.','删除')}</button></td></tr>`).join('')}</tbody></table>`
+  }
+  function dailyTable(ws,rows){
+    if(!rows.length)return `<div class="fbsab-empty">${T('Ежедневных FBS-записей пока нет.','暂无每日 FBS 记录。')}</div>`;
+    return `<table><thead><tr><th>№</th><th>${T('Дата','日期')}</th><th>${T('Магазин','店铺')}</th><th>${T('Товар','商品')}</th><th>${T('Заказов','订单')}</th><th>${T('Отправлено','已发货')}</th><th>${T('Возврат','退货')}</th><th>${T('Остаток до','操作前库存')}</th><th>${T('Упаковка 1 шт','单件包装')}</th><th>${T('Упаковка всего','包装总计')}</th><th>${T('Остаток после','操作后库存')}</th><th>${T('Комментарий','备注')}</th><th></th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${fmtDate(r.date)}</td><td>${esc(storeNameById(ws,r.storeId))}</td><td><b>${esc(r.product)}</b></td><td>${num(r.orders)}</td><td>${num(r.shipped)}</td><td>${num(r.returns)}</td><td>${num(r.stockBefore)}</td><td>${money(r.packagingPerUnit)}</td><td>${money(r.packagingTotal)}</td><td class="${stockClassTd(r.stockAfter)}">${num(r.stockAfter)}</td><td>${esc(r.comment||'—')}</td><td><button class="btn small" onclick="editFbsAb('${esc(r.id)}')">${T('Изм.','修改')}</button> <button class="btn small danger" onclick="deleteFbsAb('${esc(r.id)}')">${T('Удал.','删除')}</button></td></tr>`).join('')}</tbody></table>`
+  }
+  function addNav(){
+    const root=document.getElementById('appRoot');if(!root)return;
+    if(root.querySelector('[data-fbsab-nav]'))return;
+    const fulfillmentBtn=[...root.querySelectorAll('.nav button')].find(b=>String(b.getAttribute('onclick')||'').includes("go('fulfillment')"));
+    if(!fulfillmentBtn)return;
+    const b=document.createElement('button');b.dataset.fbsabNav='1';b.className=currentPage===PAGE?'active':'';b.setAttribute('onclick',`go('${PAGE}')`);
+    b.innerHTML=`<span class="ico">FBS</span><span>${T('FBS Абдурахим','FBS 阿卜杜拉希姆')}</span><span class="fbsab-nav-badge">AUTO</span>`;
+    fulfillmentBtn.insertAdjacentElement('afterend',b)
+  }
+
+  window.fbsAbFilterStoreChanged=function(){
+    const ws=wsFbs(),store=document.getElementById('fbsAbFilterStore')?.value||'all',sel=document.getElementById('fbsAbFilterProduct');if(!ws||!sel)return;
+    sel.innerHTML=productOptions(ws,store,'',true)
+  };
+  window.fbsAbApplyFilter=function(){
+    window.fbsAbStoreFilter=document.getElementById('fbsAbFilterStore')?.value||'all';
+    window.fbsAbProductFilter=document.getElementById('fbsAbFilterProduct')?.value||'';
+    renderFBSAbdurahim()
+  };
+  window.fbsAbUpdateDailyProducts=function(){
+    const ws=wsFbs(),store=document.getElementById('fbsAbDailyStore')?.value||'',sel=document.getElementById('fbsAbDailyProduct');if(!ws||!sel)return;
+    sel.innerHTML=productOptions(ws,store,'',false);previewFbsAb()
+  };
+  window.previewFbsAb=function(){
+    const ws=wsFbs(),f=document.getElementById('fbsAbForm');if(!ws||!f)return;
+    const d=Object.fromEntries(new FormData(f).entries()),before=currentStock(ws,d.storeId,d.product,editingFbsAbId||''),shipped=Math.max(0,n(d.shipped)),returns=Math.max(0,n(d.returns)),pack=Math.max(0,n(d.packagingPerUnit)),after=before+returns-shipped,total=shipped*pack;
+    const set=(idv,val)=>{const el=document.getElementById(idv);if(el){if(el.tagName==='INPUT')el.value=val;else el.textContent=val}};
+    set('fbsAbStockBefore',num(before));set('fbsAbPackagingTotal',money(total));set('fbsAbStockAfter',num(after));set('fbsAbPrevBefore',num(before));set('fbsAbPrevPack',money(total));set('fbsAbPrevAfter',num(after));set('fbsAbPrevDelta',num(returns-shipped));
+    const warn=document.getElementById('fbsAbStockWarning');if(warn){warn.style.display=after<0?'grid':'none';warn.innerHTML=after<0?`<i>!</i><div><strong>${T('Недостаточно товара','库存不足')}</strong><p>${T('Нельзя отправить больше, чем есть на складе.','发货数量不能超过库存。')}</p></div>`:''}
+  };
+  window.saveFbsStock=function(e){
+    e.preventDefault();const ws=wsFbs(),d=Object.fromEntries(new FormData(e.target).entries()),product=String(d.product||'').trim(),qty=Math.max(0,n(d.qty));
+    if(!d.storeId||!product||qty<=0)return alert(T('Укажите магазин, товар и количество больше 0.','请选择店铺、商品并填写大于 0 的数量。'));
+    const row={id:editingFbsStockId||id(),date:d.date,storeId:d.storeId,product,qty,comment:String(d.comment||'').trim()};
+    if(editingFbsStockId){const i=ws.fbsAbStockReceipts.findIndex(x=>String(x.id)===String(editingFbsStockId));if(i>=0)ws.fbsAbStockReceipts[i]=row}else ws.fbsAbStockReceipts.push(row);
+    editingFbsStockId=null;window.fbsAbStoreFilter=d.storeId;window.fbsAbProductFilter=product;saveWorkspace(ws);renderFBSAbdurahim();showSaveToast(T('✓ Товар добавлен на склад','✓ 商品已入库'))
+  };
+  window.editFbsStock=function(rid){editingFbsStockId=rid;editingFbsAbId=null;renderFBSAbdurahim();window.scrollTo({top:0,behavior:'smooth'})};
+  window.cancelFbsStockEdit=function(){editingFbsStockId=null;renderFBSAbdurahim()};
+  window.deleteFbsStock=function(rid){
+    if(!confirm(T('Удалить это поступление? Остаток товара будет пересчитан.','删除此入库记录？库存将重新计算。')))return;
+    const ws=wsFbs();ws.fbsAbStockReceipts=ws.fbsAbStockReceipts.filter(x=>String(x.id)!==String(rid));saveWorkspace(ws);renderFBSAbdurahim();showSaveToast()
+  };
+  window.saveFbsAb=function(e){
+    e.preventDefault();const ws=wsFbs(),d=Object.fromEntries(new FormData(e.target).entries());
+    if(!d.storeId||!d.product)return alert(T('Сначала выберите магазин и товар.','请先选择店铺和商品。'));
+    const before=currentStock(ws,d.storeId,d.product,editingFbsAbId||''),shipped=Math.max(0,n(d.shipped)),returns=Math.max(0,n(d.returns));
+    if(before+returns-shipped<0)return alert(T('Отправлено больше, чем есть на складе. Проверьте остаток.','发货数量超过库存，请检查库存。'));
+    const row={id:editingFbsAbId||id(),date:d.date,storeId:d.storeId,product:d.product,orders:Math.max(0,n(d.orders)),shipped,returns,packagingPerUnit:Math.max(0,n(d.packagingPerUnit)),comment:String(d.comment||'').trim()};
+    if(editingFbsAbId){const i=ws.fbsAbdurahim.findIndex(x=>String(x.id)===String(editingFbsAbId));if(i>=0)ws.fbsAbdurahim[i]=row}else ws.fbsAbdurahim.push(row);
+    editingFbsAbId=null;window.fbsAbStoreFilter=d.storeId;window.fbsAbProductFilter=d.product;saveWorkspace(ws);renderFBSAbdurahim();showSaveToast(T('✓ FBS сохранён','✓ FBS 已保存'))
+  };
+  window.editFbsAb=function(rid){editingFbsAbId=rid;editingFbsStockId=null;renderFBSAbdurahim();window.scrollTo({top:0,behavior:'smooth'})};
+  window.cancelFbsAbEdit=function(){editingFbsAbId=null;renderFBSAbdurahim()};
+  window.deleteFbsAb=function(rid){if(!confirm(T('Удалить эту FBS-запись?','删除此 FBS 记录？')))return;const ws=wsFbs();ws.fbsAbdurahim=ws.fbsAbdurahim.filter(x=>String(x.id)!==String(rid));saveWorkspace(ws);renderFBSAbdurahim();showSaveToast()};
+
+  window.renderFBSAbdurahim=function(){
+    const ws=wsFbs();if(!ws)return;
+    const stockEdit=editingFbsStockId?ws.fbsAbStockReceipts.find(x=>String(x.id)===String(editingFbsStockId)):null;
+    const edit=editingFbsAbId?ws.fbsAbdurahim.find(x=>String(x.id)===String(editingFbsAbId)):null;
+    const filterStore=window.fbsAbStoreFilter||'all',filterProduct=window.fbsAbProductFilter||'',totals=totalsForSelection(ws),history=filteredHistory(ws);
+    const defaultStore=edit?.storeId||(filterStore!=='all'?filterStore:(activeFbsStores(ws)[0]?.id||'general'));
+    const defaultProduct=edit?.product||(filterProduct&&allProductsForStore(ws,defaultStore).some(p=>productSame(p,filterProduct))?filterProduct:'');
+    document.getElementById('pageRoot').innerHTML=`
+      <div class="fulfill-hero fbsab-hero"><h3>${T('FBS Абдурахим','FBS 阿卜杜拉希姆')}</h3><p>${T('Сначала укажите, в какой магазин какой товар и сколько штук поступило. После этого каждый день отмечайте заказы, отправку и возвраты. Остаток каждого товара считается отдельно и автоматически.','先填写哪个店铺收到什么商品以及数量。之后每天记录订单、发货和退货。每个商品的库存都会单独自动计算。')}</p></div>
+
+      <div class="section card form-card"><div class="section-title"><div><div class="fbsab-step">1 · ${T('НАЧАЛЬНЫЙ СКЛАД / ПОСТУПЛЕНИЕ','初始库存 / 入库')}</div></div>${stockEdit?`<button class="btn" onclick="cancelFbsStockEdit()">${T('Отмена','取消')}</button>`:''}</div>
+        <form onsubmit="saveFbsStock(event)"><div class="fbsab-receipt-form">
+          <div class="field"><label>${T('Дата','日期')}</label><input name="date" type="date" value="${esc(stockEdit?.date||today())}" required></div>
+          <div class="field"><label>${T('Магазин','店铺')} *</label><select name="storeId" required><option value="">${T('Выберите магазин','请选择店铺')}</option>${storeOptions(ws,stockEdit?.storeId||'',false)}</select></div>
+          <div class="field"><label>${T('Товар','商品')} *</label><input name="product" value="${esc(stockEdit?.product||'')}" placeholder="${T('Например: Пылесос','例如：吸尘器')}" required></div>
+          <div class="field"><label>${T('Количество поступило, шт','入库数量，件')} *</label><input name="qty" type="number" min="1" step="1" value="${stockEdit?.qty??''}" placeholder="100" required></div>
+          <div class="field"><label>${T('Комментарий','备注')}</label><input name="comment" value="${esc(stockEdit?.comment||'')}"></div>
+        </div><div class="form-actions"><button class="btn primary">${stockEdit?T('Сохранить изменения','保存修改'):T('Добавить на склад','添加入库')}</button></div></form>
+      </div>
+
+      <section class="card fbsab-filter">
+        <div class="fbsab-filter-icon">⌕</div>
+        <div class="field"><label>${T('Магазин','店铺')}</label><select id="fbsAbFilterStore" onchange="fbsAbFilterStoreChanged()">${storeOptions(ws,filterStore,true)}</select></div>
+        <div class="field"><label>${T('Товар','商品')}</label><select id="fbsAbFilterProduct">${productOptions(ws,filterStore,filterProduct,true)}</select></div>
+        <button class="btn primary" onclick="fbsAbApplyFilter()">${T('Показать','显示')}</button>
+        <div class="fbsab-filter-current">${esc(filterLabel(ws))}</div>
+      </section>
+
+      <div class="fbsab-overview">
+        <div class="fbsab-overview-card stock">
+          <span class="fbsab-overview-label">${T('Сейчас на складе','当前库存')}</span>
+          <strong class="fbsab-overview-value ${stockClass(totals.stock)}">${num(totals.stock)} ${T('шт','件')}</strong>
+          <span class="fbsab-overview-hint">${T('Остаток выбранного магазина и товара','所选店铺与商品的当前库存')}</span>
+        </div>
+        <div class="fbsab-overview-card pack">
+          <span class="fbsab-overview-label">${T('Упаковка / работа всего','包装 / 工作总计')}</span>
+          <strong class="fbsab-overview-value">${money(totals.packaging)}</strong>
+          <span class="fbsab-overview-hint">${num(totals.shipped)} ${T('шт отправлено','件已发货')} · ${T('средняя','平均')} ${money(totals.avgPackaging)} / ${T('шт','件')}</span>
+        </div>
+        <div class="fbsab-overview-card activity">
+          <span class="fbsab-overview-label">${T('Итог по выбранному товару','所选商品汇总')}</span>
+          <div class="fbsab-mini-grid">
+            <div class="fbsab-mini"><span>${T('Поступило','入库')}</span><strong>${num(totals.received)} ${T('шт','件')}</strong></div>
+            <div class="fbsab-mini"><span>${T('Заказов','订单')}</span><strong>${num(totals.orders)}</strong></div>
+            <div class="fbsab-mini"><span>${T('Отправлено','已发货')}</span><strong>${num(totals.shipped)} ${T('шт','件')}</strong></div>
+            <div class="fbsab-mini"><span>${T('Возврат','退货')}</span><strong>${num(totals.returns)} ${T('шт','件')}</strong></div>
+            <div class="fbsab-mini"><span>${T('Остаток','库存')}</span><strong class="${stockClass(totals.stock)}">${num(totals.stock)} ${T('шт','件')}</strong></div>
+            <div class="fbsab-mini"><span>${T('Дней с записями','有记录天数')}</span><strong>${num(totals.activeDays)}</strong></div>
+            <div class="fbsab-mini"><span>${T('Расход на отправл. шт','每件发货费用')}</span><strong>${money(totals.avgPackaging)}</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section card table-card fbsab-section-soft"><div class="table-tools"><div><b>${T('Склад по каждому товару','每个商品的库存')}</b><div class="muted" style="font-size:13px;margin-top:3px">${T('Каждый магазин и каждый товар показываются отдельной строкой.','每个店铺、每个商品都单独显示一行。')}</div></div><span class="auto-pill">AUTO</span></div><div class="table-wrap fbsab-stock-table">${stockSummaryTable(ws)}</div></div>
+
+      <div class="section card form-card"><div class="section-title"><div><div class="fbsab-step">2 · ${T('ЕЖЕДНЕВНЫЙ FBS','每日 FBS')}</div></div>${edit?`<button class="btn" onclick="cancelFbsAbEdit()">${T('Отмена','取消')}</button>`:''}</div>
+        <form id="fbsAbForm" onsubmit="saveFbsAb(event)"><div class="fbsab-form">
+          <div class="field"><label>${T('Дата','日期')}</label><input name="date" type="date" value="${esc(edit?.date||today())}" required></div>
+          <div class="field"><label>${T('Магазин','店铺')} *</label><select id="fbsAbDailyStore" name="storeId" onchange="fbsAbUpdateDailyProducts()" required><option value="">${T('Выберите магазин','请选择店铺')}</option>${storeOptions(ws,defaultStore,false)}</select></div>
+          <div class="field"><label>${T('Товар','商品')} *</label><select id="fbsAbDailyProduct" name="product" onchange="previewFbsAb()" required>${productOptions(ws,defaultStore,defaultProduct,false)}</select></div>
+          <div class="field"><label>${T('Заказов, шт','订单，件')}</label><input name="orders" type="number" min="0" step="1" value="${edit?.orders??0}" oninput="previewFbsAb()"></div>
+          <div class="field"><label>${T('Отправлено, шт','已发货，件')}</label><input name="shipped" type="number" min="0" step="1" value="${edit?.shipped??0}" oninput="previewFbsAb()" required></div>
+          <div class="field"><label>${T('Возврат, шт','退货，件')}</label><input name="returns" type="number" min="0" step="1" value="${edit?.returns??0}" oninput="previewFbsAb()"></div>
+          <div class="field"><label>${T('Упаковка/работа 1 шт, ₽','包装/工作 1 件，₽')}</label><input name="packagingPerUnit" type="number" min="0" step="0.01" value="${edit?.packagingPerUnit??0}" oninput="previewFbsAb()"></div>
+          <div class="field"><label>${T('Остаток до, шт','操作前库存')}</label><input id="fbsAbStockBefore" class="fbsab-auto" readonly></div>
+          <div class="field"><label>${T('Упаковка/работа всего, ₽','包装/工作总计，₽')}</label><input id="fbsAbPackagingTotal" class="fbsab-auto" readonly></div>
+          <div class="field"><label>${T('Остаток после, шт','操作后库存')}</label><input id="fbsAbStockAfter" class="fbsab-auto" readonly></div>
+          <div class="field" style="grid-column:span 2"><label>${T('Комментарий','备注')}</label><input name="comment" value="${esc(edit?.comment||'')}"></div>
+        </div>
+        <div id="fbsAbStockWarning" class="alert bad" style="display:none;margin-top:12px"></div>
+        <div class="fbsab-summary"><div><span>${T('Остаток до','操作前库存')}</span><strong id="fbsAbPrevBefore">0</strong></div><div><span>${T('Упаковка всего','包装总计')}</span><strong id="fbsAbPrevPack">0 ₽</strong></div><div><span>${T('Остаток после','操作后库存')}</span><strong id="fbsAbPrevAfter">0</strong></div><div><span>${T('Изменение','变化')}</span><strong id="fbsAbPrevDelta">0</strong></div></div>
+        <div class="form-actions"><button class="btn primary">${edit?T('Сохранить изменения','保存修改'):T('Сохранить FBS','保存 FBS')}</button></div></form>
+      </div>
+
+      <div class="section card table-card"><div class="table-tools"><div><b>${T('История FBS','FBS 历史')}</b><div class="muted" style="font-size:13px;margin-top:3px">${esc(filterLabel(ws))}</div></div><span class="auto-pill">AUTO</span></div><div class="table-wrap fbsab-table">${dailyTable(ws,history)}</div></div>
+      <div class="section card table-card"><div class="table-tools"><div><b>${T('История поступлений на склад','入库历史')}</b><div class="muted" style="font-size:13px;margin-top:3px">${T('Отдельный журнал начального склада и новых поступлений','初始库存和新增入库的独立记录')}</div></div></div><div class="table-wrap fbsab-table">${receiptTable(ws)}</div></div>`;
+    setTimeout(()=>{previewFbsAb();if(typeof moveSearchBelowSectionHeader==='function')moveSearchBelowSectionHeader()},0)
+  };
+
+  window.fbsAbExcelRows=function(){
+    const ws=wsFbs();return filteredHistory(ws).map((r,i)=>({'№':i+1,'Дата':r.date,'Магазин':storeNameById(ws,r.storeId),'Товар':r.product,'Заказов, шт':r.orders,'Отправлено, шт':r.shipped,'Возврат, шт':r.returns,'Остаток до, шт':r.stockBefore,'Упаковка/работа 1 шт, ₽':r.packagingPerUnit,'Упаковка/работа всего, ₽':r.packagingTotal,'Остаток после, шт':r.stockAfter,'Комментарий':r.comment||''}))
+  };
+  window.fbsAbStockExcelRows=function(){
+    const ws=wsFbs();return stockSummaryRows(ws).map((r,i)=>({'№':i+1,'Магазин':storeNameById(ws,r.storeId),'Товар':r.product,'Поступило всего, шт':r.received,'Отправлено, шт':r.shipped,'Возврат, шт':r.returns,'Упаковка/работа всего, ₽':r.packaging,'Средняя на 1 отправл., ₽':r.avgPackaging,'Остаток, шт':r.stock}))
+  };
+
+  const oldPageTitle=window.pageTitle||pageTitle;
+  window.pageTitle=pageTitle=function(){if(currentPage===PAGE)return [T('FBS Абдурахим','FBS 阿卜杜拉希姆'),T('Склад по каждому товару + ежедневный плюс/минус','每个商品库存 + 每日增减')];return oldPageTitle.apply(this,arguments)};
+  const oldRenderSettings=window.renderSettings||renderSettings;
+  window.renderSettings=renderSettings=function(){if(currentPage===PAGE)return renderFBSAbdurahim();return oldRenderSettings.apply(this,arguments)};
+  const oldGo=window.go||go;
+  window.go=go=function(page,storeId=null){if(page!==PAGE){editingFbsAbId=null;editingFbsStockId=null}return oldGo.call(this,page,storeId)};
+  const oldRenderApp=window.renderApp||renderApp;
+  window.renderApp=renderApp=function(){const result=oldRenderApp.apply(this,arguments);addNav();return result};
+  const oldCurrentSectionSheets=window.currentSectionSheets||currentSectionSheets;
+  window.currentSectionSheets=currentSectionSheets=function(){if(currentPage===PAGE)return [{name:'FBS Склад',rows:fbsAbStockExcelRows()},{name:'FBS История',rows:fbsAbExcelRows()}];return oldCurrentSectionSheets.apply(this,arguments)};
+  const oldEnsure=window.ensureWorkspaceData||ensureWorkspaceData;
+  window.ensureWorkspaceData=ensureWorkspaceData=function(){const ws=oldEnsure.apply(this,arguments);if(ws){ws.fbsAbdurahim=Array.isArray(ws.fbsAbdurahim)?ws.fbsAbdurahim:[];ws.fbsAbStockReceipts=Array.isArray(ws.fbsAbStockReceipts)?ws.fbsAbStockReceipts:[]}return ws};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{try{addNav()}catch(e){console.error(e)}});else setTimeout(addNav,0);
+})();
+</script>
+<!-- /Seller Control: FBS Абдурахим module v3 packaging-summary -->
+
+
+
+
+<!-- Seller Control: compact FBS dashboard card v1 -->
+<style id="seller-control-fbs-dashboard-style">
+.dashboard-fbs-card{position:relative;overflow:hidden;margin-top:18px;padding:17px 18px;border:1px solid rgba(37,76,182,.12);border-radius:20px;background:linear-gradient(135deg,#fff 0%,#F7FAFF 58%,#F1FBF7 100%);box-shadow:0 14px 36px rgba(31,50,116,.08)}
+.dashboard-fbs-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#254CB6,#00A67B)}
+.dashboard-fbs-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:13px}
+.dashboard-fbs-title{display:flex;align-items:center;gap:11px;min-width:0}.dashboard-fbs-logo{width:40px;height:40px;display:grid;place-items:center;flex:0 0 40px;border-radius:13px;background:linear-gradient(135deg,#2038B6,#00866A);color:#fff;font-size:12px;font-weight:950;letter-spacing:.4px;box-shadow:0 8px 20px rgba(35,64,173,.18)}
+.dashboard-fbs-title h3{margin:0;font-size:17px;line-height:1.2}.dashboard-fbs-title p{margin:3px 0 0;color:var(--muted);font-size:12px;line-height:1.35}
+.dashboard-fbs-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.dashboard-fbs-metric{padding:11px 12px;border:1px solid rgba(34,52,105,.08);border-radius:14px;background:rgba(255,255,255,.82)}
+.dashboard-fbs-metric span{display:block;color:var(--muted);font-size:11px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dashboard-fbs-metric strong{display:block;margin-top:5px;font-size:17px;line-height:1.15}.dashboard-fbs-metric strong.good{color:#00805F}.dashboard-fbs-metric strong.warn{color:#B97600}
+@media(max-width:900px){.dashboard-fbs-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.dashboard-fbs-card{padding:15px}.dashboard-fbs-head{align-items:flex-start}.dashboard-fbs-title p{display:none}.dashboard-fbs-metrics{grid-template-columns:1fr 1fr}.dashboard-fbs-metric{padding:10px}.dashboard-fbs-metric strong{font-size:16px}}
+</style>
+<script>
+(function(){
+  function fbsDashNum(v){const x=Number(v);return Number.isFinite(x)?x:0}
+  function fbsDashProductKey(v){return String(v||'').trim().toLowerCase().replace(/\s+/g,' ')}
+  function fbsDashDateKey(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
+  function fbsDashSelectedStore(){
+    const ws=typeof getWorkspace==='function'?getWorkspace():null;
+    const selected=String(window.dashboardStoreFilter||'all');
+    if(selected==='all')return {id:'all',name:T('Все магазины','全部店铺')};
+    const store=(ws?.stores||[]).find(x=>String(x.id)===selected&&x.enabled!==false);
+    return store?{id:String(store.id),name:String(store.name||'')}:{id:'all',name:T('Все магазины','全部店铺')};
+  }
+  function fbsDashStats(){
+    const ws=typeof getWorkspace==='function'?getWorkspace():null;
+    const selected=fbsDashSelectedStore();
+    const matchStore=r=>selected.id==='all'||String(r?.storeId||'')===selected.id;
+    const receipts=(Array.isArray(ws?.fbsAbStockReceipts)?ws.fbsAbStockReceipts:[]).filter(matchStore);
+    const daily=(Array.isArray(ws?.fbsAbdurahim)?ws.fbsAbdurahim:[]).filter(matchStore);
+    const map=new Map();
+    const ensure=(storeId,product)=>{const key=String(storeId||'')+'|'+fbsDashProductKey(product);if(!map.has(key))map.set(key,{received:0,shipped:0,returns:0});return map.get(key)};
+    receipts.forEach(r=>{if(!r?.storeId||!fbsDashProductKey(r.product))return;ensure(r.storeId,r.product).received+=Math.max(0,fbsDashNum(r.qty))});
+    daily.forEach(r=>{if(!r?.storeId||!fbsDashProductKey(r.product))return;const x=ensure(r.storeId,r.product);x.shipped+=Math.max(0,fbsDashNum(r.shipped));x.returns+=Math.max(0,fbsDashNum(r.returns))});
+    let stock=0,low=0;
+    map.forEach(x=>{const left=x.received+x.returns-x.shipped;stock+=left;if(left<=10)low++});
+    const cutoff=new Date();cutoff.setHours(0,0,0,0);cutoff.setDate(cutoff.getDate()-29);const from=fbsDashDateKey(cutoff);
+    let shipped30=0,pack30=0;
+    daily.forEach(r=>{const date=String(r?.date||'');if(date<from)return;const shipped=Math.max(0,fbsDashNum(r.shipped));shipped30+=shipped;pack30+=shipped*Math.max(0,fbsDashNum(r.packagingPerUnit))});
+    return {stock:Math.max(0,stock),shipped30,pack30,low,store:selected};
+  }
+  window.openFbsFromDashboard=function(){
+    const selected=fbsDashSelectedStore();
+    window.fbsAbStoreFilter=selected.id;
+    window.fbsAbProductFilter='';
+    go('fbsAbdurahim');
+  };
+  function fbsDashHtml(){
+    const s=fbsDashStats();
+    const n=v=>typeof num==='function'?num(v):Math.round(v).toLocaleString('ru-RU');
+    const m=v=>typeof money==='function'?money(v):(Math.round(v).toLocaleString('ru-RU')+' ₽');
+    return `<div class="section dashboard-fbs-card" data-dashboard-fbs="1">
+      <div class="dashboard-fbs-head"><div class="dashboard-fbs-title"><div class="dashboard-fbs-logo">FBS</div><div><h3>${T('FBS Абдурахим','FBS 阿卜杜拉希姆')}</h3><p>${T('Короткая сводка за последние 30 дней','最近30天简要汇总')} · ${esc(s.store.name)}</p></div></div><button class="btn primary small" onclick="openFbsFromDashboard()">${T('Открыть','打开')} →</button></div>
+      <div class="dashboard-fbs-metrics">
+        <div class="dashboard-fbs-metric"><span>${T('Остаток сейчас','当前库存')}</span><strong class="good">${n(s.stock)} ${T('шт','件')}</strong></div>
+        <div class="dashboard-fbs-metric"><span>${T('Отправлено · 30 дней','已发货 · 30天')}</span><strong>${n(s.shipped30)} ${T('шт','件')}</strong></div>
+        <div class="dashboard-fbs-metric"><span>${T('Упаковка · 30 дней','包装 · 30天')}</span><strong>${m(s.pack30)}</strong></div>
+        <div class="dashboard-fbs-metric"><span>${T('Мало товара · ≤10 шт','低库存 · ≤10件')}</span><strong class="${s.low?'warn':'good'}">${n(s.low)}</strong></div>
+      </div>
+    </div>`
+  }
+  const previous=window.renderDashboard||renderDashboard;
+  window.renderDashboard=renderDashboard=function(){
+    const result=previous.apply(this,arguments);
+    try{
+      const root=document.getElementById('pageRoot');
+      if(root&&!root.querySelector('[data-dashboard-fbs]')){
+        const anchor=root.querySelector('.insight-grid');
+        if(anchor)anchor.insertAdjacentHTML('afterend',fbsDashHtml());
+      }
+    }catch(e){console.error('FBS dashboard card:',e)}
+    return result
+  };
+})();
+</script>
+<!-- /Seller Control: compact FBS dashboard card v1 -->
+
+
+<style id="seller-control-dashboard-visual-lab">
+/* Premium dashboard analytics — isolated to the 3 main chart cards */
+.dashviz-grid{grid-template-columns:minmax(0,1.18fr) minmax(0,.82fr);gap:18px;align-items:stretch}
+.dashviz-card{position:relative;overflow:hidden;border-radius:28px!important;border:1px solid rgba(26,45,92,.10)!important;padding:22px!important;box-shadow:0 20px 52px rgba(28,45,92,.10)!important;isolation:isolate}
+.dashviz-card:before{display:none!important}
+.dashviz-hero{grid-column:1/-1;color:#fff;background:radial-gradient(circle at 82% 5%,rgba(54,219,176,.18),transparent 28%),radial-gradient(circle at 6% 95%,rgba(81,104,255,.20),transparent 26%),linear-gradient(125deg,#0B1430 0%,#15275F 48%,#102A49 100%)!important;border-color:rgba(255,255,255,.10)!important;box-shadow:0 28px 72px rgba(10,21,51,.22)!important}
+.dashviz-store{background:radial-gradient(circle at 100% 0%,rgba(77,91,255,.10),transparent 28%),linear-gradient(180deg,#FFFFFF 0%,#F7F8FF 100%)!important}
+.dashviz-expense{background:radial-gradient(circle at 100% 0%,rgba(255,190,85,.14),transparent 30%),linear-gradient(180deg,#FFFFFF 0%,#FFF9F1 100%)!important}
+.dashviz-orb{position:absolute;border-radius:999px;border:1px solid rgba(255,255,255,.10);pointer-events:none;z-index:-1}.dashviz-orb-a{width:260px;height:260px;right:-78px;top:-108px;box-shadow:0 0 0 34px rgba(255,255,255,.026),0 0 0 68px rgba(255,255,255,.018)}.dashviz-orb-b{width:120px;height:120px;left:-42px;bottom:-58px;background:rgba(48,222,173,.06)}
+.dashviz-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;gap:14px;position:relative;z-index:2}.dashviz-index{width:44px;height:44px;border-radius:15px;display:grid;place-items:center;font-size:12px;font-weight:950;letter-spacing:.8px;color:#DDE6FF;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.dashviz-head-light .dashviz-index{color:#314BA9;background:#EDF1FF;border-color:#DDE4FF}.dashviz-title{min-width:0}.dashviz-kicker{display:block;margin:1px 0 6px;font-size:10px;font-weight:950;letter-spacing:1.35px;color:rgba(255,255,255,.55)}.dashviz-head-light .dashviz-kicker{color:#7B87A8}.dashviz-title h3{margin:0!important;font-size:21px!important;letter-spacing:-.35px}.dashviz-hero .dashviz-title h3{color:#fff!important}.dashviz-title p{margin:6px 0 0!important;font-size:12px!important;line-height:1.45!important;color:rgba(255,255,255,.64)!important}.dashviz-head-light .dashviz-title p{color:var(--muted)!important}
+.dashviz-live{display:inline-flex;align-items:center;gap:7px;padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.10);font-size:11px;font-weight:900;color:rgba(255,255,255,.78);white-space:nowrap}.dashviz-live i{width:7px;height:7px;border-radius:50%;background:#36D9A7;box-shadow:0 0 0 5px rgba(54,217,167,.12)}
+.dashviz-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:18px 0 12px;position:relative;z-index:2}.dashviz-metrics>div{padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.09);backdrop-filter:blur(8px)}.dashviz-metrics span{display:block;font-size:10px;font-weight:850;letter-spacing:.35px;color:rgba(255,255,255,.55)}.dashviz-metrics strong{display:block;margin-top:5px;font-size:18px;color:#fff}.dashviz-metrics strong.good{color:#65E9BD}.dashviz-metrics strong.bad{color:#FF8AA1}
+.dashviz-chart-shell{position:relative;margin-top:16px;padding:14px 14px 8px;border-radius:20px;background:rgba(255,255,255,.82);border:1px solid rgba(30,48,92,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 10px 28px rgba(37,52,94,.06)}.dashviz-chart-shell-dark{margin-top:0;background:rgba(255,255,255,.965);box-shadow:0 18px 38px rgba(5,15,42,.18)}.dashviz-chart-shell canvas{height:286px!important}.dashviz-hero .dashviz-chart-shell canvas{height:308px!important}
+.dashviz-legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px}.dashviz-legend span{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;background:#F4F6FA;color:#596176;font-size:10px;font-weight:900;border:1px solid #E7EAF1}.dashviz-legend i{width:8px;height:8px;border-radius:50%}.dashviz-legend i.revenue{background:#32288E}.dashviz-legend i.profit{background:#00A67B}.dashviz-legend i.loss{background:#D52D58}.dashviz-legend i.profit-alt{background:#87D252}
+.dashviz-foot{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;border-radius:15px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.09)}.dashviz-arrow{width:32px;height:32px;flex:0 0 32px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,#4E63FF,#32D4A5);font-size:17px;font-weight:950}.dashviz-foot b,.dashviz-foot span{display:block}.dashviz-foot b{font-size:11px;color:#fff}.dashviz-foot div>span{margin-top:3px;font-size:10px;line-height:1.45;color:rgba(255,255,255,.60)}
+.dashviz-count,.dashviz-total{text-align:right;align-self:center}.dashviz-count strong{display:block;font-size:25px;line-height:1;color:#263E9D}.dashviz-count span,.dashviz-total span{display:block;margin-top:5px;font-size:10px;font-weight:850;color:var(--muted)}.dashviz-total strong{display:block;margin-top:5px;font-size:17px;color:#9A5A00;white-space:nowrap}.dashviz-donut-shell{padding-top:8px}.dashviz-donut-shell:before{content:"";position:absolute;left:14px;right:14px;top:14px;height:1px;background:linear-gradient(90deg,transparent,#E8D7BE,transparent)}
+@media(max-width:1100px){.dashviz-grid{grid-template-columns:1fr}.dashviz-hero{grid-column:auto}.dashviz-card{padding:18px!important}.dashviz-chart-shell canvas,.dashviz-hero .dashviz-chart-shell canvas{height:285px!important}}
+@media(max-width:760px){.dashviz-head{grid-template-columns:auto 1fr}.dashviz-live,.dashviz-count,.dashviz-total{grid-column:2;text-align:left;justify-self:start}.dashviz-metrics{grid-template-columns:1fr}.dashviz-card{border-radius:22px!important;padding:15px!important}.dashviz-title h3{font-size:18px!important}.dashviz-chart-shell{padding:10px 8px 4px}.dashviz-chart-shell canvas,.dashviz-hero .dashviz-chart-shell canvas{height:255px!important}}
+</style>
+
+
+
+<!-- Seller Control: compact dashboard analytics v2 -->
+<style id="seller-control-dashboard-compact-v2">
+/* Compact, convenient layout only for the three dashboard analytics cards */
+@media (min-width:1181px){
+  .dashviz-grid{
+    grid-template-columns:minmax(0,1.5fr) minmax(300px,.75fr) minmax(300px,.75fr)!important;
+    gap:14px!important;
+    align-items:stretch!important;
+  }
+  .dashviz-hero{grid-column:auto!important}
+}
+.dashviz-card{
+  border-radius:20px!important;
+  padding:15px!important;
+  box-shadow:0 12px 30px rgba(28,45,92,.08)!important;
+  min-height:0!important;
+}
+.dashviz-head{gap:9px!important;align-items:center!important}
+.dashviz-index{
+  width:32px!important;height:32px!important;border-radius:10px!important;
+  font-size:9px!important;letter-spacing:.55px!important;
+}
+.dashviz-kicker{margin:0 0 3px!important;font-size:8px!important;letter-spacing:1px!important}
+.dashviz-title h3{font-size:16px!important;letter-spacing:-.18px!important;line-height:1.15!important}
+.dashviz-title p{margin:3px 0 0!important;font-size:9.5px!important;line-height:1.3!important}
+.dashviz-live{padding:5px 7px!important;font-size:9px!important;gap:5px!important}
+.dashviz-live i{width:5px!important;height:5px!important;box-shadow:0 0 0 3px rgba(54,217,167,.11)!important}
+.dashviz-metrics{gap:6px!important;margin:10px 0 8px!important}
+.dashviz-metrics>div{padding:8px 9px!important;border-radius:11px!important}
+.dashviz-metrics span{font-size:8.5px!important}.dashviz-metrics strong{margin-top:3px!important;font-size:13px!important}
+.dashviz-chart-shell{margin-top:9px!important;padding:8px 8px 4px!important;border-radius:13px!important;box-shadow:0 7px 18px rgba(37,52,94,.05)!important}
+.dashviz-chart-shell-dark{margin-top:0!important;box-shadow:0 8px 22px rgba(5,15,42,.12)!important}
+.dashviz-chart-shell canvas{height:188px!important}
+.dashviz-hero .dashviz-chart-shell canvas{height:188px!important}
+.dashviz-legend{gap:5px!important;margin-bottom:2px!important}
+.dashviz-legend span{padding:3px 6px!important;font-size:8.5px!important;gap:4px!important}
+.dashviz-legend i{width:6px!important;height:6px!important}
+.dashviz-foot{gap:7px!important;margin-top:7px!important;padding:7px 8px!important;border-radius:11px!important}
+.dashviz-arrow{width:24px!important;height:24px!important;flex-basis:24px!important;border-radius:8px!important;font-size:13px!important}
+.dashviz-foot b{font-size:9px!important}.dashviz-foot div>span{margin-top:1px!important;font-size:8.5px!important;line-height:1.3!important}
+.dashviz-count strong{font-size:18px!important}.dashviz-count span,.dashviz-total span{margin-top:2px!important;font-size:8.5px!important}.dashviz-total strong{margin-top:3px!important;font-size:13px!important}
+.dashviz-donut-shell{padding-top:4px!important}.dashviz-donut-shell:before{top:8px!important;left:8px!important;right:8px!important}
+@media(max-width:1180px) and (min-width:761px){
+  .dashviz-grid{grid-template-columns:1fr 1fr!important;gap:13px!important}
+  .dashviz-hero{grid-column:1/-1!important}
+  .dashviz-chart-shell canvas,.dashviz-hero .dashviz-chart-shell canvas{height:205px!important}
+}
+@media(max-width:760px){
+  .dashviz-card{padding:12px!important;border-radius:16px!important}
+  .dashviz-head{grid-template-columns:auto 1fr!important}
+  .dashviz-live,.dashviz-count,.dashviz-total{grid-column:2!important;text-align:left!important;justify-self:start!important}
+  .dashviz-metrics{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .dashviz-title h3{font-size:15px!important}.dashviz-title p{font-size:9px!important}
+  .dashviz-chart-shell canvas,.dashviz-hero .dashviz-chart-shell canvas{height:175px!important}
+  .dashviz-foot div>span{display:none!important}
+}
+</style>
+<!-- /Seller Control: compact dashboard analytics v2 -->
+
+
+<!-- Seller Control: mobile comfort v3 -->
+<style id="seller-control-mobile-comfort-v3">
+/* Final phone pass. Desktop layout is untouched; these rules apply only on narrow screens. */
+@media (max-width:760px){
+  :root{--mobile-gap:10px}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-padding-top:126px}
+  html,body{width:100%;max-width:100%;overflow-x:hidden!important}
+  body{overscroll-behavior-x:none}
+  .main,#pageRoot,.content,.section,.grid,.card,.panel{min-width:0!important;max-width:100%!important}
+
+  /* App chrome */
+  .sidebar{padding-top:max(9px,env(safe-area-inset-top))!important}
+  .sidebar.mobile-menu-open{max-height:78dvh!important}
+  .sidebar.mobile-menu-open .side-foot{
+    display:block!important;margin:10px 2px 0!important;padding:10px 4px 2px!important;
+    border-top:1px solid rgba(255,255,255,.14)!important;font-size:10px!important;line-height:1.4!important
+  }
+  .sidebar.mobile-menu-open .founder-side-foot span{font-size:8px!important}
+  .sidebar.mobile-menu-open .founder-side-foot strong{font-size:11px!important}
+  .topbar{top:66px!important;padding-left:max(11px,env(safe-area-inset-left))!important;padding-right:max(11px,env(safe-area-inset-right))!important}
+  .topbar .top-actions{max-height:calc(100dvh - 140px)!important;overflow:auto!important;-webkit-overflow-scrolling:touch!important}
+  .content{padding:10px max(10px,env(safe-area-inset-right)) calc(82px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))!important}
+
+  /* Typography and spacing */
+  .section{margin-top:12px!important}
+  .section-title{display:flex!important;flex-wrap:wrap!important;align-items:flex-start!important;gap:8px!important;margin-bottom:10px!important}
+  .section-title>div{min-width:0!important;flex:1 1 210px!important}
+  .section-title h3{font-size:16px!important;line-height:1.25!important;overflow-wrap:anywhere}
+  .section-title p{font-size:11px!important;line-height:1.4!important;margin-top:3px!important}
+  .muted,.note,.module-note{overflow-wrap:anywhere}
+  .card,.panel,.chart-card,.expense-card,.form-card,.table-card,.setting-card,.summary-panel{border-radius:15px!important}
+  .chart-card,.expense-card,.panel,.form-card,.setting-card{padding:13px!important}
+
+  /* Main dashboard and KPI blocks: two columns on a normal phone */
+  .kpis,.analytics,.module-kpis,.unit-kpis,.loan-kpis,.inst-kpis,.profit-summary,.insight-grid,.sc-admin-kpis{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important
+  }
+  .kpi,.analytics .item,.summary,.insight,.unit-kpi,.fbsab-kpi{padding:11px!important;border-radius:13px!important}
+  .kpi .label,.analytics span,.summary span,.insight span,.unit-kpi span{font-size:10px!important;line-height:1.25!important}
+  .kpi .value,.analytics strong,.summary strong,.insight strong,.unit-kpi strong{font-size:16px!important;line-height:1.18!important;overflow-wrap:anywhere}
+  .kpi .hint,.analytics small,.summary small,.insight small,.unit-kpi small{font-size:9.5px!important;line-height:1.3!important}
+  .store-grid,.settings-grid,.two-col,.three-col,.chart-grid,.unit-chart-grid,.loan-layout,.inst-layout,.unit-form-layout{grid-template-columns:1fr!important}
+  .three-col>:last-child{grid-column:auto!important}
+  .store-card{padding:13px!important}
+  .store-head{align-items:flex-start!important;gap:8px!important}
+  .store-head .btn{flex:0 0 auto!important}
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;margin-top:10px!important}
+  .metric{padding:9px!important;border-radius:11px!important}.metric span{font-size:10px!important}.metric strong{font-size:13px!important;overflow-wrap:anywhere}
+
+  /* Dashboard period and FBS summary */
+  .calendar-period{display:block!important;padding:12px!important;margin-top:12px!important}
+  .calendar-period-info{min-width:0!important}.calendar-period-info strong{font-size:12px!important}.calendar-period-info span{font-size:10px!important;line-height:1.35!important}
+  .calendar-controls{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%!important;gap:7px!important;margin-top:10px!important}
+  .calendar-field{min-width:0!important}.calendar-field label{font-size:10px!important}.calendar-field input{width:100%!important;min-width:0!important;padding:9px!important}
+  .calendar-controls .btn{width:100%!important}
+  .dashboard-fbs-card{margin-top:12px!important;padding:12px!important;border-radius:15px!important}
+  .dashboard-fbs-head{align-items:flex-start!important;gap:8px!important;margin-bottom:9px!important}
+  .dashboard-fbs-logo{width:34px!important;height:34px!important;flex-basis:34px!important;border-radius:10px!important;font-size:10px!important}
+  .dashboard-fbs-title{gap:8px!important}.dashboard-fbs-title h3{font-size:14px!important}.dashboard-fbs-title p{display:block!important;font-size:9.5px!important;line-height:1.25!important}
+  .dashboard-fbs-head .btn{min-height:36px!important;padding:7px 9px!important;font-size:10px!important}
+  .dashboard-fbs-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+  .dashboard-fbs-metric{padding:9px!important;border-radius:11px!important}.dashboard-fbs-metric span{font-size:9px!important}.dashboard-fbs-metric strong{font-size:14px!important}
+
+  /* The three analytics cards stay readable without forcing desktop proportions */
+  .dashviz-grid{grid-template-columns:1fr!important;gap:10px!important}
+  .dashviz-hero{grid-column:auto!important}
+  .dashviz-card{padding:11px!important;border-radius:15px!important}
+  .dashviz-head{grid-template-columns:auto minmax(0,1fr)!important;gap:7px!important;align-items:start!important}
+  .dashviz-index{width:28px!important;height:28px!important;border-radius:9px!important;font-size:8px!important}
+  .dashviz-live,.dashviz-count,.dashviz-total{grid-column:2!important;justify-self:start!important;text-align:left!important;margin-top:2px!important}
+  .dashviz-metrics{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;margin:8px 0 7px!important}
+  .dashviz-metrics>div{padding:7px!important}.dashviz-metrics span{font-size:7.5px!important}.dashviz-metrics strong{font-size:12px!important}
+  .dashviz-chart-shell{width:100%!important;overflow:hidden!important;padding:7px 5px 3px!important}
+  .dashviz-chart-shell canvas,.dashviz-hero .dashviz-chart-shell canvas{height:185px!important;max-width:100%!important}
+  .dashviz-foot{margin-top:6px!important;padding:7px!important}.dashviz-foot div>span{display:block!important;font-size:8px!important;line-height:1.3!important}
+
+  /* Forms: one clear field per row, large touch targets */
+  .report-form,.form-grid,.preview,.unit-fields,.unit-fields.two,.loan-form-grid,.inst-fields,.inst-fields.two,.fbsab-form,.fbsab-receipt-form,.fbsab-summary,.calc-preview{
+    grid-template-columns:1fr!important;gap:9px!important
+  }
+  .field{margin-bottom:9px!important}.field label,.unit-field label{font-size:11px!important;margin-bottom:5px!important}
+  input,select,textarea{width:100%;max-width:100%;font-size:16px!important;min-height:44px!important}
+  textarea{min-height:92px!important;resize:vertical}
+  .form-actions,.hero-actions,.unit-hero-actions,.sc-admin-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;width:100%!important}
+  .form-actions .btn,.hero-actions .btn,.unit-hero-actions .btn,.sc-admin-actions .btn{width:100%!important;white-space:normal!important;line-height:1.2!important}
+  .btn{min-height:42px!important;padding:9px 11px!important;font-size:11px!important;border-radius:11px!important;touch-action:manipulation}
+
+  /* FBS page */
+  .fbsab-hero{padding:15px!important;border-radius:16px!important}.fbsab-hero h3{font-size:18px!important}.fbsab-hero p{font-size:11px!important;line-height:1.45!important}
+  .fbsab-filter{grid-template-columns:1fr!important;gap:8px!important;padding:12px!important;margin-top:12px!important}
+  .fbsab-filter-icon{display:none!important}.fbsab-filter-current{grid-column:auto!important;white-space:normal!important;font-size:10px!important}
+  .fbsab-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;margin-top:12px!important}
+  .fbsab-overview,.fbsab-stock-hero{grid-template-columns:1fr!important;gap:9px!important;margin-top:10px!important}
+  .fbsab-overview-card.activity{grid-column:auto!important}.fbsab-overview-card{padding:14px!important;border-radius:14px!important}
+  .fbsab-overview-value{font-size:25px!important}.fbsab-mini-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+  .fbsab-mini{padding:8px!important}.fbsab-mini span{font-size:9px!important}.fbsab-mini strong{font-size:13px!important}
+
+  /* Unit economics and special modules */
+  .formula-road{grid-template-columns:1fr!important;gap:7px!important}.formula-step{padding:11px 11px 11px 44px!important;border-radius:13px!important}.formula-step:after{display:none!important}
+  .unit-result-panel{position:relative!important;top:auto!important;border-radius:17px!important;padding:14px!important}
+  .unit-gauge-wrap{align-items:center!important;gap:10px!important;padding:11px!important}.unit-gauge{width:86px!important;height:86px!important;flex-basis:86px!important}
+  .module-hero,.unit-hero,.profit-motivation,.loan-hero,.inst-hero{padding:14px!important;border-radius:16px!important}
+  .module-hero h3,.unit-hero h3,.profit-motivation h3,.loan-hero h3,.inst-hero h3{font-size:18px!important}
+  .module-hero p,.unit-hero p,.profit-motivation p,.loan-hero p,.inst-hero p{font-size:11px!important;line-height:1.4!important}
+
+  /* Tables: never squeeze columns; swipe horizontally, keep the first column visible */
+  .table-card{overflow:hidden!important}
+  .table-tools{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:8px!important;padding:11px!important}
+  .table-tools>*{min-width:0!important}
+  .table-wrap,.table-wrap.module-table,.fbsab-table,.fbsab-stock-table,.sc-hard-table{width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-inline:contain!important}
+  table{width:max-content!important;min-width:760px!important;max-width:none!important}
+  th,td{font-size:10px!important;padding:8px 7px!important}
+  th:first-child,td:first-child{position:sticky!important;left:0!important;z-index:3;background:#fff!important;box-shadow:1px 0 0 var(--line)}
+  th:first-child{z-index:6!important;background:#F2F4F9!important}
+  tbody tr:hover td:first-child{background:#F9FAFD!important}
+
+  /* Modals / plan / payment windows */
+  .overlay,.sc-access-overlay{padding:10px!important;align-items:flex-start!important;overflow:auto!important;-webkit-overflow-scrolling:touch!important}
+  .modal,.modal.wide,.sc-access-modal{width:calc(100vw - 20px)!important;max-width:calc(100vw - 20px)!important;max-height:calc(100dvh - 20px)!important;margin:auto!important;padding:16px!important;border-radius:18px!important;overflow:auto!important}
+  .tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}.tabs button{padding:9px 5px!important;font-size:10px!important}
+  .sc-payment-number{font-size:clamp(16px,5vw,24px)!important;letter-spacing:1px!important;overflow-wrap:anywhere}
+  .sc-payment-actions{display:grid!important;grid-template-columns:1fr!important;gap:7px!important}.sc-payment-actions .btn{width:100%!important}
+  .sc-payment-meta{gap:8px!important;flex-wrap:wrap!important}
+
+  /* Public page */
+  .public-main{padding:18px 10px 55px!important}.public-hero{grid-template-columns:1fr!important;padding:18px!important;border-radius:20px!important;gap:18px!important}
+  .public-hero h1{font-size:32px!important;line-height:1.05!important;letter-spacing:-1px!important}.public-hero p{font-size:14px!important;line-height:1.5!important}
+  .public-layout{grid-template-columns:1fr!important;gap:16px!important;margin-top:18px!important}.toc{position:static!important}.article{padding:18px!important;border-radius:18px!important}
+  .article h2{font-size:24px!important}.article p{font-size:14px!important}.features{grid-template-columns:1fr!important}.cta{display:block!important;padding:20px!important}.cta .btn{margin-top:12px!important;width:100%!important}
+
+  /* General media */
+  canvas,img,video,svg{max-width:100%!important}
+  img,video{height:auto}
+}
+
+@media (max-width:420px){
+  .kpis,.analytics,.module-kpis,.unit-kpis,.loan-kpis,.inst-kpis,.profit-summary,.insight-grid,.sc-admin-kpis{grid-template-columns:1fr!important}
+  .calendar-controls,.form-actions,.hero-actions,.unit-hero-actions,.sc-admin-actions{grid-template-columns:1fr!important}
+  .fbsab-kpis{grid-template-columns:1fr!important}
+  .dashviz-metrics{grid-template-columns:1fr 1fr 1fr!important}
+  .dashboard-fbs-title p{display:none!important}
+  .dashboard-fbs-metrics{grid-template-columns:1fr 1fr!important}
+  .sidebar .nav{grid-template-columns:1fr!important}
+}
+</style>
+<!-- /Seller Control: mobile comfort v3 -->
 </body>
 </html>
