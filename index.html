@@ -7291,6 +7291,9 @@ window.addEventListener("DOMContentLoaded",boot);
     badge.className="account sc-sync-badge";
     badge.title=scLastSyncError||"Supabase";
     badge.textContent=scBadgeText(scLastSyncError?"error":"saved");
+    badge.addEventListener("click",()=>{
+      if(badge.dataset.state==="error"&&typeof window.sellerControlSyncNow==="function")window.sellerControlSyncNow();
+    });
     actions.prepend(badge);
   }
 
@@ -7301,7 +7304,8 @@ window.addEventListener("DOMContentLoaded",boot);
       if(!badge)return;
       badge.dataset.state=state;
       badge.textContent=scBadgeText(state);
-      badge.title=state==="error"?(scLastSyncError||scBadgeText(state)):"Supabase";
+      badge.title=state==="error"?((scLastSyncError||scBadgeText(state))+" · Нажмите, чтобы повторить синхронизацию"):"Supabase";
+      badge.style.cursor=state==="error"?"pointer":"default";
     });
   }
 
@@ -7613,6 +7617,7 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
 
       window.sellerControlAccess=scAccessRow;
       window.__scAccessResolved=true;
+      window.__scAccessError="";
       const accessKey=[scAccessRow.status||"",scAccessRow.plan||"",scAccessRow.paid_until||"",scAccessRow.trial_ends_at||""].join("|");
       const accessChanged=accessKey!==scAccessAppliedKey;
       scAccessAppliedKey=accessKey;
@@ -7624,7 +7629,9 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
       clearInterval(scAccessTimer);scAccessTimer=setInterval(scTrialTick,250);
     }catch(e){
       window.__scAccessResolved=true;
-      console.error("Seller Control trial:",e)
+      window.__scAccessError=String(e?.message||e||"Access check failed");
+      console.error("Seller Control trial:",e);
+      if(typeof window.sellerControlRefreshPlanUi==="function")window.sellerControlRefreshPlanUi();
     }finally{scAccessBusy=false}
   }
   window.sellerControlTrialLoadNow=scTrialLoad;
@@ -7984,7 +7991,9 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
   function scPlan(){
     const row=scAccess();
     if(scIsAdmin)return"pro";
-    if(!row)return"trial";
+    // Fail closed while Supabase access is loading or failed.
+    // A real trial is granted only after user_access/start_or_get_trial resolves.
+    if(!row)return"free";
     // An approved purchase always has priority over any trial timestamps.
     if(scPaidActive(row)&&SC_RULES[row.plan])return row.plan;
     if(scTrialActive(row))return"trial";
@@ -8212,6 +8221,23 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
 
   function scDecorate(){
     scDecorateTopbar();
+
+    // Do not expose a temporary free/all-functions state before the real access row is known.
+    // If access lookup failed, keep the business UI closed and offer a retry instead.
+    if(!scIsAdmin&&!window.sellerControlAccess){
+      const root=document.getElementById("pageRoot");
+      if(root){
+        if(!window.__scAccessResolved){
+          root.innerHTML=`<div class="card empty"><b>Проверяем тариф…</b><div class="muted" style="margin-top:7px">Загружаем ваш доступ из Supabase. Подождите несколько секунд.</div></div>`;
+        }else{
+          root.innerHTML=`<div class="card empty"><b>Не удалось проверить доступ</b><div class="muted" style="margin-top:7px">Dashboard временно закрыт, пока тариф не подтверждён сервером.</div><div style="margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="btn primary" onclick="sellerControlTrialLoadNow?.()">Повторить проверку</button><button class="btn" onclick="sellerControlLogoutToHome?.(event)">Выйти</button></div></div>`;
+        }
+      }
+      scDecorateExports();
+      scAddAdminNav();
+      return;
+    }
+
     scDecorateExports();
     scDecorateSettings();
     scDisableExtraStores();
