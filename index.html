@@ -7158,6 +7158,8 @@ window.addEventListener("DOMContentLoaded",boot);
     authMessage("ok",T("Входим…","正在登录…"));
     const {data,error}=await client.auth.signInWithPassword({email,password});
     if(error) return authMessage("error",scFriendlyAuthError(error));
+    window.__scLoggingOut=false;
+    try{sessionStorage.removeItem("sc_force_public_after_logout")}catch(e){}
     await scAfterAuth(data.session);
     closeAuth();
   };
@@ -7178,8 +7180,9 @@ window.addEventListener("DOMContentLoaded",boot);
   finishReset = function(){};
 
   logout = async function(){
-    // HARD LOGOUT: leave the account and always return to the public Главная page.
-    // This also prevents the expired-trial/paywall timers from reopening after logout.
+    // RELIABLE LOGOUT: close the Supabase session, clear local mirrors and
+    // restart on the public Главная page.  The one-shot sessionStorage guard
+    // prevents old trial/paywall timers from restoring the private UI while reload happens.
     if(window.__scLoggingOut)return;
     window.__scLoggingOut=true;
 
@@ -7192,29 +7195,44 @@ window.addEventListener("DOMContentLoaded",boot);
       const authRoot=document.getElementById("authRoot");
       if(authRoot)authRoot.innerHTML="";
     };
+    const clearSupabaseAuthStorage=()=>{
+      try{
+        const projectRef="bwjqofnpzxvbwkjlcrqa";
+        for(let i=localStorage.length-1;i>=0;i--){
+          const k=localStorage.key(i)||"";
+          if((k.startsWith("sb-")&&k.includes(projectRef)&&k.includes("auth-token")) || k===`sb-${projectRef}-auth-token`){
+            localStorage.removeItem(k);
+          }
+        }
+      }catch(e){console.warn("Seller Control auth storage cleanup:",e)}
+    };
 
     cleanLoggedInUi();
     scRemoteUser=null;
+    window.sellerControlAccess=null;
     localStorage.removeItem(SESSION_KEY);
     currentPage="dashboard";
 
     const client=scInitClient();
     if(client){
       try{
-        const result=await client.auth.signOut({scope:"local"});
-        if(result?.error)throw result.error;
+        const {error}=await client.auth.signOut({scope:"global"});
+        if(error)throw error;
       }catch(e){
-        console.warn("Seller Control local sign out:",e);
-        try{await client.auth.signOut()}catch(_){}
+        console.warn("Seller Control global sign out:",e);
+        try{await client.auth.signOut({scope:"local"})}catch(_){}
       }
     }
 
-    // Show Главная immediately, then hard-reload the public URL so no old
-    // paywall/timer state from this JavaScript session can bring the account UI back.
+    // Even if the network is unavailable, the browser must be logged out locally.
+    clearSupabaseAuthStorage();
+    localStorage.removeItem(SESSION_KEY);
     cleanLoggedInUi();
+    try{sessionStorage.setItem("sc_force_public_after_logout","1")}catch(e){}
+    try{history.replaceState(null,"",location.pathname)}catch(e){}
     renderPublic();
-    const publicUrl=location.origin+location.pathname+"?logged_out="+Date.now();
-    setTimeout(()=>location.replace(publicUrl),80);
+    // Fresh JS context guarantees that no stale access timer can redraw the paywall.
+    setTimeout(()=>location.replace(location.origin+location.pathname),120);
   };
 
   function scShowPasswordRecovery(){
@@ -7286,6 +7304,22 @@ window.addEventListener("DOMContentLoaded",boot);
   };
 
   async function scBoot(){
+    // One-shot redirect target after explicit logout.  Do not restore any account UI.
+    try{
+      if(sessionStorage.getItem("sc_force_public_after_logout")==="1"){
+        sessionStorage.removeItem("sc_force_public_after_logout");
+        localStorage.removeItem(SESSION_KEY);
+        scRemoteUser=null;
+        window.sellerControlAccess=null;
+        document.getElementById("scPaymentOverlay")?.remove();
+        document.getElementById("scAccessOverlay")?.remove();
+        document.getElementById("scExpiredRoot")?.remove();
+        document.body.classList.remove("sc-access-expired-lock");
+        renderPublic();
+        window.__scLoggingOut=false;
+        return;
+      }
+    }catch(e){}
     const client=scInitClient();
     if(!client){renderPublic();return}
     const {data,error}=await client.auth.getSession();
@@ -7775,6 +7809,73 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
   let scAdminLoading=false;
 
   function scClient(){return window.sellerControlSupabase||null}
+  const SC_PAYMENT_SUPABASE_URL="https://bwjqofnpzxvbwkjlcrqa.supabase.co";
+  const SC_PAYMENT_SUPABASE_KEY="sb_publishable_hsaRPHrxZ8wa-ZeY5V1O4g_71Oat8UA";
+
+  async function scAuthenticatedSession(){
+    const c=scClient();
+    if(!c)throw new Error("Supabase не подключён");
+    let r=await c.auth.getSession();
+    let session=r?.data?.session||null;
+    if(!session?.access_token){
+      try{
+        const refreshed=await c.auth.refreshSession();
+        if(refreshed?.error)throw refreshed.error;
+        session=refreshed?.data?.session||null;
+      }catch(e){}
+    }
+    if(!session?.access_token||!session?.user?.id){
+      const err=new Error("AUTH_SESSION_MISSING");
+      err.code="AUTH_SESSION_MISSING";
+      throw err;
+    }
+    // Verify the token once so payment is never attempted from a stale local-only session.
+    try{
+      const u=await c.auth.getUser(session.access_token);
+      if(u?.error||!u?.data?.user)throw (u?.error||new Error("AUTH_SESSION_MISSING"));
+    }catch(e){
+      const refreshed=await c.auth.refreshSession();
+      if(refreshed?.error||!refreshed?.data?.session?.access_token){
+        const err=new Error("AUTH_SESSION_MISSING");err.code="AUTH_SESSION_MISSING";throw err;
+      }
+      session=refreshed.data.session;
+    }
+    return session;
+  }
+
+  async function scRpcWithExplicitToken(functionName,args,session){
+    const response=await fetch(`${SC_PAYMENT_SUPABASE_URL}/rest/v1/rpc/${functionName}`,{
+      method:"POST",
+      headers:{
+        "apikey":SC_PAYMENT_SUPABASE_KEY,
+        "Authorization":`Bearer ${session.access_token}`,
+        "Content-Type":"application/json",
+        "Accept":"application/json"
+      },
+      body:JSON.stringify(args||{})
+    });
+    let payload=null;
+    const text=await response.text();
+    try{payload=text?JSON.parse(text):null}catch(e){payload=text}
+    if(!response.ok){
+      const message=(payload&&typeof payload==="object"&&(payload.message||payload.error_description||payload.hint))||String(payload||`HTTP ${response.status}`);
+      const err=new Error(message);err.status=response.status;throw err;
+    }
+    return payload;
+  }
+
+  function scPaymentAuthLost(){
+    // Do not leave a fake logged-in/paywall state when Supabase has no real session.
+    try{localStorage.removeItem(SESSION_KEY)}catch(e){}
+    window.sellerControlAccess=null;
+    document.getElementById("scPaymentOverlay")?.remove();
+    document.getElementById("scAccessOverlay")?.remove();
+    document.getElementById("scExpiredRoot")?.remove();
+    document.body.classList.remove("sc-access-expired-lock");
+    renderPublic();
+    setTimeout(()=>{try{openAuth("login")}catch(e){}},60);
+  }
+
   function scAccess(){return window.sellerControlAccess||null}
   function scNow(){return Date.now()}
   // TEMP TEST MODE: 30-minute trial, derived from the server's normal 24h trial window.
@@ -8186,26 +8287,55 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
     const c=scClient();
     let requestId="";
     let email="";
+    let session=null;
     try{
-      if(c){
-        const session=await c.auth.getSession();
-        email=session?.data?.session?.user?.email||"";
-        const {data,error}=await c.rpc("submit_payment_request",{p_plan:plan});
-        if(error)throw error;
-        const row=Array.isArray(data)?data[0]:data;
-        requestId=row?.request_id||row?.id||"";
-        const status=document.getElementById("scPaymentStatus");
-        if(status){
-          status.textContent=`Заявка #${requestId} создана. Теперь отправьте чек в WhatsApp.`;
-          status.classList.add("show");
+      session=await scAuthenticatedSession();
+      email=session?.user?.email||"";
+
+      // Normal Supabase-js RPC first.
+      let data=null;
+      let firstError=null;
+      try{
+        const r=await c.rpc("submit_payment_request",{p_plan:plan});
+        data=r?.data;
+        firstError=r?.error||null;
+      }catch(e){firstError=e}
+
+      // Some browser/session combinations can leave the RPC request without the
+      // Authorization header. Retry once through REST with the real access token explicitly.
+      if(firstError){
+        const msg=String(firstError?.message||firstError||"");
+        if(/authentication required|jwt|not authenticated|unauthorized|401/i.test(msg)){
+          data=await scRpcWithExplicitToken("submit_payment_request",{p_plan:plan},session);
+        }else{
+          throw firstError;
         }
       }
+
+      const row=Array.isArray(data)?data[0]:data;
+      requestId=row?.request_id||row?.id||"";
+      if(!requestId)throw new Error("Сервер не вернул номер заявки");
+      const status=document.getElementById("scPaymentStatus")||document.getElementById("scExpiredCheckStatus");
+      if(status){
+        status.textContent=`Заявка #${requestId} создана. Теперь отправьте чек в WhatsApp.`;
+        status.classList.add("show");
+      }
     }catch(e){
-      alert("Не удалось создать заявку: "+(e.message||e)+". Сначала выполните SQL-файл настройки Supabase.");
+      const msg=String(e?.message||e||"");
+      if(e?.code==="AUTH_SESSION_MISSING"||/AUTH_SESSION_MISSING/i.test(msg)){
+        alert("Сессия аккаунта закончилась. Войдите снова в этот же аккаунт и повторите оплату.");
+        scPaymentAuthLost();
+        return;
+      }
+      if(/function .*submit_payment_request.*does not exist|could not find the function|permission denied|relation .*payment_requests.*does not exist/i.test(msg)){
+        alert("Система оплаты в Supabase ещё не настроена. Один раз запустите SQL-файл Seller Control для платежей, затем повторите.");
+        return;
+      }
+      alert("Не удалось создать заявку: "+msg);
       return;
     }
     const whatsapp=(window.SC_PAYMENT?.whatsapp)||"992911247576";
-    const msg=`Здравствуйте! Я оплатил тариф ${p.name} на сумму ${p.price} ₽. Заявка #${requestId||"—"}. Email аккаунта: ${email||"укажу в сообщении"}. Отправляю чек.`;
+    const msg=`Здравствуйте! Я оплатил тариф ${p.name} на сумму ${p.price} ₽. Заявка #${requestId}. Email аккаунта: ${email||"укажу в сообщении"}. Отправляю чек.`;
     window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(msg)}`,"_blank","noopener");
   };
 
