@@ -7178,11 +7178,43 @@ window.addEventListener("DOMContentLoaded",boot);
   finishReset = function(){};
 
   logout = async function(){
-    try{await scInitClient()?.auth.signOut()}catch(e){}
+    // HARD LOGOUT: leave the account and always return to the public Главная page.
+    // This also prevents the expired-trial/paywall timers from reopening after logout.
+    if(window.__scLoggingOut)return;
+    window.__scLoggingOut=true;
+
+    const cleanLoggedInUi=()=>{
+      document.getElementById("scPaymentOverlay")?.remove();
+      document.getElementById("scAccessOverlay")?.remove();
+      document.getElementById("scExpiredRoot")?.remove();
+      document.body.classList.remove("sc-access-expired-lock");
+      document.body.style.overflow="auto";
+      const authRoot=document.getElementById("authRoot");
+      if(authRoot)authRoot.innerHTML="";
+    };
+
+    cleanLoggedInUi();
     scRemoteUser=null;
     localStorage.removeItem(SESSION_KEY);
     currentPage="dashboard";
+
+    const client=scInitClient();
+    if(client){
+      try{
+        const result=await client.auth.signOut({scope:"local"});
+        if(result?.error)throw result.error;
+      }catch(e){
+        console.warn("Seller Control local sign out:",e);
+        try{await client.auth.signOut()}catch(_){}
+      }
+    }
+
+    // Show Главная immediately, then hard-reload the public URL so no old
+    // paywall/timer state from this JavaScript session can bring the account UI back.
+    cleanLoggedInUi();
     renderPublic();
+    const publicUrl=location.origin+location.pathname+"?logged_out="+Date.now();
+    setTimeout(()=>location.replace(publicUrl),80);
   };
 
   function scShowPasswordRecovery(){
@@ -7267,7 +7299,15 @@ window.addEventListener("DOMContentLoaded",boot);
     client.auth.onAuthStateChange(async(event,session)=>{
       if(event==="PASSWORD_RECOVERY") return scShowPasswordRecovery();
       if(event==="SIGNED_OUT"){
-        scRemoteUser=null;localStorage.removeItem(SESSION_KEY);renderPublic();return;
+        scRemoteUser=null;
+        localStorage.removeItem(SESSION_KEY);
+        document.getElementById("scPaymentOverlay")?.remove();
+        document.getElementById("scAccessOverlay")?.remove();
+        document.getElementById("scExpiredRoot")?.remove();
+        document.body.classList.remove("sc-access-expired-lock");
+        renderPublic();
+        window.__scLoggingOut=false;
+        return;
       }
       if(session?.user && (event==="SIGNED_IN" || event==="TOKEN_REFRESHED" || event==="USER_UPDATED")){
         if(scRemoteUser?.id!==session.user.id) await scAfterAuth(session);
@@ -7304,7 +7344,16 @@ window.addEventListener("DOMContentLoaded",boot);
 .sc-trial-copy{min-width:0}.sc-trial-copy strong{display:block;font-size:14px}.sc-trial-copy span{display:block;margin-top:4px;color:var(--muted);font-size:12px}.sc-trial-clockbox{min-width:132px;padding:8px 11px;border-radius:14px;background:#fff;border:1px solid #CFEBDD;box-shadow:0 8px 18px rgba(0,128,96,.08);text-align:center}.sc-trial-clocklabel{display:block;margin-bottom:2px;color:#708078;font-size:9px;font-weight:950;letter-spacing:.75px;text-transform:uppercase}.sc-trial-countdown{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;font-size:22px;font-weight:950;letter-spacing:1px;color:#00805F;white-space:nowrap;line-height:1.05}.sc-trial-clockdot{display:inline-block;width:6px;height:6px;margin:0 0 2px 5px;border-radius:50%;background:#00A67B;box-shadow:0 0 0 4px rgba(0,166,123,.11);animation:scClockPulse 1s steps(1,end) infinite}.sc-trial-progress{height:5px;margin-top:7px;border-radius:999px;background:#E8F1ED;overflow:hidden}.sc-trial-progress>i{display:block;height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,#00A67B,#87D252);transition:width .35s linear}.sc-trial-banner.warning .sc-trial-clockbox{border-color:#F0D49A}.sc-trial-banner.danger .sc-trial-clockbox{border-color:#F1B6C4}.sc-trial-banner.warning .sc-trial-countdown{color:#B97600}.sc-trial-banner.danger .sc-trial-countdown{color:#D52D58}.sc-trial-banner.warning .sc-trial-progress>i{background:linear-gradient(90deg,#D99A20,#FFC74D)}.sc-trial-banner.danger .sc-trial-progress>i{background:linear-gradient(90deg,#D52D58,#FF7999)}@keyframes scClockPulse{0%,49%{opacity:1}50%,100%{opacity:.18}}
 .sc-trial-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}.sc-trial-plan{padding:7px 10px;border-radius:999px;background:#E7ECFF;color:#254CB6;font-size:11px;font-weight:900;white-space:nowrap}.sc-trial-tariffs{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:12px;background:#fff;border:1px solid #DCE4F5;color:#344566;font-size:10px;font-weight:900;white-space:nowrap;box-shadow:0 6px 16px rgba(31,53,115,.06)}.sc-trial-tariffs b{color:#254CB6;font-weight:950}.sc-trial-paid-remaining{font-size:12px;font-weight:950;color:#007653;white-space:nowrap}.sc-trial-paid-remaining.warning{color:#B97600}.sc-trial-paid-remaining.danger{color:#D52D58}
 .sc-access-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(8,18,40,.72);backdrop-filter:blur(10px)}
-body.sc-access-expired-lock{overflow:hidden!important}
+body.sc-access-expired-lock{overflow:hidden!important;background:#F4F7FB!important}
+body.sc-access-expired-lock #appRoot,body.sc-access-expired-lock #publicRoot,body.sc-access-expired-lock #authRoot,body.sc-access-expired-lock #onboardingRoot{display:none!important}
+body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!important;backdrop-filter:blur(10px)!important}
+.sc-expired-root{position:fixed;inset:0;z-index:9997;overflow:auto;background:linear-gradient(180deg,#F4F7FB 0%,#EEF3FA 100%);padding:28px 18px}
+.sc-expired-shell{width:min(980px,100%);min-height:calc(100vh - 56px);margin:0 auto;display:flex;align-items:center;justify-content:center}
+.sc-expired-panel{width:100%;padding:26px;border-radius:28px;background:#fff;border:1px solid #DDE5F1;box-shadow:0 30px 90px rgba(23,39,75,.16)}
+.sc-expired-kicker{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;color:#D52D58;font-size:12px;font-weight:950;letter-spacing:.5px;text-transform:uppercase}
+.sc-expired-kicker:before{content:"";width:9px;height:9px;border-radius:50%;background:#D52D58;box-shadow:0 0 0 5px rgba(213,45,88,.10)}
+.sc-expired-panel .sc-access-head p{font-size:14px}.sc-expired-panel .sc-plan-grid{margin-top:24px}.sc-expired-bottom{display:flex;justify-content:center;margin-top:16px}
+@media(max-width:760px){.sc-expired-root{padding:12px}.sc-expired-shell{min-height:calc(100vh - 24px);align-items:flex-start}.sc-expired-panel{padding:17px;border-radius:22px}.sc-expired-panel .sc-access-head h2{font-size:23px}.sc-expired-panel .sc-access-head p{font-size:12px}}
 .sc-access-modal{width:min(920px,100%);max-height:94vh;overflow:auto;padding:25px;border-radius:26px;background:#fff;box-shadow:0 36px 100px rgba(0,0,0,.34)}
 .sc-access-head{text-align:center}.sc-access-clock{width:62px;height:62px;margin:0 auto 12px;display:grid;place-items:center;border-radius:20px;background:#FFF0F3;color:#D52D58;font-size:30px}.sc-access-head h2{margin:0;font-size:26px}.sc-access-head p{margin:9px auto 0;max-width:650px;color:var(--muted);line-height:1.55}
 .sc-plan-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px}.sc-plan-card{position:relative;padding:20px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,#fff,#F8FAFD)}.sc-plan-card.popular{border:2px solid #254CB6;box-shadow:0 17px 38px rgba(37,76,182,.14)}.sc-plan-badge{position:absolute;right:12px;top:12px;padding:5px 8px;border-radius:999px;background:#E7ECFF;color:#254CB6;font-size:10px;font-weight:950}.sc-plan-card h3{margin:0;font-size:20px}.sc-plan-price{margin-top:12px;font-size:25px;font-weight:950}.sc-plan-price small{font-size:12px;color:var(--muted)}.sc-plan-list{margin:14px 0 18px;padding:0;list-style:none;display:grid;gap:8px}.sc-plan-list li{font-size:12px;color:#536078}.sc-plan-list li:before{content:"✓";margin-right:7px;color:#00A67B;font-weight:950}.sc-plan-card .btn{width:100%}.sc-access-note{margin-top:16px;padding:12px 14px;border-radius:14px;background:#FFF7DC;border:1px solid #F0DE9C;color:#725C19;font-size:12px;line-height:1.5;text-align:center}.sc-access-footer{display:flex;justify-content:center;gap:10px;margin-top:15px}
@@ -7386,28 +7435,28 @@ body.sc-access-expired-lock{overflow:hidden!important}
     return `<div id="scTrialBanner" class="sc-trial-banner ${scTrialBannerClass(ms)}"><div class="sc-trial-main"><div class="sc-trial-icon">⏱</div><div class="sc-trial-copy"><strong>${ms>0?scTrialT("Тест 30 минут — осталось времени","30分钟测试 — 剩余时间"):scTrialT("Бесплатные 30 минут закончились","30分钟免费试用已结束")}</strong><span>${ms>0?scTrialT("Тестовый бесплатный доступ на 30 минут. Таймер идёт даже после выхода и повторного входа. После окончания выберите тариф.","30分钟测试免费访问。退出并重新登录后计时仍会继续。结束后请选择套餐。"):scTrialT("Ваши данные сохранены. Выберите тариф, чтобы продолжить работу.","您的数据已保存。请选择套餐继续使用。")}</span></div></div><div class="sc-trial-actions"><div class="sc-trial-clockbox"><span class="sc-trial-clocklabel">${scTrialT("Осталось","剩余")}</span><div><span id="scTrialCountdown" class="sc-trial-countdown">${scTrialFormat(ms)}</span><i class="sc-trial-clockdot"></i></div><div class="sc-trial-progress"><i id="scTrialProgress" style="width:${Math.max(0,Math.min(100,ms/SC_TRIAL_TEST_MS*100))}%"></i></div></div><span class="sc-trial-tariffs"><b>Start 550 ₽</b> · Business 999 ₽ · Pro 1 499 ₽</span><button class="btn small primary" onclick="sellerControlOpenPlans()">${scTrialT("Смотреть тарифы","查看套餐")}</button></div></div>`;
   }
   function scTrialPlansHtml(expired){
-    return `<div id="scAccessOverlay" class="sc-access-overlay"><div class="sc-access-modal"><div class="sc-access-head"><div class="sc-access-clock">⏱</div><h2>${expired?scTrialT("Пробный период завершён","试用期已结束"):scTrialT("Выберите тариф","选择套餐")}</h2><p>${expired?scTrialT("Ваши данные сохранены. Для продолжения работы выберите подходящий тариф.","您的数据已保存。请选择套餐继续使用。" ):scTrialT("Выберите план, который соответствует вашему бизнесу.","请选择适合您业务的套餐。")}</p></div><div class="sc-plan-grid">
+    return `<div id="scAccessOverlay" class="sc-access-overlay"><div class="sc-access-modal"><div class="sc-access-head"><div class="sc-access-clock">⏱</div><h2>${expired?scTrialT("Пробный период завершён","试用期已结束"):scTrialT("Выберите тариф","选择套餐")}</h2><p>${expired?scTrialT("Бесплатное время закончилось. Dashboard заблокирован. Купите тариф, чтобы продолжить работу. Ваши данные сохранены.","您的数据已保存。请选择套餐继续使用。" ):scTrialT("Выберите план, который соответствует вашему бизнесу.","请选择适合您业务的套餐。")}</p></div><div class="sc-plan-grid">
       <div class="sc-plan-card"><h3>Start</h3><div class="sc-plan-price">550 ₽ <small>/ 1 ${scTrialT("месяц","个月")}</small></div><ul class="sc-plan-list"><li>${scTrialT("1 магазин","1个店铺")}</li><li>${scTrialT("Отчёты и аналитика","报表与分析")}</li><li>${scTrialT("Закупки и Unit Economics","采购与单品经济")}</li></ul><button class="btn shop" onclick="sellerControlChoosePlan('start')">${scTrialT("Купить Start","购买 Start")}</button></div>
       <div class="sc-plan-card popular"><span class="sc-plan-badge">${scTrialT("Популярный","热门")}</span><h3>Business</h3><div class="sc-plan-price">999 ₽ <small>/ 1 ${scTrialT("месяц","个月")}</small></div><ul class="sc-plan-list"><li>${scTrialT("До 3 магазинов","最多3个店铺")}</li><li>${scTrialT("Инвестиции, кредиты и прибыль","投资、借款与利润")}</li><li>${scTrialT("Экспорт и backup","导出与备份")}</li></ul><button class="btn primary" onclick="sellerControlChoosePlan('business')">${scTrialT("Купить Business","购买 Business")}</button></div>
       <div class="sc-plan-card"><h3>Pro</h3><div class="sc-plan-price">1 499 ₽ <small>/ 1 ${scTrialT("месяц","个月")}</small></div><ul class="sc-plan-list"><li>${scTrialT("Безлимитные магазины","无限店铺")}</li><li>${scTrialT("AI Аналитик и расширенные отчёты","AI分析师与高级报表")}</li><li>${scTrialT("Все функции без ограничений","全部功能无限制")}</li></ul><button class="btn" style="background:linear-gradient(135deg,#6935D8,#9A4DE6);color:#fff" onclick="sellerControlChoosePlan('pro')">${scTrialT("Купить Pro","购买 Pro")}</button></div>
     </div><div class="sc-access-note">${scTrialT("Оплата вручную: переведите сумму на карту Alif и отправьте чек администратору. После проверки тариф будет активирован на 1 календарный месяц.","手动付款：转账到 Alif 卡并将凭证发送给管理员。审核后套餐将激活1个自然月。")}</div><div class="sc-access-footer">${expired?`<button class="btn danger" onclick="logout()">${scTrialT("Выйти","退出")}</button>`:`<button class="btn" onclick="sellerControlClosePlans()">${scTrialT("Закрыть","关闭")}</button>`}</div></div></div>`;
   }
+  function scTrialExpiredScreenHtml(){
+    return `<div id="scExpiredRoot" class="sc-expired-root"><div class="sc-expired-shell"><section class="sc-expired-panel"><div class="sc-expired-kicker">${scTrialT("Бесплатный доступ завершён","免费访问已结束")}</div><div class="sc-access-head"><div class="sc-access-clock">⏱</div><h2>${scTrialT("Время закончилось — выберите тариф","时间已结束 — 请选择套餐")}</h2><p>${scTrialT("30 минут бесплатного доступа закончились. Вы автоматически вышли из Dashboard. Чтобы снова открыть Seller Control и продолжить работу, купите тариф. Ваши данные сохранены.","30分钟免费访问已结束。您已自动退出 Dashboard。购买套餐后即可继续使用 Seller Control，您的数据已保存。")}</p></div><div class="sc-plan-grid">
+      <div class="sc-plan-card"><h3>Start</h3><div class="sc-plan-price">550 ₽ <small>/ 1 ${scTrialT("месяц","个月")}</small></div><ul class="sc-plan-list"><li>${scTrialT("1 магазин","1个店铺")}</li><li>${scTrialT("Главная, общий отчёт и аналитика","主页、总报表与分析")}</li><li>${scTrialT("Закупки и Unit Economics","采购与单品经济")}</li></ul><button class="btn shop" onclick="sellerControlChoosePlan('start')">${scTrialT("Купить Start","购买 Start")}</button></div>
+      <div class="sc-plan-card popular"><span class="sc-plan-badge">${scTrialT("Популярный","热门")}</span><h3>Business</h3><div class="sc-plan-price">999 ₽ <small>/ 1 ${scTrialT("месяц","个月")}</small></div><ul class="sc-plan-list"><li>${scTrialT("До 3 магазинов","最多3个店铺")}</li><li>${scTrialT("Прибыль, финансы, инвестиции и займы","利润、财务、投资与借款")}</li><li>${scTrialT("Фулфилмент, документы, экспорт и backup","履约、文件、导出与备份")}</li></ul><button class="btn primary" onclick="sellerControlChoosePlan('business')">${scTrialT("Купить Business","购买 Business")}</button></div>
+      <div class="sc-plan-card"><h3>Pro</h3><div class="sc-plan-price">1 499 ₽ <small>/ 1 ${scTrialT("месяц","个月")}</small></div><ul class="sc-plan-list"><li>${scTrialT("Безлимитные магазины","无限店铺")}</li><li>${scTrialT("FBS Абдурахим + AI Аналитик","FBS 阿卜杜拉希姆 + AI 分析师")}</li><li>${scTrialT("Все разделы и функции без ограничений","全部页面和功能无限制")}</li></ul><button class="btn" style="background:linear-gradient(135deg,#6935D8,#9A4DE6);color:#fff" onclick="sellerControlChoosePlan('pro')">${scTrialT("Купить Pro","购买 Pro")}</button></div>
+    </div><div class="sc-access-note">${scTrialT("Все разделы сейчас заблокированы. После оплаты отправьте чек администратору. После подтверждения откроются только разделы выбранного тарифа; ваши данные останутся сохранёнными.","当前所有页面均已锁定。付款后请发送凭证给管理员。确认后只会开放所购套餐包含的页面，您的数据会保留。")}</div><div id="scExpiredCheckStatus" class="sc-payment-status show" style="display:block;text-align:center;background:#F7F8FC;color:#536078">${scTrialT("Уже оплатили? После подтверждения администратора нажмите «Проверить оплату».","已付款？管理员确认后点击“检查付款”。")}</div><div class="sc-expired-bottom" style="gap:10px;flex-wrap:wrap"><button class="btn primary" onclick="sellerControlCheckAccessNow()">${scTrialT("Проверить оплату","检查付款")}</button><button class="btn danger" onclick="logout()">${scTrialT("Выйти из аккаунта","退出账户")}</button></div></section></div></div>`;
+  }
   function scTrialForceExpiredPaywall(){
+    if(window.__scLoggingOut)return false;
     if(scTrialPaidActive())return false;
-    // Expired trial must immediately leave the working dashboard behind a non-dismissible tariff gate.
+    // HARD EXPIRE: leave Dashboard completely and show only a dedicated tariff screen.
     document.body.classList.add("sc-access-expired-lock");
-    // If the client is already on the payment screen, keep it open so they can finish buying a tariff.
+    document.getElementById("scAccessOverlay")?.remove();
     if(document.getElementById("scPaymentOverlay"))return true;
-    const existing=document.getElementById("scAccessOverlay");
-    // Do not rebuild the same expired screen every timer tick.
-    if(existing?.dataset.autoExpired==="1")return true;
-    if(existing)existing.remove();
-    document.body.insertAdjacentHTML("beforeend",scTrialPlansHtml(true));
-    const overlay=document.getElementById("scAccessOverlay");
-    if(overlay){
-      overlay.dataset.autoExpired="1";
-      overlay.setAttribute("aria-modal","true");
-      overlay.setAttribute("role","dialog");
+    if(!document.getElementById("scExpiredRoot")){
+      document.body.insertAdjacentHTML("beforeend",scTrialExpiredScreenHtml());
     }
     return true;
   }
@@ -7423,11 +7472,18 @@ body.sc-access-expired-lock{overflow:hidden!important}
     if(expired){
       scTrialForceExpiredPaywall();
     }else{
+      const wasExpiredLocked=document.body.classList.contains("sc-access-expired-lock");
       document.body.classList.remove("sc-access-expired-lock");
+      document.getElementById("scExpiredRoot")?.remove();
       if(document.getElementById("scAccessOverlay")?.dataset.autoExpired==="1")document.getElementById("scAccessOverlay").remove();
+      // If the user loaded the site while expired, renderApp was intentionally blocked.
+      // As soon as an approved paid plan becomes active, rebuild the app immediately
+      // so the exact sections of the purchased tariff become available without re-login.
+      if(wasExpiredLocked&&scTrialPaidActive()&&typeof window.renderApp==="function")setTimeout(()=>window.renderApp(),0);
     }
   }
   function scTrialTick(){
+    if(window.__scLoggingOut)return;
     if(!scAccessRow)return;
     const el=document.getElementById("scTrialCountdown");
     const topEl=document.getElementById("scTrialTopCountdown");
@@ -7454,6 +7510,7 @@ body.sc-access-expired-lock{overflow:hidden!important}
     if(!scTrialAllowed())scTrialRender();
   }
   async function scTrialLoad(){
+    if(window.__scLoggingOut)return;
     if(scAccessBusy)return;
     const client=scTrialClient();if(!client)return;
     const {data:{session}}=await client.auth.getSession();if(!session?.user)return;
@@ -7470,14 +7527,43 @@ body.sc-access-expired-lock{overflow:hidden!important}
   window.sellerControlOpenPlans=function(){
     const expired=!scTrialAllowed();
     document.getElementById("scAccessOverlay")?.remove();
-    if(expired)document.body.classList.add("sc-access-expired-lock");
-    document.body.insertAdjacentHTML("beforeend",scTrialPlansHtml(expired));
-    const overlay=document.getElementById("scAccessOverlay");
-    if(expired&&overlay)overlay.dataset.autoExpired="1";
+    if(expired){
+      document.getElementById("scPaymentOverlay")?.remove();
+      scTrialForceExpiredPaywall();
+      return;
+    }
+    document.body.insertAdjacentHTML("beforeend",scTrialPlansHtml(false));
   };
   window.sellerControlClosePlans=function(){
-    if(scTrialAllowed()){document.getElementById("scAccessOverlay")?.remove();document.body.classList.remove("sc-access-expired-lock")}
+    if(scTrialAllowed()){document.getElementById("scAccessOverlay")?.remove();document.getElementById("scExpiredRoot")?.remove();document.body.classList.remove("sc-access-expired-lock")}
   };
+  window.sellerControlCheckAccessNow=async function(){
+    const status=document.getElementById("scExpiredCheckStatus");
+    if(status)status.textContent=scTrialT("Проверяем оплату…","正在检查付款…");
+    try{
+      await scTrialLoad();
+      if(scTrialPaidActive()){
+        if(status)status.textContent=scTrialT("✓ Оплата подтверждена. Открываем ваш тариф…","✓ 付款已确认，正在打开您的套餐…");
+        document.body.classList.remove("sc-access-expired-lock");
+        document.getElementById("scExpiredRoot")?.remove();
+        if(typeof window.renderApp==="function")window.renderApp();
+      }else if(status){
+        status.textContent=scTrialT("Оплата ещё не подтверждена администратором.","付款尚未由管理员确认。");
+      }
+    }catch(e){
+      if(status)status.textContent=scTrialT("Не удалось проверить. Попробуйте ещё раз.","检查失败，请重试。");
+    }
+  };
+
+  // HARD GUARD: after the free period expires, clicks outside the tariff/payment
+  // screens cannot open or operate any Dashboard section.
+  document.addEventListener("click",function(e){
+    if(!scAccessRow||scTrialAllowed())return;
+    if(e.target.closest("#scExpiredRoot,#scPaymentOverlay,#scAccessOverlay"))return;
+    e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+    scTrialForceExpiredPaywall();
+  },true);
+  window.addEventListener("popstate",function(){if(scAccessRow&&!scTrialAllowed())scTrialForceExpiredPaywall()});
   const SC_PAYMENT={
     bank:"Alif",
     recipient:"Azizjon Dzhamolov",
@@ -7515,9 +7601,13 @@ body.sc-access-expired-lock{overflow:hidden!important}
   };
 
   const scTrialOriginalRenderApp=window.renderApp;
-  if(typeof scTrialOriginalRenderApp==="function")window.renderApp=function(){scTrialOriginalRenderApp();requestAnimationFrame(scTrialRender)};
+  if(typeof scTrialOriginalRenderApp==="function")window.renderApp=function(){
+    if(scAccessRow&&!scTrialAllowed()){scTrialForceExpiredPaywall();return;}
+    scTrialOriginalRenderApp();
+    requestAnimationFrame(scTrialRender);
+  };
   function scTrialBoot(){
-    let tries=0;const wait=setInterval(()=>{tries++;if(scTrialClient()){clearInterval(wait);scTrialLoad();const c=scTrialClient();c.auth.onAuthStateChange((event,session)=>{if(session?.user)scTrialLoad();else{scAccessRow=null;clearInterval(scAccessTimer);document.getElementById("scAccessOverlay")?.remove();document.body.classList.remove("sc-access-expired-lock")}});scAccessRefreshTimer=setInterval(scTrialLoad,60000)}else if(tries>80)clearInterval(wait)},150);
+    let tries=0;const wait=setInterval(()=>{tries++;if(scTrialClient()){clearInterval(wait);scTrialLoad();const c=scTrialClient();c.auth.onAuthStateChange((event,session)=>{if(session?.user){if(!window.__scLoggingOut)scTrialLoad()}else{scAccessRow=null;clearInterval(scAccessTimer);document.getElementById("scAccessOverlay")?.remove();document.getElementById("scPaymentOverlay")?.remove();document.getElementById("scExpiredRoot")?.remove();document.body.classList.remove("sc-access-expired-lock");window.__scLoggingOut=false}});scAccessRefreshTimer=setInterval(scTrialLoad,60000)}else if(tries>80)clearInterval(wait)},150);
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",scTrialBoot);else scTrialBoot();
 })();
@@ -7873,7 +7963,14 @@ body.sc-access-expired-lock{overflow:hidden!important}
       const el=document.getElementById("scTrialTopCountdown");
       const left=Math.max(0,scTrialTopbarEnd()-Date.now());
       if(el)el.textContent=scTrialTopbarTime();
-      if(left<=0&&scPlan()==="free"&&typeof window.sellerControlForceExpiredPaywall==="function"){
+
+      // EXPIRY WATCHDOG: the visible 30-minute clock must never stop at 00:00:00
+      // while Dashboard stays open. This also works when the access RPC is late or
+      // temporarily unavailable: if the user is not admin and has no active paid
+      // plan, reaching zero immediately closes Dashboard and shows the tariff screen.
+      const row=window.sellerControlAccess||null;
+      const hasPaidAccess=scPaidActive(row);
+      if(left<=0&&!scIsAdmin&&!hasPaidAccess&&typeof window.sellerControlForceExpiredPaywall==="function"){
         window.sellerControlForceExpiredPaywall();
       }
     };
@@ -8735,8 +8832,17 @@ body.sc-access-expired-lock{overflow:hidden!important}
     if(root.querySelector('[data-fbsab-nav]'))return;
     const fulfillmentBtn=[...root.querySelectorAll('.nav button')].find(b=>String(b.getAttribute('onclick')||'').includes("go('fulfillment')"));
     if(!fulfillmentBtn)return;
-    const b=document.createElement('button');b.dataset.fbsabNav='1';b.className=currentPage===PAGE?'active':'';b.setAttribute('onclick',`go('${PAGE}')`);
-    b.innerHTML=`<span class="ico">FBS</span><span>${T('FBS Абдурахим','FBS 阿卜杜拉希姆')}</span><span class="fbsab-nav-badge">AUTO</span>`;
+    const b=document.createElement('button');b.dataset.fbsabNav='1';
+    const plan=typeof window.sellerControlCurrentPlan==='function'?window.sellerControlCurrentPlan():'trial';
+    const fbsAllowed=plan==='trial'||plan==='pro';
+    b.className=(currentPage===PAGE?'active ':'')+(fbsAllowed?'':'sc-plan-locked');
+    if(fbsAllowed){
+      b.setAttribute('onclick',`go('${PAGE}')`);
+      b.innerHTML=`<span class="ico">FBS</span><span>${T('FBS Абдурахим','FBS 阿卜杜拉希姆')}</span><span class="fbsab-nav-badge">AUTO</span>`;
+    }else{
+      b.setAttribute('onclick',`sellerControlBlockedFeature('${PAGE}')`);
+      b.innerHTML=`<span class="ico">FBS</span><span>${T('FBS Абдурахим','FBS 阿卜杜拉希姆')}</span><span class="fbsab-nav-badge">AUTO</span><span class="sc-plan-lock">🔒</span>`;
+    }
     fulfillmentBtn.insertAdjacentElement('afterend',b)
   }
 
