@@ -7419,6 +7419,9 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
   let scAccessTimer=null;
   let scAccessRefreshTimer=null;
   let scAccessBusy=false;
+  let scAccessAppliedKey="";
+  // Do not show a fake free countdown while a returning buyer's plan is still loading.
+  window.__scAccessResolved=false;
 
   // Explicit logout must immediately destroy the trial/paywall state in this JS context.
   // Otherwise the 250ms countdown can redraw the expired tariff screen after renderPublic().
@@ -7429,7 +7432,9 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
     try{clearInterval(scAccessRefreshTimer)}catch(e){}
     scAccessTimer=null;
     scAccessRefreshTimer=null;
+    scAccessAppliedKey="";
     window.sellerControlAccess=null;
+    window.__scAccessResolved=false;
     try{document.getElementById("scAccessOverlay")?.remove()}catch(e){}
     try{document.getElementById("scPaymentOverlay")?.remove()}catch(e){}
     try{document.getElementById("scExpiredRoot")?.remove()}catch(e){}
@@ -7545,18 +7550,25 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
     const topEl=document.getElementById("scTrialTopCountdown");
     const ms=scTrialRemaining();
     const formatted=scTrialFormat(ms);
-    if(el)el.textContent=formatted;
-    if(topEl)topEl.textContent=formatted;
+    const paidActive=scTrialPaidActive();
+    // Paid access wins immediately. If the topbar was drawn before Supabase answered,
+    // replace the temporary trial clock as soon as the active plan arrives.
+    if(!paidActive){
+      if(el)el.textContent=formatted;
+      if(topEl)topEl.textContent=formatted;
+    }else if(topEl&&typeof window.sellerControlRefreshPlanUi==="function"){
+      window.sellerControlRefreshPlanUi();
+    }
     const progress=document.getElementById("scTrialProgress");
-    if(progress)progress.style.width=Math.max(0,Math.min(100,ms/SC_TRIAL_TEST_MS*100))+"%";
+    if(progress&&!paidActive)progress.style.width=Math.max(0,Math.min(100,ms/SC_TRIAL_TEST_MS*100))+"%";
     const banner=document.getElementById("scTrialBanner");
-    if(scTrialPaidActive()){
+    if(paidActive){
       const days=scTrialPaidRemainingDays();
       const paid=document.getElementById("scTrialPaidRemaining");
       if(paid){paid.textContent=scTrialPaidText();paid.classList.remove("warning","danger");const c=scTrialPaidClass(days);if(c)paid.classList.add(c)}
       if(banner){banner.classList.remove("warning","danger");const c=scTrialPaidClass(days);if(c)banner.classList.add(c)}
     }else if(banner){banner.classList.remove("warning","danger");const c=scTrialBannerClass(ms);if(c)banner.classList.add(c)}
-    if(ms<=0&&!scTrialPaidActive()){
+    if(ms<=0&&!paidActive){
       if(el)el.textContent="00:00:00";
       if(topEl)topEl.textContent="00:00:00";
       if(progress)progress.style.width="0%";
@@ -7572,13 +7584,45 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
     const {data:{session}}=await client.auth.getSession();if(!session?.user)return;
     scAccessBusy=true;
     try{
-      const {data,error}=await client.rpc(SC_ACCESS_RPC);
-      if(error)throw error;
-      scAccessRow=scTrialRow(data);
+      let rpcRow=null;
+      let directRow=null;
+      let rpcError=null;
+      try{
+        const {data,error}=await client.rpc(SC_ACCESS_RPC);
+        if(error)throw error;
+        rpcRow=scTrialRow(data);
+      }catch(e){rpcError=e}
+
+      // Read the authenticated buyer's own user_access row too. This is the source
+      // that admin payment approval updates with status=active, plan and paid_until.
+      try{
+        const {data,error}=await client.from("user_access")
+          .select("user_id,trial_started_at,trial_ends_at,status,plan,paid_until,updated_at")
+          .eq("user_id",session.user.id)
+          .maybeSingle();
+        if(!error)directRow=data||null;
+      }catch(e){console.warn("Seller Control direct access read:",e)}
+
+      const directPaid=directRow?.status==="active"&&(!directRow.paid_until||new Date(directRow.paid_until).getTime()>Date.now());
+      scAccessRow=directPaid?directRow:(rpcRow||directRow);
+      if(!scAccessRow&&rpcError)throw rpcError;
+      if(!scAccessRow)throw new Error("Access row not found");
+
       window.sellerControlAccess=scAccessRow;
+      window.__scAccessResolved=true;
+      const accessKey=[scAccessRow.status||"",scAccessRow.plan||"",scAccessRow.paid_until||"",scAccessRow.trial_ends_at||""].join("|");
+      const accessChanged=accessKey!==scAccessAppliedKey;
+      scAccessAppliedKey=accessKey;
       scTrialRender();scTrialTick();
+      if(typeof window.sellerControlRefreshPlanUi==="function")window.sellerControlRefreshPlanUi();
+      // Rebuild once when login resolves to the real plan so Start/Business/Pro
+      // immediately gets the correct sections and limits instead of the temporary trial UI.
+      if(accessChanged&&document.getElementById("appRoot")?.innerHTML&&typeof window.renderApp==="function")setTimeout(()=>window.renderApp(),0);
       clearInterval(scAccessTimer);scAccessTimer=setInterval(scTrialTick,250);
-    }catch(e){console.error("Seller Control trial:",e)}finally{scAccessBusy=false}
+    }catch(e){
+      window.__scAccessResolved=true;
+      console.error("Seller Control trial:",e)
+    }finally{scAccessBusy=false}
   }
   window.sellerControlTrialLoadNow=scTrialLoad;
   window.sellerControlOpenPlans=function(){
@@ -7938,8 +7982,9 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
     const row=scAccess();
     if(scIsAdmin)return"pro";
     if(!row)return"trial";
-    if(scTrialActive(row))return"trial";
+    // An approved purchase always has priority over any trial timestamps.
     if(scPaidActive(row)&&SC_RULES[row.plan])return row.plan;
+    if(scTrialActive(row))return"trial";
     return"free";
   }
   function scRule(){return SC_RULES[scPlan()]||SC_RULES.free}
@@ -8128,7 +8173,10 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
     badge.className="sc-plan-badge-top"+(scIsAdmin?" admin":"");
     const access=scCurrentAccessBadge();
     badge.title=scCurrentAccessTitle();
-    if(!scIsAdmin&&scPlan()==="trial"){
+    if(!scIsAdmin&&!window.sellerControlAccess&&!window.__scAccessResolved){
+      badge.textContent="Проверка тарифа…";
+      badge.title="Проверяем активный тариф в Supabase";
+    }else if(!scIsAdmin&&scPlan()==="trial"){
       badge.innerHTML=`⏱ <span id="scTrialTopCountdown">${scTrialTopbarTime()}</span> <span class="sc-plan-top-label">Бесплатно</span>`;
       badge.onclick=()=>{if(typeof sellerControlOpenPlans==="function")sellerControlOpenPlans()};
       badge.style.cursor="pointer";
@@ -8167,6 +8215,8 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
     scAddAdminNav();
     if(typeof currentPage!=="undefined"&&currentPage==="adminPayments")scRenderAdminPayments();
   }
+  // Trial/access loader calls this after Supabase resolves the buyer's real plan.
+  window.sellerControlRefreshPlanUi=scDecorate;
 
   document.addEventListener("click",function(e){
     if(scRule().export)return;
