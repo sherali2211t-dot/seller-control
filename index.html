@@ -7141,7 +7141,9 @@ window.addEventListener("DOMContentLoaded",boot);
     const {data,error}=await client.auth.signUp({email,password:p,options:{data:{name}}});
     if(error) return authMessage("error",scFriendlyAuthError(error));
     if(data.session){
+      window.__scForcePublicHome=false;
       await scAfterAuth(data.session);
+      try{await window.sellerControlTrialLoadNow?.()}catch(e){}
       closeAuth();
     }else{
       authMessage("ok",T("Аккаунт создан. Откройте письмо и подтвердите email, затем войдите.","账户已创建。请打开邮件确认邮箱后再登录。"));
@@ -7159,8 +7161,10 @@ window.addEventListener("DOMContentLoaded",boot);
     const {data,error}=await client.auth.signInWithPassword({email,password});
     if(error) return authMessage("error",scFriendlyAuthError(error));
     window.__scLoggingOut=false;
+    window.__scForcePublicHome=false;
     try{sessionStorage.removeItem("sc_force_public_after_logout")}catch(e){}
     await scAfterAuth(data.session);
+    try{await window.sellerControlTrialLoadNow?.()}catch(e){}
     closeAuth();
   };
 
@@ -7257,6 +7261,7 @@ window.addEventListener("DOMContentLoaded",boot);
   };
 
   async function scAfterAuth(session){
+    if(window.__scForcePublicHome){renderPublic();return;}
     const user=session?.user;
     if(!user) return;
     scMirrorUser(user);
@@ -7306,7 +7311,8 @@ window.addEventListener("DOMContentLoaded",boot);
   async function scBoot(){
     // One-shot redirect target after explicit logout.  Do not restore any account UI.
     try{
-      if(sessionStorage.getItem("sc_force_public_after_logout")==="1"){
+      if(window.__scForcePublicHome||sessionStorage.getItem("sc_force_public_after_logout")==="1"){
+        window.__scForcePublicHome=true;
         sessionStorage.removeItem("sc_force_public_after_logout");
         localStorage.removeItem(SESSION_KEY);
         scRemoteUser=null;
@@ -7414,6 +7420,22 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
   let scAccessRefreshTimer=null;
   let scAccessBusy=false;
 
+  // Explicit logout must immediately destroy the trial/paywall state in this JS context.
+  // Otherwise the 250ms countdown can redraw the expired tariff screen after renderPublic().
+  window.sellerControlTrialLogoutReset=function(){
+    scAccessRow=null;
+    scAccessBusy=false;
+    try{clearInterval(scAccessTimer)}catch(e){}
+    try{clearInterval(scAccessRefreshTimer)}catch(e){}
+    scAccessTimer=null;
+    scAccessRefreshTimer=null;
+    window.sellerControlAccess=null;
+    try{document.getElementById("scAccessOverlay")?.remove()}catch(e){}
+    try{document.getElementById("scPaymentOverlay")?.remove()}catch(e){}
+    try{document.getElementById("scExpiredRoot")?.remove()}catch(e){}
+    try{document.body.classList.remove("sc-access-expired-lock")}catch(e){}
+  };
+
   function scTrialT(ru,zh){return typeof T==="function"?T(ru,zh):ru}
   function scTrialClient(){return window.sellerControlSupabase||null}
   function scTrialRow(data){return Array.isArray(data)?data[0]:data}
@@ -7483,7 +7505,7 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
     </div><div class="sc-access-note">${scTrialT("Все разделы сейчас заблокированы. После оплаты отправьте чек администратору. После подтверждения откроются только разделы выбранного тарифа; ваши данные останутся сохранёнными.","当前所有页面均已锁定。付款后请发送凭证给管理员。确认后只会开放所购套餐包含的页面，您的数据会保留。")}</div><div id="scExpiredCheckStatus" class="sc-payment-status show" style="display:block;text-align:center;background:#F7F8FC;color:#536078">${scTrialT("Уже оплатили? После подтверждения администратора нажмите «Проверить оплату».","已付款？管理员确认后点击“检查付款”。")}</div><div class="sc-expired-bottom" style="gap:10px;flex-wrap:wrap"><button class="btn primary" onclick="sellerControlCheckAccessNow()">${scTrialT("Проверить оплату","检查付款")}</button><button class="btn danger" onclick="sellerControlLogoutToHome(event)">${scTrialT("Выйти из аккаунта","退出账户")}</button></div></section></div></div>`;
   }
   function scTrialForceExpiredPaywall(){
-    if(window.__scLoggingOut)return false;
+    if(window.__scLoggingOut||window.__scForcePublicHome)return false;
     if(scTrialPaidActive())return false;
     // HARD EXPIRE: leave Dashboard completely and show only a dedicated tariff screen.
     document.body.classList.add("sc-access-expired-lock");
@@ -7558,6 +7580,7 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
       clearInterval(scAccessTimer);scAccessTimer=setInterval(scTrialTick,250);
     }catch(e){console.error("Seller Control trial:",e)}finally{scAccessBusy=false}
   }
+  window.sellerControlTrialLoadNow=scTrialLoad;
   window.sellerControlOpenPlans=function(){
     const expired=!scTrialAllowed();
     document.getElementById("scAccessOverlay")?.remove();
@@ -7641,7 +7664,26 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
     requestAnimationFrame(scTrialRender);
   };
   function scTrialBoot(){
-    let tries=0;const wait=setInterval(()=>{tries++;if(scTrialClient()){clearInterval(wait);scTrialLoad();const c=scTrialClient();c.auth.onAuthStateChange((event,session)=>{if(session?.user){if(!window.__scLoggingOut)scTrialLoad()}else{scAccessRow=null;clearInterval(scAccessTimer);document.getElementById("scAccessOverlay")?.remove();document.getElementById("scPaymentOverlay")?.remove();document.getElementById("scExpiredRoot")?.remove();document.body.classList.remove("sc-access-expired-lock");window.__scLoggingOut=false}});scAccessRefreshTimer=setInterval(scTrialLoad,60000)}else if(tries>80)clearInterval(wait)},150);
+    try{if(window.__scForcePublicHome||window.__scLoggingOut||sessionStorage.getItem("sc_force_public_after_logout")==="1")return}catch(e){}
+    let tries=0;const wait=setInterval(()=>{
+      tries++;
+      if(window.__scForcePublicHome||window.__scLoggingOut){clearInterval(wait);return}
+      if(scTrialClient()){
+        clearInterval(wait);
+        scTrialLoad();
+        const c=scTrialClient();
+        c.auth.onAuthStateChange((event,session)=>{
+          if(window.__scForcePublicHome||window.__scLoggingOut)return;
+          if(session?.user){
+            scTrialLoad();
+          }else{
+            window.sellerControlTrialLogoutReset?.();
+            window.__scLoggingOut=false;
+          }
+        });
+        scAccessRefreshTimer=setInterval(()=>{if(!window.__scForcePublicHome&&!window.__scLoggingOut)scTrialLoad()},60000);
+      }else if(tries>80)clearInterval(wait)
+    },150);
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",scTrialBoot);else scTrialBoot();
 })();
@@ -9437,8 +9479,8 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
 <!-- /Seller Control: mobile comfort v3 -->
 
 
-<!-- Seller Control: hard logout to public home v1 -->
-<script id="seller-control-hard-logout-home-v1">
+<!-- Seller Control: hard logout to public home v2 -->
+<script id="seller-control-hard-logout-home-v2">
 (function(){
   const LOGOUT_FLAG="sc_force_public_after_logout";
   const PUBLIC_PARAM="sc_logged_out";
@@ -9465,6 +9507,7 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
   }
 
   function clearPrivateUi(){
+    try{window.sellerControlTrialLogoutReset?.()}catch(e){}
     try{document.getElementById("scPaymentOverlay")?.remove()}catch(e){}
     try{document.getElementById("scAccessOverlay")?.remove()}catch(e){}
     try{document.getElementById("scExpiredRoot")?.remove()}catch(e){}
@@ -9476,68 +9519,65 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
 
   function showPublicNow(){
     clearPrivateUi();
-    try{
-      if(typeof renderPublic==="function"){
-        renderPublic();
-        return true;
-      }
-    }catch(e){console.warn("Seller Control render public:",e)}
-    try{
-      const app=document.getElementById("appRoot"); if(app)app.innerHTML="";
-      const onboarding=document.getElementById("onboardingRoot"); if(onboarding)onboarding.innerHTML="";
-      const auth=document.getElementById("authRoot"); if(auth)auth.innerHTML="";
-    }catch(e){}
-    return false;
+    try{if(typeof renderPublic==="function")renderPublic()}catch(e){console.warn("Seller Control render public:",e)}
   }
 
-  function backgroundSupabaseSignOut(){
+  async function signOutSupabase(){
     try{
-      const client=(typeof scInitClient==="function"?scInitClient():window.sellerControlSupabaseClient);
-      if(client?.auth?.signOut){
-        Promise.resolve(client.auth.signOut({scope:"local"})).catch(()=>{});
-      }
-    }catch(e){}
+      const client=(typeof scInitClient==="function"?scInitClient():window.sellerControlSupabaseClient||window.sellerControlSupabase);
+      if(!client?.auth?.signOut)return;
+      await Promise.race([
+        client.auth.signOut({scope:"local"}),
+        new Promise(resolve=>setTimeout(resolve,1200))
+      ]);
+    }catch(e){console.warn("Seller Control Supabase signOut:",e)}
   }
 
-  window.sellerControlLogoutToHome=function(ev){
-    try{ev?.preventDefault?.();ev?.stopPropagation?.()}catch(e){}
+  window.sellerControlLogoutToHome=async function(ev){
+    try{ev?.preventDefault?.();ev?.stopPropagation?.();ev?.stopImmediatePropagation?.()}catch(e){}
     if(window.__scHardLogoutRunning)return false;
     window.__scHardLogoutRunning=true;
     window.__scLoggingOut=true;
+    window.__scForcePublicHome=true;
 
-    // The public-page flag is set FIRST so every older auth/trial listener backs off on reload.
-    try{sessionStorage.setItem(LOGOUT_FLAG,"1")}catch(e){}
-    clearAuthStorage();
+    // Kill the active trial/paywall timers BEFORE rendering the public page.
     clearPrivateUi();
-    showPublicNow();
-    backgroundSupabaseSignOut();
+    try{sessionStorage.setItem(LOGOUT_FLAG,"1")}catch(e){}
 
-    // Reload into a clean public context. Query flag is consumed immediately below.
+    // Close the real Supabase session, but never let network trouble block logout.
+    await signOutSupabase();
+
+    // Remove every local auth mirror after signOut as a second safety layer.
+    clearAuthStorage();
+    try{sessionStorage.setItem(LOGOUT_FLAG,"1")}catch(e){}
+    showPublicNow();
+
+    // Start a clean document on the public landing URL.
     const base=location.origin+location.pathname;
-    setTimeout(()=>{
-      try{location.replace(base+"?"+PUBLIC_PARAM+"=1&t="+Date.now())}
-      catch(e){location.href=base}
-    },60);
+    const dest=base+"?"+PUBLIC_PARAM+"=1&t="+Date.now();
+    try{location.replace(dest)}catch(e){location.href=dest}
     return false;
   };
 
-  // Make the legacy function use the same reliable path everywhere in the site.
   window.logout=window.sellerControlLogoutToHome;
   try{logout=window.sellerControlLogoutToHome}catch(e){}
 
-  // This code runs while HTML is still being parsed, before scBoot's DOMContentLoaded handler.
-  // If we arrived from an explicit logout, clear the session before the auth boot can restore it.
+  // This runs during HTML parsing. It prevents the normal auth/trial boot from
+  // restoring an old private screen on the landing load after explicit logout.
   try{
     const params=new URLSearchParams(location.search);
     if(params.get(PUBLIC_PARAM)==="1"){
       window.__scLoggingOut=true;
-      sessionStorage.setItem(LOGOUT_FLAG,"1");
+      window.__scForcePublicHome=true;
+      try{sessionStorage.setItem(LOGOUT_FLAG,"1")}catch(e){}
       clearAuthStorage();
       clearPrivateUi();
-      try{history.replaceState(null,"",location.pathname)}catch(e){}
       const finish=()=>{
         clearAuthStorage();
+        clearPrivateUi();
         showPublicNow();
+        try{history.replaceState(null,"",location.pathname)}catch(e){}
+        // Public home is now stable; future explicit login may clear this flag.
         window.__scLoggingOut=false;
         window.__scHardLogoutRunning=false;
       };
@@ -9547,7 +9587,7 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
   }catch(e){console.warn("Seller Control logout landing guard:",e)}
 })();
 </script>
-<!-- /Seller Control: hard logout to public home v1 -->
+<!-- /Seller Control: hard logout to public home v2 -->
 
 </body>
 </html>
