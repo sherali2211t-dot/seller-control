@@ -4957,7 +4957,7 @@ function renderUnitEconomics(){
     <div class="section unit-form-layout">
       <div class="card unit-form-card" id="unitFormCard"><div class="section-title"><div><h3>${edit?T("Изменить расчёт товара","修改商品测算"):T("Новый расчёт товара","新商品测算")}</h3><p>${T("Поля с отметкой AUTO рассчитываются системой","带 AUTO 标记的字段由系统自动计算")}</p></div><span class="auto-pill">◆ ${T("Живой расчёт","实时计算")}</span></div>
         <form id="unitEconomicsForm" onsubmit="saveUnitEconomics(event)" oninput="previewUnitEconomics(this)"><div class="unit-sections">
-          <section class="unit-section"><div class="unit-section-head"><div class="unit-section-icon product">▣</div><div><h4>${T("1. Карточка товара","1. 商品资料")}</h4><p>${T("Основные данные SKU","SKU基本信息")}</p></div></div><div class="unit-fields">${unitField("product","Наименование товара","商品名称","T",v("product"),"required placeholder='Например: Пылесос'")}${unitField("article","Артикул","货号","#",v("article"),"required placeholder='ART-001'")}${unitField("quantity","Количество, шт","数量，件","×",v("quantity",1),"type='number' min='0.01' step='0.01' required")}</div></section>
+          <section class="unit-section"><div class="unit-section-head"><div class="unit-section-icon product">▣</div><div><h4>${T("1. Карточка товара","1. 商品资料")}</h4><p>${T("Основные данные SKU","SKU基本信息")}</p></div></div><div class="unit-fields"><div class="unit-field"><label><i>🏪</i>${T("Магазин","店铺")}</label><select name="storeId" required><option value="">${T("Выберите магазин","请选择店铺")}</option>${ws.stores.filter(s=>s.enabled).map(s=>`<option value="${esc(s.id)}" ${String(v("storeId",""))===String(s.id)?"selected":""}>${esc(s.name)}</option>`).join("")}</select></div>${unitField("product","Наименование товара","商品名称","T",v("product"),"required placeholder='Например: Пылесос'")}${unitField("article","Артикул","货号","#",v("article"),"required placeholder='ART-001'")}${unitField("quantity","Количество, шт","数量，件","×",v("quantity",1),"type='number' min='0.01' step='0.01' required")}</div></section>
           <section class="unit-section"><div class="unit-section-head"><div class="unit-section-icon cost">₽</div><div><h4>${T("2. Себестоимость товара","2. 商品成本")}</h4><p>${T("Закупка и расходы до склада","采购及入仓前费用")}</p></div></div><div class="unit-fields">${unitField("purchase","Закупка 1 ед., ₽","单件采购，₽","₽",v("purchase"),"type='number' min='0' step='0.01'")}${unitField("packaging","Упаковка 1 ед., ₽","单件包装，₽","□",v("packaging"),"type='number' min='0' step='0.01'")}${unitField("delivery","Доставка 1 ед., ₽","单件配送，₽","→",v("delivery"),"type='number' min='0' step='0.01'")}${unitField("transitTotal","Транзит общий, ₽","中转总额，₽","⇄",v("transitTotal"),"type='number' min='0' step='0.01'")}${unitAutoField("ueTransit","Транзит на 1 ед., ₽","单件中转，₽","÷")}${unitAutoField("ueCost","Себестоимость 1 ед., ₽","单件成本，₽","Σ")}</div></section>
           <section class="unit-section"><div class="unit-section-head"><div class="unit-section-icon sale">%</div><div><h4>${T("3. Цена и скидка","3. 价格与折扣")}</h4><p>${T("Формирование фактической цены продажи","计算实际销售价格")}</p></div></div><div class="unit-fields">${unitField("priceBefore","Цена до скидки, ₽","折扣前价格，₽","₽",v("priceBefore"),"type='number' min='0' step='0.01'")}${unitField("discount","Скидка, %","折扣，%","%",v("discount",0),"type='number' min='0' max='100' step='0.01'")}${unitAutoField("ueSale","Цена продажи, ₽","销售价，₽","◆")}</div></section>
           <section class="unit-section"><div class="unit-section-head"><div class="unit-section-icon market">WB</div><div><h4>${T("4. Расходы маркетплейса","4. 平台费用")}</h4><p>${T("Комиссия, логистика, хранение, реклама и налог","佣金、物流、仓储、广告与税费")}</p></div></div><div class="unit-fields">${unitField("commissionPct","Комиссия, %","佣金，%","%",v("commissionPct",25.5),"type='number' min='0' step='0.01'")}${unitAutoField("ueCommission","Комиссия, ₽","佣金，₽","₽")}${unitField("logistics","Логистика, ₽","物流，₽","↗",v("logistics"),"type='number' min='0' step='0.01'")}${unitField("storage","Хранение, ₽","仓储，₽","▤",v("storage"),"type='number' min='0' step='0.01'")}${unitField("ads","Расходы на рекламу, ₽","广告费用，₽","◎",v("ads"),"type='number' min='0' step='0.01'")}${unitField("taxPct","Налог (УСН 6% + 1%), %","税率（简税6% + 1%），%","%",v("taxPct",7),"type='number' min='0' step='0.01'")}</div></section>
@@ -4980,14 +4980,14 @@ function previewUnitEconomics(form){
   set("ueProfit",money(u.profit))
 }
 function saveUnitEconomics(e){
-  e.preventDefault();const ws=ensureWorkspaceData(),d=Object.fromEntries(new FormData(e.target).entries()),u={id:editingUnitId||id(),product:d.product.trim(),article:d.article.trim(),quantity:n(d.quantity),purchase:n(d.purchase),packaging:n(d.packaging),delivery:n(d.delivery),transitTotal:n(d.transitTotal),priceBefore:n(d.priceBefore),discount:n(d.discount),commissionPct:n(d.commissionPct),logistics:n(d.logistics),storage:n(d.storage),ads:n(d.ads),taxPct:n(d.taxPct)};
+  e.preventDefault();const ws=ensureWorkspaceData(),d=Object.fromEntries(new FormData(e.target).entries()),u={id:editingUnitId||id(),storeId:d.storeId||"",product:d.product.trim(),article:d.article.trim(),quantity:n(d.quantity),purchase:n(d.purchase),packaging:n(d.packaging),delivery:n(d.delivery),transitTotal:n(d.transitTotal),priceBefore:n(d.priceBefore),discount:n(d.discount),commissionPct:n(d.commissionPct),logistics:n(d.logistics),storage:n(d.storage),ads:n(d.ads),taxPct:n(d.taxPct)};
   if(editingUnitId){const i=ws.unitEconomics.findIndex(x=>x.id===editingUnitId);ws.unitEconomics[i]=u}else ws.unitEconomics.push(u);editingUnitId=null;saveWorkspace(ws);renderUnitEconomics();window.scrollTo({top:0,behavior:"smooth"})
 }
 function editUnitEconomics(uid){editingUnitId=uid;renderUnitEconomics();setTimeout(()=>document.getElementById("unitFormCard")?.scrollIntoView({behavior:"smooth"}),80)}
 function deleteUnitEconomics(uid){if(!confirm(T("Удалить расчёт этого товара?","删除此商品测算吗？")))return;const ws=ensureWorkspaceData();ws.unitEconomics=ws.unitEconomics.filter(x=>x.id!==uid);saveWorkspace(ws);renderUnitEconomics()}
 function unitStatus(u){return u.profit>0?[T("Прибыль","盈利"),""]:u.profit<0?[T("Убыток","亏损"),"loss"]:[T("Ноль","持平"),"zero"]}
 function unitEconomicsTable(rows){
-  return`<table><thead><tr class="group"><th colspan="3">▣ ${T("ТОВАР","商品")}</th><th colspan="6">₽ ${T("СЕБЕСТОИМОСТЬ","成本")}</th><th colspan="3">% ${T("ЦЕНА","价格")}</th><th colspan="7">WB ${T("РАСХОДЫ МАРКЕТПЛЕЙСА","平台费用")}</th><th colspan="4">✓ ${T("РЕЗУЛЬТАТ","结果")}</th><th rowspan="2"></th></tr><tr class="labels"><th>${T("Наименование","商品名称")}</th><th>${T("Артикул","货号")}</th><th>${T("Количество","数量")}</th><th>${T("Закупка","采购")}</th><th>${T("Упаковка","包装")}</th><th>${T("Доставка","配送")}</th><th>${T("Транзит общий","中转总额")}</th><th>${T("Транзит / ед.","单件中转")}</th><th>${T("Себестоимость","单件成本")}</th><th>${T("До скидки","折扣前")}</th><th>${T("Скидка","折扣")}</th><th>${T("Продажа","销售价")}</th><th>${T("Комиссия","佣金率")}</th><th>${T("Комиссия ₽","佣金₽")}</th><th>${T("Логистика","物流")}</th><th>${T("Хранение","仓储")}</th><th>${T("Реклама","广告")}</th><th>${T("Налог %","税率")}</th><th>${T("Налог ₽","税费₽")}</th><th>${T("Выплата","回款")}</th><th>${T("Прибыль","利润")}</th><th>${T("Маржа","毛利率")}</th><th>${T("Статус","状态")}</th></tr></thead><tbody>${rows.map(u=>{const st=unitStatus(u);return`<tr><td><b>${esc(u.product)}</b></td><td>${esc(u.article)}</td><td>${num(u.quantity)}</td><td>${money(u.purchase)}</td><td>${money(u.packaging)}</td><td>${money(u.delivery)}</td><td>${money(u.transitTotal)}</td><td>${money(u.transitPerUnit)}</td><td><b>${money(u.cost)}</b></td><td>${money(u.priceBefore)}</td><td>${num(u.discount)}%</td><td><b>${money(u.salePrice)}</b></td><td>${num(u.commissionPct)}%</td><td>${money(u.commissionRub)}</td><td>${money(u.logistics)}</td><td>${money(u.storage)}</td><td>${money(u.ads)}</td><td>${num(u.taxPct)}%</td><td>${money(u.taxRub)}</td><td>${money(u.payout)}</td><td class="${u.profit>=0?"good":"bad"}"><b>${money(u.profit)}</b></td><td class="${u.margin>=0?"good":"bad"}"><b>${num(u.margin)}%</b></td><td><span class="unit-profit-pill ${st[1]}">${st[0]}</span></td><td><div class="unit-actions"><button class="btn small" onclick="editUnitEconomics('${u.id}')">${T("Изм.","修改")}</button><button class="btn small danger" onclick="deleteUnitEconomics('${u.id}')">${T("Удал.","删除")}</button></div></td></tr>`}).join("")}</tbody></table>`
+  return`<table><thead><tr class="group"><th colspan="4">▣ ${T("ТОВАР","商品")}</th><th colspan="6">₽ ${T("СЕБЕСТОИМОСТЬ","成本")}</th><th colspan="3">% ${T("ЦЕНА","价格")}</th><th colspan="7">WB ${T("РАСХОДЫ МАРКЕТПЛЕЙСА","平台费用")}</th><th colspan="4">✓ ${T("РЕЗУЛЬТАТ","结果")}</th><th rowspan="2"></th></tr><tr class="labels"><th>${T("Магазин","店铺")}</th><th>${T("Наименование","商品名称")}</th><th>${T("Артикул","货号")}</th><th>${T("Количество","数量")}</th><th>${T("Закупка","采购")}</th><th>${T("Упаковка","包装")}</th><th>${T("Доставка","配送")}</th><th>${T("Транзит общий","中转总额")}</th><th>${T("Транзит / ед.","单件中转")}</th><th>${T("Себестоимость","单件成本")}</th><th>${T("До скидки","折扣前")}</th><th>${T("Скидка","折扣")}</th><th>${T("Продажа","销售价")}</th><th>${T("Комиссия","佣金率")}</th><th>${T("Комиссия ₽","佣金₽")}</th><th>${T("Логистика","物流")}</th><th>${T("Хранение","仓储")}</th><th>${T("Реклама","广告")}</th><th>${T("Налог %","税率")}</th><th>${T("Налог ₽","税费₽")}</th><th>${T("Выплата","回款")}</th><th>${T("Прибыль","利润")}</th><th>${T("Маржа","毛利率")}</th><th>${T("Статус","状态")}</th></tr></thead><tbody>${rows.map(u=>{const st=unitStatus(u),store=(getWorkspace()?.stores||[]).find(s=>String(s.id)===String(u.storeId));return`<tr><td><b>${esc(store?.name||T("Без магазина","未分配店铺"))}</b></td><td><b>${esc(u.product)}</b></td><td>${esc(u.article)}</td><td>${num(u.quantity)}</td><td>${money(u.purchase)}</td><td>${money(u.packaging)}</td><td>${money(u.delivery)}</td><td>${money(u.transitTotal)}</td><td>${money(u.transitPerUnit)}</td><td><b>${money(u.cost)}</b></td><td>${money(u.priceBefore)}</td><td>${num(u.discount)}%</td><td><b>${money(u.salePrice)}</b></td><td>${num(u.commissionPct)}%</td><td>${money(u.commissionRub)}</td><td>${money(u.logistics)}</td><td>${money(u.storage)}</td><td>${money(u.ads)}</td><td>${num(u.taxPct)}%</td><td>${money(u.taxRub)}</td><td>${money(u.payout)}</td><td class="${u.profit>=0?"good":"bad"}"><b>${money(u.profit)}</b></td><td class="${u.margin>=0?"good":"bad"}"><b>${num(u.margin)}%</b></td><td><span class="unit-profit-pill ${st[1]}">${st[0]}</span></td><td><div class="unit-actions"><button class="btn small" onclick="editUnitEconomics('${u.id}')">${T("Изм.","修改")}</button><button class="btn small danger" onclick="deleteUnitEconomics('${u.id}')">${T("Удал.","删除")}</button></div></td></tr>`}).join("")}</tbody></table>`
 }
 function exportUnitEconomicsCSV(){
   const rows=ensureWorkspaceData().unitEconomics.map(calcUnitEconomics);const data=[[T("Наименование товара","商品名称"),T("Артикул","货号"),T("Количество, шт","数量"),T("Закупка 1 ед., ₽","单件采购"),T("Упаковка 1 ед., ₽","单件包装"),T("Доставка 1 ед., ₽","单件配送"),T("Транзит общий, ₽","中转总额"),T("Транзит на 1 ед., ₽","单件中转"),T("Себестоимость 1 ед., ₽","单件成本"),T("Цена до скидки, ₽","折扣前价格"),T("Скидка, %","折扣"),T("Цена продажи, ₽","销售价"),T("Комиссия, %","佣金率"),T("Комиссия, ₽","佣金"),T("Логистика, ₽","物流"),T("Хранение, ₽","仓储"),T("Расходы на рекламу, ₽","广告费用"),T("Налог, %","税率"),T("Налог, ₽","税费"),T("Выплата на р/с, ₽","账户回款"),T("Прибыль с единицы, ₽","单件利润"),T("Маржинальность, %","毛利率")],...rows.map(u=>[u.product,u.article,u.quantity,u.purchase,u.packaging,u.delivery,u.transitTotal,u.transitPerUnit,u.cost,u.priceBefore,u.discount,u.salePrice,u.commissionPct,u.commissionRub,u.logistics,u.storage,u.ads,u.taxPct,u.taxRub,u.payout,u.profit,u.margin])];downloadCSV("unit_economics.csv",data)
@@ -6306,7 +6306,7 @@ function currentSectionSheets(){
   if(currentPage==="fulfillment")return [{name:"Фулфилмент Абдурахим",rows:fulfillmentExcelRows()}];
   if(currentPage==="purchases")return [{name:"Закупки",rows:ws.purchases||[]}];
   if(currentPage==="installments")return [{name:"Рассрочка",rows:ws.installments||[]}];
-  if(currentPage==="unitEconomics")return [{name:"Юнит экономика",rows:ws.unitEconomics||[]}];
+  if(currentPage==="unitEconomics")return [{name:"Юнит экономика",rows:filterRows("unitEconomics",ws.unitEconomics||[])}];
   if(currentPage==="investments")return [{name:"Инвестиции",rows:ws.investments||[]}];
   if(currentPage==="loans")return [{name:"Займы",rows:(ws.issuedLoans||[]).map(calcIssuedLoan)}];
   if(currentPage==="profitAnalytics")return [{name:"Аналитика прибыли",rows:profitAnalyticsExcelRows(ws.profitEntries||[],ws)}];
@@ -6502,6 +6502,7 @@ window.addEventListener("DOMContentLoaded",boot);
     purchases:renderPurchases,
     fulfillment:renderFulfillment,
     installments:renderInstallments,
+    unitEconomics:renderUnitEconomics,
     investments:renderInvestments,
     loans:renderIssuedLoans,
     ai:renderAIAnalyst,
@@ -6521,6 +6522,7 @@ window.addEventListener("DOMContentLoaded",boot);
     purchases:{dataKey:"purchases",general:true,scopeStores:true},
     fulfillment:{dataKey:"fulfillment",general:true,scopeStores:true},
     installments:{dataKey:"installments",general:true,scopeStores:true},
+    unitEconomics:{dataKey:"unitEconomics",general:false,scopeStores:true},
     investments:{dataKey:"investments",general:false,scopeStores:true},
     loans:{dataKey:"issuedLoans",general:true,scopeStores:true},
     ai:{general:false,scopeStores:true},
@@ -6531,7 +6533,7 @@ window.addEventListener("DOMContentLoaded",boot);
   };
 
   window.sectionStoreFilters=window.sectionStoreFilters||{
-    purchases:"all",fulfillment:"all",installments:"all",investments:"all",
+    purchases:"all",fulfillment:"all",installments:"all",unitEconomics:"all",investments:"all",
     loans:"all",ai:"all",profitAnalytics:"all",profit:"all",documents:"all",finance:"all"
   };
 
@@ -6648,6 +6650,7 @@ window.addEventListener("DOMContentLoaded",boot);
   renderPurchases=()=>renderScoped("purchases");
   renderFulfillment=()=>renderScoped("fulfillment");
   renderInstallments=()=>renderScoped("installments");
+  renderUnitEconomics=()=>renderScoped("unitEconomics");
   renderInvestments=()=>renderScoped("investments");
   renderIssuedLoans=()=>renderScoped("loans");
   renderAIAnalyst=()=>renderScoped("ai");
@@ -11399,6 +11402,1241 @@ body.sc-dashboard-active .topbar .sub{color:#1A2746!important}
 .profit-store-group .profit-summary .summary:nth-child(5) span{color:#9B3C57!important}
 .profit-store-group .profit-summary .summary:nth-child(5) strong{color:#6F1831!important}
 .profit-store-group .profit-summary .summary:nth-child(5) small{color:#9B5368!important}
+</style>
+
+
+<script id="seller-control-purchase-draft-never-lost-v1">
+(function(){
+  /* Strong purchase draft persistence: a typed draft survives section changes,
+     re-renders, tab switches and reloads until the user saves/clears it. */
+  function purchaseForm(){
+    return document.querySelector('#pageRoot form[onsubmit*="savePurchase"]');
+  }
+  function strongCapturePurchaseDraft(){
+    const form=purchaseForm();
+    if(!form) return;
+    try{
+      const draft={
+        editingId:(typeof editingPurchaseId!=="undefined"&&editingPurchaseId)||null,
+        values:Object.fromEntries(new FormData(form).entries()),
+        savedAt:new Date().toISOString()
+      };
+      if(typeof writePurchaseDraftLocal==="function") writePurchaseDraftLocal(draft);
+      const ws=typeof ensureWorkspaceData==="function"?ensureWorkspaceData():null;
+      if(ws){
+        ws.purchaseDraft=draft;
+        if(typeof saveWorkspace==="function") saveWorkspace(ws);
+      }
+      const status=document.getElementById("purchaseDraftStatus");
+      if(status) status.textContent="✓ "+(typeof T==="function"?T("Черновик сохранён автоматически","草稿已自动保存"):"Черновик сохранён автоматически");
+    }catch(err){console.warn("Purchase draft save:",err)}
+  }
+
+  /* Replace the older capture with a version that does not depend on currentPage. */
+  window.capturePurchaseDraftNow=strongCapturePurchaseDraft;
+  try{capturePurchaseDraftNow=strongCapturePurchaseDraft}catch(e){}
+
+  /* Save on every input/change, even if inline handlers are lost after a later UI edit. */
+  document.addEventListener("input",function(e){
+    const f=e.target&&e.target.closest?e.target.closest('form[onsubmit*="savePurchase"]'):null;
+    if(f) strongCapturePurchaseDraft();
+  },true);
+  document.addEventListener("change",function(e){
+    const f=e.target&&e.target.closest?e.target.closest('form[onsubmit*="savePurchase"]'):null;
+    if(f) strongCapturePurchaseDraft();
+  },true);
+
+  /* Capture before any navigation can destroy the form DOM. */
+  const previousGo=window.go;
+  if(typeof previousGo==="function"){
+    const wrappedGo=function(page,storeId=null){
+      strongCapturePurchaseDraft();
+      return previousGo.call(this,page,storeId);
+    };
+    window.go=wrappedGo;
+    try{go=wrappedGo}catch(e){}
+  }
+
+  /* Also protect re-renders that happen without normal sidebar navigation. */
+  const previousRenderApp=window.renderApp;
+  if(typeof previousRenderApp==="function"){
+    const wrappedRenderApp=function(){
+      strongCapturePurchaseDraft();
+      return previousRenderApp.apply(this,arguments);
+    };
+    window.renderApp=wrappedRenderApp;
+    try{renderApp=wrappedRenderApp}catch(e){}
+  }
+
+  document.addEventListener("visibilitychange",()=>{if(document.hidden)strongCapturePurchaseDraft()});
+  window.addEventListener("pagehide",strongCapturePurchaseDraft);
+  window.addEventListener("beforeunload",strongCapturePurchaseDraft);
+  window.addEventListener("blur",strongCapturePurchaseDraft);
+})();
+</script>
+
+
+<script id="seller-control-purchase-form-persistent-v2">
+(function(){
+  const PREFIX="seller_control_purchase_form_forever_v2_";
+  function uid(){
+    try{
+      const s=typeof getSession==="function"?getSession():null;
+      const u=typeof getCurrentUser==="function"?getCurrentUser():null;
+      return String(s?.userId||u?.id||"guest");
+    }catch(e){return "guest"}
+  }
+  function key(){return PREFIX+uid()}
+  function form(){return document.querySelector('#pageRoot form[onsubmit*="savePurchase"]')}
+  function read(){
+    try{const x=JSON.parse(localStorage.getItem(key())||"null");return x&&typeof x==="object"?x:null}catch(e){return null}
+  }
+  function write(x){try{localStorage.setItem(key(),JSON.stringify(x))}catch(e){}}
+  function clear(){try{localStorage.removeItem(key())}catch(e){}}
+  function collect(f=form()){
+    if(!f)return null;
+    const values={};
+    f.querySelectorAll('input[name],select[name],textarea[name]').forEach(el=>{values[el.name]=el.value});
+    return {editingId:(typeof editingPurchaseId!=="undefined"&&editingPurchaseId)||null,values,savedAt:Date.now()};
+  }
+  function saveNow(){
+    const d=collect();if(!d)return;
+    write(d);
+    /* Keep the old workspace draft too, but the dedicated key above is the source of truth. */
+    try{
+      if(typeof writePurchaseDraftLocal==="function")writePurchaseDraftLocal({editingId:d.editingId,values:d.values,savedAt:new Date(d.savedAt).toISOString()});
+    }catch(e){}
+    const st=document.getElementById("purchaseDraftStatus");
+    if(st)st.textContent="✓ "+(typeof T==="function"?T("Всё сохранено автоматически","全部内容已自动保存"):"Всё сохранено автоматически");
+  }
+  function restore(){
+    if(typeof currentPage!=="undefined"&&currentPage!=="purchases")return;
+    const f=form(),d=read();if(!f||!d?.values)return;
+    /* If a saved edit draft exists, restore its edit mode too. */
+    if(d.editingId && typeof editingPurchaseId!=="undefined" && !editingPurchaseId){
+      try{
+        const ws=typeof ensureWorkspaceData==="function"?ensureWorkspaceData():null;
+        if(ws?.purchases?.some(x=>x.id===d.editingId))editingPurchaseId=d.editingId;
+      }catch(e){}
+    }
+    Object.entries(d.values).forEach(([name,val])=>{
+      const el=f.elements?.namedItem(name);if(!el)return;
+      if(el instanceof RadioNodeList){return}
+      el.value=val??"";
+    });
+    try{if(typeof previewPurchase==="function")previewPurchase(f)}catch(e){}
+    const st=document.getElementById("purchaseDraftStatus");
+    if(st)st.textContent="✓ "+(typeof T==="function"?T("Данные восстановлены · автосохранение","数据已恢复 · 自动保存"):"Данные восстановлены · автосохранение");
+  }
+
+  window.sellerControlClearPurchasePersistentDraft=function(){
+    clear();
+    try{if(typeof clearPurchaseDraft==="function")clearPurchaseDraft()}catch(e){}
+    if(typeof editingPurchaseId!=="undefined")editingPurchaseId=null;
+    if(typeof renderPurchases==="function")renderPurchases();
+  };
+
+  /* Capture every typed character independently from render/sync logic. */
+  document.addEventListener("input",e=>{if(e.target?.closest?.('form[onsubmit*="savePurchase"]'))saveNow()},true);
+  document.addEventListener("change",e=>{if(e.target?.closest?.('form[onsubmit*="savePurchase"]'))saveNow()},true);
+
+  /* Capture before section navigation destroys the form. */
+  const oldGo=typeof go==="function"?go:null;
+  if(oldGo){
+    const g=function(){saveNow();return oldGo.apply(this,arguments)};
+    try{go=g}catch(e){};window.go=g;
+  }
+  const oldRenderApp=typeof renderApp==="function"?renderApp:null;
+  if(oldRenderApp){
+    const r=function(){saveNow();const z=oldRenderApp.apply(this,arguments);setTimeout(restore,0);return z};
+    try{renderApp=r}catch(e){};window.renderApp=r;
+  }
+
+  /* Restore only AFTER the final scoped purchases renderer + store filter has finished. */
+  const oldRenderPurchases=typeof renderPurchases==="function"?renderPurchases:null;
+  if(oldRenderPurchases){
+    const rp=function(){const z=oldRenderPurchases.apply(this,arguments);requestAnimationFrame(()=>requestAnimationFrame(restore));return z};
+    try{renderPurchases=rp}catch(e){};window.renderPurchases=rp;
+  }
+
+  /* Clear persistent draft only after a real Save. */
+  const oldSavePurchase=typeof savePurchase==="function"?savePurchase:null;
+  if(oldSavePurchase){
+    const sp=function(e){
+      const f=e?.target;const store=f?.elements?.namedItem("storeId")?.value||"";
+      const product=f?.elements?.namedItem("product")?.value||"";
+      const date=f?.elements?.namedItem("date")?.value||"";
+      const valid=!!(store&&product&&date);
+      const z=oldSavePurchase.apply(this,arguments);
+      if(valid){clear();try{clearPurchaseDraftLocal?.()}catch(err){}}
+      return z;
+    };
+    try{savePurchase=sp}catch(e){};window.savePurchase=sp;
+  }
+
+  /* If the user explicitly cancels an edit, that is an intentional clear. */
+  const oldCancel=typeof cancelPurchaseEdit==="function"?cancelPurchaseEdit:null;
+  if(oldCancel){
+    const cp=function(){clear();return oldCancel.apply(this,arguments)};
+    try{cancelPurchaseEdit=cp}catch(e){};window.cancelPurchaseEdit=cp;
+  }
+
+  /* Add an explicit clear button so draft disappears only by user action. */
+  function addClearButton(){
+    if(typeof currentPage!=="undefined"&&currentPage!=="purchases")return;
+    const f=form();if(!f)return;
+    const actions=f.querySelector(".form-actions");if(!actions||actions.querySelector(".purchase-draft-clear-btn"))return;
+    const b=document.createElement("button");
+    b.type="button";b.className="btn danger purchase-draft-clear-btn";
+    b.textContent=typeof T==="function"?T("Очистить черновик","清空草稿"):"Очистить черновик";
+    b.onclick=()=>{
+      if(!confirm(typeof T==="function"?T("Очистить все введённые поля?","清空所有已填写内容？"):"Очистить все введённые поля?"))return;
+      window.sellerControlClearPurchasePersistentDraft();
+    };
+    actions.appendChild(b);
+  }
+  const mo=new MutationObserver(()=>{if(typeof currentPage==="undefined"||currentPage==="purchases"){restore();addClearButton()}});
+  const root=document.getElementById("pageRoot");if(root)mo.observe(root,{childList:true,subtree:true});
+  window.addEventListener("blur",saveNow);
+  window.addEventListener("pagehide",saveNow);
+  window.addEventListener("beforeunload",saveNow);
+  document.addEventListener("visibilitychange",()=>{if(document.hidden)saveNow();else setTimeout(restore,0)});
+  setTimeout(()=>{restore();addClearButton()},0);
+})();
+</script>
+
+
+<script id="seller-control-global-form-persistence-v6">
+(()=>{
+  const PREFIX="seller_control_form_state_v6_";
+  let restoring=false, restoreTimer=null;
+
+  function uid(){
+    try{return String((typeof currentUserId!=="undefined"&&currentUserId)||getSession?.()?.userId||"guest")}catch(e){return "guest"}
+  }
+  function page(){try{return String(typeof currentPage!=="undefined"?currentPage:"unknown")}catch(e){return "unknown"}}
+  function store(){try{return String((typeof currentStoreId!=="undefined"&&currentStoreId)||"all")}catch(e){return "all"}}
+  function key(){return `${PREFIX}${uid()}_${page()}_${store()}`}
+  function root(){return document.getElementById("pageRoot")}
+  function cssEsc(v){try{return CSS.escape(String(v))}catch(e){return String(v).replace(/["\\]/g,"\\$&")}}
+  function isEligible(el){
+    if(!el||!el.matches)return false;
+    if(el.matches('[contenteditable="true"]'))return true;
+    if(!el.matches("input,select,textarea"))return false;
+    const t=String(el.type||"").toLowerCase();
+    return !el.disabled && !["button","submit","reset","file","password","hidden"].includes(t);
+  }
+  function fields(r=root()){return r?[...r.querySelectorAll('input,select,textarea,[contenteditable="true"]')].filter(isEligible):[]}
+  function snapshot(){
+    const r=root();if(!r)return null;
+    const all=fields(r);if(!all.length)return null;
+    const nameSeen={};
+    return {
+      version:6,
+      page:page(),store:store(),savedAt:new Date().toISOString(),
+      fields:all.map((el,index)=>{
+        const name=el.getAttribute("name")||"";
+        const nameIndex=name?(nameSeen[name]||0):0;if(name)nameSeen[name]=nameIndex+1;
+        const content=el.matches?.('[contenteditable="true"]');
+        const t=String(el.type||el.tagName||"").toLowerCase();
+        return {id:el.id||"",name,nameIndex,index,type:t,content,value:content?el.textContent:((t==="checkbox"||t==="radio")?!!el.checked:el.value)};
+      })
+    };
+  }
+  function saveNow(){
+    if(restoring)return;
+    const data=snapshot();if(!data)return;
+    try{localStorage.setItem(key(),JSON.stringify(data))}catch(e){}
+  }
+  function read(k=key()){
+    try{const d=JSON.parse(localStorage.getItem(k)||"null");return d&&Array.isArray(d.fields)?d:null}catch(e){return null}
+  }
+  function locate(item,all,r){
+    if(item.id){const byId=r.querySelector(`#${cssEsc(item.id)}`);if(byId&&isEligible(byId))return byId}
+    if(item.name){const same=[...r.querySelectorAll(`[name="${cssEsc(item.name)}"]`)].filter(isEligible);if(same[item.nameIndex])return same[item.nameIndex]}
+    const el=all[item.index];return el&&isEligible(el)?el:null;
+  }
+  function refreshPreview(){
+    try{
+      const p=page();
+      if(p==="purchases"){const f=root()?.querySelector('form[onsubmit*="savePurchase"]');if(f&&typeof previewPurchase==="function")previewPurchase(f)}
+      else if(p==="fulfillment"&&typeof previewFulfillment==="function")previewFulfillment();
+      else if(p==="unitEconomics"){const f=document.getElementById("unitEconomicsForm");if(f&&typeof previewUnitEconomics==="function")previewUnitEconomics(f)}
+      else if(p==="investments"){const f=root()?.querySelector('form[onsubmit*="saveInvestment"]');if(f&&typeof previewInvestment==="function")previewInvestment(f)}
+      else if(p==="profit"&&typeof previewProfitCalc==="function")previewProfitCalc();
+      else if(p==="finance"&&typeof previewFinanceBalance==="function")previewFinanceBalance();
+      else if(p==="store"){const f=root()?.querySelector('form[onsubmit*="saveReport"]');if(f&&typeof previewReport==="function")previewReport(f)}
+      else if((p==="fbsAbdurahim"||p==="fbs")&&typeof previewFbsAb==="function")previewFbsAb();
+    }catch(e){}
+  }
+  function restoreNow(){
+    const d=read();if(!d)return false;
+    const r=root();if(!r)return false;
+    const all=fields(r);if(!all.length)return false;
+    restoring=true;
+    try{
+      d.fields.forEach(item=>{
+        const el=locate(item,all,r);if(!el)return;
+        if(item.content)el.textContent=item.value??"";
+        else if(el.type==="checkbox"||el.type==="radio")el.checked=!!item.value;
+        else el.value=item.value??"";
+      });
+    }finally{restoring=false}
+    refreshPreview();
+    return true;
+  }
+  function scheduleRestore(){
+    clearTimeout(restoreTimer);
+    restoreTimer=setTimeout(()=>requestAnimationFrame(()=>requestAnimationFrame(restoreNow)),35);
+  }
+  function clearKey(k=key()){try{localStorage.removeItem(k)}catch(e){}}
+
+  /* Remove only obsolete session-only drafts so they cannot overwrite the durable copy. */
+  try{
+    const gone=[];for(let i=0;i<sessionStorage.length;i++){const k=sessionStorage.key(i)||"";if(k.startsWith("seller_control_draft_"))gone.push(k)}gone.forEach(k=>sessionStorage.removeItem(k));
+  }catch(e){}
+
+  /* Every typed character/change is written immediately to durable localStorage. */
+  document.addEventListener("input",e=>{if(e.target?.closest?.("#pageRoot")&&isEligible(e.target))saveNow()},true);
+  document.addEventListener("change",e=>{if(e.target?.closest?.("#pageRoot")&&isEligible(e.target))saveNow()},true);
+
+  /* Save BEFORE sidebar/page navigation destroys the current form. */
+  document.addEventListener("click",e=>{
+    const nav=e.target?.closest?.('.sidebar button');
+    if(nav)saveNow();
+  },true);
+
+  /* A valid form submit is an intentional Save: keep until submit, then clear that page draft. */
+  document.addEventListener("submit",e=>{
+    if(!e.target?.closest?.("#pageRoot"))return;
+    saveNow();const k=key();
+    setTimeout(()=>clearKey(k),0);
+  },true);
+
+  /* Persist when user leaves browser/tab/window, and restore on return. */
+  window.addEventListener("blur",saveNow,true);
+  window.addEventListener("pagehide",saveNow,true);
+  window.addEventListener("beforeunload",saveNow,true);
+  document.addEventListener("visibilitychange",()=>{if(document.hidden)saveNow();else scheduleRestore()});
+  window.addEventListener("focus",scheduleRestore,true);
+
+  /* Any innerHTML re-render gets the saved values back automatically. */
+  function observe(){
+    const r=root();if(!r)return;
+    if(r.dataset.globalDraftObserved==="1")return;
+    r.dataset.globalDraftObserved="1";
+    new MutationObserver(()=>{if(!restoring)scheduleRestore()}).observe(r,{childList:true,subtree:true});
+  }
+  const bodyObserver=new MutationObserver(()=>{observe();scheduleRestore()});
+  bodyObserver.observe(document.body,{childList:true,subtree:true});
+  observe();scheduleRestore();
+
+  /* Public helpers for diagnostics / explicit clear if ever needed. */
+  window.SellerControlDraft={save:saveNow,restore:restoreNow,clear:()=>clearKey(),key};
+})();
+</script>
+<style id="unit-economics-store-filter-style">
+.unit-field select{width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px 11px;outline:none;font:inherit}
+.unit-field select:focus{border-color:rgba(17,36,203,.55);box-shadow:0 0 0 4px rgba(17,36,203,.08)}
+#pageRoot[data-page="unitEconomics"] .store-report-filter .field label{color:#111827!important}
+#pageRoot[data-page="unitEconomics"] .store-report-filter select{background:linear-gradient(145deg,#1B315E,#21497A 60%,#226E6C)!important;color:#fff!important}
+#pageRoot[data-page="unitEconomics"] .store-report-filter select option{background:#183259!important;color:#fff!important}
+#pageRoot[data-page="unitEconomics"] .store-report-current{background:#fff!important;color:#111827!important}
+</style>
+
+
+<style id="seller-control-unified-premium-background-v1">
+/* === Unified premium visual system for all app sections === */
+body,
+.app-shell,
+.main{
+  background:
+    radial-gradient(circle at 12% 0%,rgba(65,96,173,.08),transparent 28%),
+    radial-gradient(circle at 88% 4%,rgba(38,139,125,.07),transparent 26%),
+    linear-gradient(180deg,#EAF0F8 0%,#E4ECF6 52%,#E8EFF7 100%)!important;
+}
+.content{
+  background:transparent!important;
+}
+#pageRoot{
+  position:relative;
+  min-height:calc(100vh - 130px);
+}
+
+/* Main section surfaces — one consistent tone */
+#pageRoot .card:not(.hero):not(.module-hero):not(.unit-hero):not(.real-wb-dashboard-card):not(.real-wb-monthly-card):not(.profit-money-motivation),
+#pageRoot .panel,
+#pageRoot .form-card,
+#pageRoot .chart-card,
+#pageRoot .expense-card,
+#pageRoot .setting-card,
+#pageRoot .table-card,
+#pageRoot .summary,
+#pageRoot .kpi,
+#pageRoot .unit-kpi,
+#pageRoot .insight,
+#pageRoot .store-card{
+  background:
+    radial-gradient(circle at 96% 0%,rgba(84,120,186,.055),transparent 29%),
+    linear-gradient(145deg,#F7FAFE 0%,#F0F5FB 56%,#EDF4F9 100%)!important;
+  border:1px solid #D2DEEB!important;
+  box-shadow:0 14px 34px rgba(25,48,92,.085)!important;
+}
+
+/* Sections feel separated without harsh white blocks */
+#pageRoot .section{
+  border-radius:22px;
+}
+#pageRoot .section-title h3,
+#pageRoot h2,
+#pageRoot h3{
+  color:#16284B;
+}
+#pageRoot .section-title p,
+#pageRoot .muted{
+  color:#64748B;
+}
+
+/* Inputs use the same premium family and stay readable */
+#pageRoot .field input,
+#pageRoot .field select,
+#pageRoot textarea,
+#pageRoot input,
+#pageRoot select{
+  background:#F9FBFE!important;
+  border-color:#CCD9E8!important;
+  color:#17233F!important;
+}
+#pageRoot .field input:focus,
+#pageRoot .field select:focus,
+#pageRoot textarea:focus{
+  border-color:#5577B8!important;
+  box-shadow:0 0 0 4px rgba(63,95,166,.10)!important;
+}
+
+/* Table headers and rows consistent with the new background */
+#pageRoot th{
+  background:linear-gradient(180deg,#E9F0F8,#E2EBF5)!important;
+  color:#35445F!important;
+  border-bottom-color:#CDD9E7!important;
+}
+#pageRoot td{
+  border-bottom-color:#DCE5EF!important;
+}
+#pageRoot tbody tr:hover{
+  background:#EDF4FA!important;
+}
+
+/* Filters and report bars harmonized */
+#pageRoot .periodbar,
+#pageRoot .store-report-filter,
+#pageRoot .dashboard-store-filter,
+#pageRoot .calendar-period,
+#pageRoot .gr-filter{
+  background:
+    radial-gradient(circle at 95% 10%,rgba(62,104,174,.07),transparent 30%),
+    linear-gradient(145deg,#F4F8FD,#ECF3F9)!important;
+  border:1px solid #D0DDEA!important;
+  box-shadow:0 12px 30px rgba(28,51,94,.08)!important;
+}
+
+/* Preserve strong contrast in store selectors */
+#pageRoot .store-report-filter select,
+#pageRoot .dashboard-store-filter select{
+  background:linear-gradient(145deg,#1C315B,#214E79 62%,#236B69)!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.18)!important;
+}
+#pageRoot .store-report-filter select option,
+#pageRoot .dashboard-store-filter select option{
+  background:#193456!important;
+  color:#fff!important;
+}
+#pageRoot .store-report-current,
+#pageRoot .dashboard-store-filter-current{
+  background:#fff!important;
+  color:#111827!important;
+  border:1px solid #CDD8E5!important;
+}
+
+/* Small metric/preview blocks — same family */
+#pageRoot .metric,
+#pageRoot .preview,
+#pageRoot .calc-preview,
+#pageRoot .summary-panel,
+#pageRoot .module-note,
+#pageRoot .partner-total{
+  background:linear-gradient(145deg,#F5F9FD,#EDF4F9)!important;
+  border-color:#D4E0EC!important;
+}
+
+/* Responsive polish */
+@media(max-width:760px){
+  #pageRoot .card:not(.hero):not(.module-hero):not(.unit-hero),
+  #pageRoot .panel,
+  #pageRoot .form-card,
+  #pageRoot .chart-card,
+  #pageRoot .table-card{
+    box-shadow:0 10px 24px rgba(25,48,92,.075)!important;
+  }
+}
+</style>
+<style id="seller-control-full-site-white-black-unified-v1">
+/* FULL CONTENT SYSTEM: one permanent white background + black text across every section */
+html,body,.main,.content,#pageRoot{
+  background:#FFFFFF!important;
+  color:#111111!important;
+}
+.topbar{
+  background:#FFFFFF!important;
+  color:#111111!important;
+  border-bottom:1px solid #D9D9D9!important;
+}
+.topbar h1,.topbar h2,.topbar h3,.topbar .sub{color:#111111!important}
+
+/* All content cards / sections / panels */
+#pageRoot .card,
+#pageRoot .panel,
+#pageRoot .form-card,
+#pageRoot .chart-card,
+#pageRoot .expense-card,
+#pageRoot .store-card,
+#pageRoot .kpi,
+#pageRoot .summary,
+#pageRoot .setting-card,
+#pageRoot .table-card,
+#pageRoot .module-hero,
+#pageRoot .unit-hero,
+#pageRoot .real-wb-guide,
+#pageRoot .real-wb-dashboard-card,
+#pageRoot .real-wb-monthly-card,
+#pageRoot .dashviz-card,
+#pageRoot .profit-money-motivation,
+#pageRoot .store-report-filter,
+#pageRoot .dashboard-store-filter,
+#pageRoot .calendar-period,
+#pageRoot .periodbar,
+#pageRoot .calc-preview,
+#pageRoot .preview,
+#pageRoot .module-note,
+#pageRoot .notice,
+#pageRoot .metric,
+#pageRoot .insight,
+#pageRoot .alert,
+#pageRoot .auto-pill,
+#pageRoot [class*="card"],
+#pageRoot [class*="panel"]{
+  background:#FFFFFF!important;
+  background-image:none!important;
+  color:#111111!important;
+  border-color:#D9D9D9!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.06)!important;
+}
+
+/* Force all normal text in content to black */
+#pageRoot h1,#pageRoot h2,#pageRoot h3,#pageRoot h4,#pageRoot h5,#pageRoot h6,
+#pageRoot p,#pageRoot span,#pageRoot strong,#pageRoot b,#pageRoot small,#pageRoot label,
+#pageRoot div,#pageRoot td,#pageRoot th,#pageRoot li,#pageRoot summary,#pageRoot .muted,
+#pageRoot .good,#pageRoot .bad,#pageRoot .warn,#pageRoot .hint,#pageRoot .sub,
+#pageRoot .section-title h3,#pageRoot .section-title p{
+  color:#111111!important;
+}
+
+/* Forms: permanently white with black text */
+#pageRoot input,
+#pageRoot select,
+#pageRoot textarea,
+#pageRoot option{
+  background:#FFFFFF!important;
+  background-image:none!important;
+  color:#111111!important;
+  border:1px solid #BFC3C9!important;
+  box-shadow:none!important;
+  -webkit-text-fill-color:#111111!important;
+}
+#pageRoot input::placeholder,#pageRoot textarea::placeholder{color:#666666!important;opacity:1!important}
+#pageRoot input:focus,#pageRoot select:focus,#pageRoot textarea:focus{
+  background:#FFFFFF!important;
+  color:#111111!important;
+  border-color:#111111!important;
+  box-shadow:0 0 0 2px rgba(0,0,0,.08)!important;
+}
+
+/* Every store filter + selected store result */
+#pageRoot .store-report-filter,
+#pageRoot .dashboard-store-filter,
+#pageRoot [data-store-report-filter],
+#pageRoot [data-dashboard-store-filter]{
+  background:#FFFFFF!important;
+  color:#111111!important;
+  border:1px solid #D9D9D9!important;
+}
+#pageRoot .store-report-filter select,
+#pageRoot .dashboard-store-filter select,
+#pageRoot [data-store-report-filter] select,
+#pageRoot [data-dashboard-store-filter] select,
+#pageRoot #dashboardStoreSelect,
+#pageRoot [id^="storeReportSelect_"]{
+  background:#FFFFFF!important;
+  color:#111111!important;
+  border:1px solid #BFC3C9!important;
+  -webkit-text-fill-color:#111111!important;
+}
+#pageRoot .store-report-current,
+#pageRoot .dashboard-store-filter-current,
+#pageRoot [class*="store-pill"],
+#pageRoot [class*="store-current"]{
+  background:#FFFFFF!important;
+  color:#111111!important;
+  border:1px solid #BFC3C9!important;
+  box-shadow:none!important;
+}
+
+/* Buttons in content: same visual system, no surprise color changes */
+#pageRoot .btn,
+#pageRoot button,
+#pageRoot .btn.primary,
+#pageRoot .btn.shop,
+#pageRoot .btn.danger,
+#pageRoot .btn.white{
+  background:#FFFFFF!important;
+  background-image:none!important;
+  color:#111111!important;
+  border:1px solid #BFC3C9!important;
+  box-shadow:none!important;
+}
+#pageRoot .btn:hover,#pageRoot button:hover{
+  background:#F5F5F5!important;
+  color:#111111!important;
+  border-color:#9EA3AA!important;
+}
+
+/* Tables */
+#pageRoot table,#pageRoot thead,#pageRoot tbody,#pageRoot tr,#pageRoot td,#pageRoot th{
+  background:#FFFFFF!important;
+  color:#111111!important;
+}
+#pageRoot th{
+  background:#F5F5F5!important;
+  color:#111111!important;
+  border-color:#D9D9D9!important;
+}
+#pageRoot td{border-color:#E5E5E5!important}
+#pageRoot tbody tr:hover{background:#FAFAFA!important}
+
+/* Progress/bars: neutral, keeping readability without colored section backgrounds */
+#pageRoot .bar,#pageRoot .progress,#pageRoot [class*="progress"]{
+  background:#EFEFEF!important;
+  color:#111111!important;
+}
+
+/* Remove decorative colored overlays inside content */
+#pageRoot .card:before,#pageRoot .card:after,
+#pageRoot .panel:before,#pageRoot .panel:after,
+#pageRoot .module-hero:before,#pageRoot .module-hero:after,
+#pageRoot .unit-hero:before,#pageRoot .unit-hero:after,
+#pageRoot .profit-money-motivation:before,#pageRoot .profit-money-motivation:after{
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+/* Keep canvas itself untouched; its surrounding card stays white */
+#pageRoot canvas{background:#FFFFFF!important}
+
+/* Mobile stays exactly the same color system */
+@media(max-width:760px){
+  html,body,.main,.content,#pageRoot{background:#FFFFFF!important;color:#111111!important}
+}
+</style>
+
+<style id="seller-control-store-exact-first-site-final-lock-v3">
+/* ============================================================
+   STORE UI — FINAL LOCK
+   Visual reference: FIRST uploaded site.
+   This block is intentionally LAST and uses !important so the
+   store control never changes color between app sections.
+   ============================================================ */
+
+/* A) Shared store-report bars: identical first-site appearance */
+html body #pageRoot .store-report-filter,
+html body #pageRoot [data-store-report-filter],
+html body #pageRoot .dashboard-store-filter,
+html body #pageRoot [data-dashboard-store-filter]{
+  display:grid!important;
+  grid-template-columns:auto minmax(230px,1fr) minmax(230px,340px) auto auto!important;
+  align-items:center!important;
+  gap:14px!important;
+  margin-top:18px!important;
+  padding:16px 18px!important;
+  border:1px solid rgba(50,40,142,.14)!important;
+  border-radius:19px!important;
+  background:linear-gradient(135deg,#FFFFFF 0%,#F6F8FF 58%,#F3FBF8 100%)!important;
+  background-color:#FFFFFF!important;
+  color:#112146!important;
+  box-shadow:0 13px 34px rgba(20,39,95,.075)!important;
+}
+
+/* B) Store icon — same in every report bar */
+html body #pageRoot .store-report-filter-icon,
+html body #pageRoot .dashboard-store-filter-icon{
+  align-self:center!important;
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  border-radius:13px!important;
+  display:grid!important;
+  place-items:center!important;
+  color:#FFFFFF!important;
+  -webkit-text-fill-color:#FFFFFF!important;
+  font-size:20px!important;
+  background:linear-gradient(135deg,#32288E,#254CB6)!important;
+  box-shadow:0 10px 23px rgba(50,40,142,.20)!important;
+}
+
+/* C) Report title/subtitle — exactly the first-site dark text */
+html body #pageRoot .store-report-filter-copy,
+html body #pageRoot .dashboard-store-filter-copy{
+  align-self:center!important;
+  background:transparent!important;
+}
+html body #pageRoot .store-report-filter-copy strong,
+html body #pageRoot .dashboard-store-filter-copy strong{
+  display:block!important;
+  margin:0!important;
+  font-size:14px!important;
+  font-weight:950!important;
+  color:#112146!important;
+  -webkit-text-fill-color:#112146!important;
+}
+html body #pageRoot .store-report-filter-copy span,
+html body #pageRoot .dashboard-store-filter-copy span{
+  display:block!important;
+  margin-top:4px!important;
+  font-size:12px!important;
+  line-height:1.4!important;
+  font-weight:400!important;
+  color:#66738B!important;
+  -webkit-text-fill-color:#66738B!important;
+}
+
+/* D) Every field that contains a store selector */
+html body #pageRoot .sc-store-first-field,
+html body #pageRoot .store-report-filter .field,
+html body #pageRoot .dashboard-store-filter .field,
+html body #pageRoot .fbsab-filter .field{
+  margin:0!important;
+  background:transparent!important;
+  background-image:none!important;
+  color:#112146!important;
+  box-shadow:none!important;
+}
+html body #pageRoot .sc-store-first-label,
+html body #pageRoot .store-report-filter .field label,
+html body #pageRoot .dashboard-store-filter .field label,
+html body #pageRoot .fbsab-filter .field label{
+  display:block!important;
+  margin-bottom:5px!important;
+  font-size:11px!important;
+  font-weight:850!important;
+  color:#66738B!important;
+  -webkit-text-fill-color:#66738B!important;
+}
+
+/* E) EVERY store dropdown in the whole app:
+      white background + first-site dark text, permanently */
+html body #pageRoot .sc-store-first-select,
+html body #pageRoot select[name="storeId"],
+html body #pageRoot select[name="store"],
+html body #pageRoot #dashboardStoreSelect,
+html body #pageRoot [id^="storeReportSelect_"],
+html body #pageRoot #grStore,
+html body #pageRoot #returnMoneyStore,
+html body #pageRoot #fbsAbFilterStore,
+html body #pageRoot #fbsAbDailyStore{
+  width:100%!important;
+  min-height:43px!important;
+  padding:11px 12px!important;
+  border:1px solid #E0E7F4!important;
+  border-radius:12px!important;
+  outline:none!important;
+  color-scheme:light!important;
+  appearance:auto!important;
+  -webkit-appearance:auto!important;
+  background:#FFFFFF!important;
+  background-color:#FFFFFF!important;
+  background-image:none!important;
+  color:#243152!important;
+  -webkit-text-fill-color:#243152!important;
+  font-weight:800!important;
+  opacity:1!important;
+  box-shadow:none!important;
+  filter:none!important;
+}
+
+html body #pageRoot .sc-store-first-select option,
+html body #pageRoot select[name="storeId"] option,
+html body #pageRoot select[name="store"] option,
+html body #pageRoot #dashboardStoreSelect option,
+html body #pageRoot [id^="storeReportSelect_"] option,
+html body #pageRoot #grStore option,
+html body #pageRoot #returnMoneyStore option,
+html body #pageRoot #fbsAbFilterStore option,
+html body #pageRoot #fbsAbDailyStore option{
+  color-scheme:light!important;
+  background:#FFFFFF!important;
+  background-color:#FFFFFF!important;
+  color:#243152!important;
+  -webkit-text-fill-color:#243152!important;
+  opacity:1!important;
+}
+
+html body #pageRoot .sc-store-first-select:focus,
+html body #pageRoot select[name="storeId"]:focus,
+html body #pageRoot select[name="store"]:focus,
+html body #pageRoot #dashboardStoreSelect:focus,
+html body #pageRoot [id^="storeReportSelect_"]:focus,
+html body #pageRoot #grStore:focus,
+html body #pageRoot #returnMoneyStore:focus,
+html body #pageRoot #fbsAbFilterStore:focus,
+html body #pageRoot #fbsAbDailyStore:focus{
+  background:#FFFFFF!important;
+  color:#243152!important;
+  -webkit-text-fill-color:#243152!important;
+  border-color:rgba(17,36,203,.55)!important;
+  box-shadow:0 0 0 4px rgba(17,36,203,.08)!important;
+}
+
+/* F) Показать — same blue primary button as first site */
+html body #pageRoot .store-report-filter .btn.primary,
+html body #pageRoot .dashboard-store-filter .btn.primary,
+html body #pageRoot .fbsab-filter .btn.primary,
+html body #pageRoot .gr-filter .btn.primary,
+html body #pageRoot .sc-store-owner .btn.primary{
+  min-height:43px!important;
+  border:0!important;
+  border-radius:13px!important;
+  padding:11px 15px!important;
+  white-space:nowrap!important;
+  font-weight:850!important;
+  color:#FFFFFF!important;
+  -webkit-text-fill-color:#FFFFFF!important;
+  background:linear-gradient(135deg,#32288E,#254CB6)!important;
+  box-shadow:0 12px 28px rgba(37,76,182,.22)!important;
+  filter:none!important;
+}
+
+/* G) Selected store after clicking Показать — one identical style everywhere */
+html body #pageRoot .store-report-current,
+html body #pageRoot .dashboard-store-filter-current,
+html body #pageRoot .fbsab-filter-current,
+html body #pageRoot .real-wb-store-pill,
+html body #pageRoot .real-wb-store-pill-compact,
+html body #pageRoot [class*="selected-store"],
+html body #pageRoot [class*="store-current"],
+html body #pageRoot [class*="store-pill"]{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:32px!important;
+  padding:7px 11px!important;
+  border-radius:999px!important;
+  white-space:nowrap!important;
+  font-size:11px!important;
+  font-weight:900!important;
+  background:#EAF7F2!important;
+  background-image:none!important;
+  color:#00765A!important;
+  -webkit-text-fill-color:#00765A!important;
+  border:1px solid #CFE9DF!important;
+  box-shadow:none!important;
+  filter:none!important;
+}
+html body #pageRoot .store-report-current *,
+html body #pageRoot .dashboard-store-filter-current *,
+html body #pageRoot .fbsab-filter-current *,
+html body #pageRoot .real-wb-store-pill *,
+html body #pageRoot .real-wb-store-pill-compact *,
+html body #pageRoot [class*="selected-store"] *,
+html body #pageRoot [class*="store-current"] *,
+html body #pageRoot [class*="store-pill"] *{
+  color:#00765A!important;
+  -webkit-text-fill-color:#00765A!important;
+}
+
+/* H) FBS filter keeps its 2-field layout, but the visual language is the same */
+html body #pageRoot .fbsab-filter{
+  background:linear-gradient(135deg,#FFFFFF 0%,#F6F8FF 58%,#F3FBF8 100%)!important;
+  background-color:#FFFFFF!important;
+  color:#112146!important;
+  border:1px solid rgba(50,40,142,.14)!important;
+  box-shadow:0 13px 34px rgba(20,39,95,.075)!important;
+}
+html body #pageRoot .fbsab-filter-icon{
+  color:#FFFFFF!important;
+  -webkit-text-fill-color:#FFFFFF!important;
+  background:linear-gradient(135deg,#32288E,#254CB6)!important;
+  box-shadow:0 10px 23px rgba(50,40,142,.20)!important;
+}
+
+/* I) General report / Return money:
+      their date fields stay untouched; only Магазин gets first-site styling */
+html body #pageRoot .gr-filter .sc-store-first-field,
+html body #pageRoot .form-card .sc-store-first-field{
+  background:transparent!important;
+  color:#112146!important;
+}
+
+/* J) Unit economics: erase its older dark-store override */
+html body #pageRoot[data-page="unitEconomics"] .store-report-filter,
+html body #pageRoot[data-page="unitEconomics"] [data-store-report-filter]{
+  background:linear-gradient(135deg,#FFFFFF 0%,#F6F8FF 58%,#F3FBF8 100%)!important;
+  color:#112146!important;
+}
+html body #pageRoot[data-page="unitEconomics"] select[name="storeId"],
+html body #pageRoot[data-page="unitEconomics"] [id^="storeReportSelect_"]{
+  background:#FFFFFF!important;
+  background-image:none!important;
+  color:#243152!important;
+  -webkit-text-fill-color:#243152!important;
+  border:1px solid #E0E7F4!important;
+}
+
+/* Responsive layout copied from the first store-report block */
+@media(max-width:1100px){
+  html body #pageRoot .store-report-filter,
+  html body #pageRoot .dashboard-store-filter{
+    grid-template-columns:auto 1fr auto auto!important;
+  }
+  html body #pageRoot .store-report-filter .field,
+  html body #pageRoot .dashboard-store-filter .field{
+    grid-column:2/5!important;
+  }
+}
+@media(max-width:760px){
+  html body #pageRoot .store-report-filter,
+  html body #pageRoot .dashboard-store-filter{
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+    padding:14px!important;
+  }
+  html body #pageRoot .store-report-filter-icon,
+  html body #pageRoot .dashboard-store-filter-icon{
+    display:none!important;
+  }
+  html body #pageRoot .store-report-filter .field,
+  html body #pageRoot .dashboard-store-filter .field{
+    grid-column:auto!important;
+  }
+  html body #pageRoot .store-report-filter .btn,
+  html body #pageRoot .dashboard-store-filter .btn{
+    width:100%!important;
+  }
+  html body #pageRoot .store-report-current,
+  html body #pageRoot .dashboard-store-filter-current{
+    justify-self:start!important;
+    max-width:100%!important;
+  }
+}
+</style>
+
+<script id="seller-control-store-exact-first-site-runtime-lock-v3">
+(function(){
+  function imp(el, prop, value){
+    if(el && el.style) el.style.setProperty(prop, value, 'important');
+  }
+
+  function lockSelect(sel){
+    if(!sel) return;
+    sel.classList.add('sc-store-first-select');
+    imp(sel,'background','#FFFFFF');
+    imp(sel,'background-color','#FFFFFF');
+    imp(sel,'background-image','none');
+    imp(sel,'color','#243152');
+    imp(sel,'-webkit-text-fill-color','#243152');
+    imp(sel,'border','1px solid #E0E7F4');
+    imp(sel,'border-radius','12px');
+    imp(sel,'box-shadow','none');
+    imp(sel,'opacity','1');
+    imp(sel,'color-scheme','light');
+    Array.from(sel.options || []).forEach(function(o){
+      imp(o,'background','#FFFFFF');
+      imp(o,'background-color','#FFFFFF');
+      imp(o,'color','#243152');
+      imp(o,'-webkit-text-fill-color','#243152');
+    });
+  }
+
+  function lockBadge(el){
+    if(!el) return;
+    imp(el,'background','#EAF7F2');
+    imp(el,'background-image','none');
+    imp(el,'color','#00765A');
+    imp(el,'-webkit-text-fill-color','#00765A');
+    imp(el,'border','1px solid #CFE9DF');
+    imp(el,'box-shadow','none');
+    Array.from(el.querySelectorAll('*')).forEach(function(x){
+      imp(x,'color','#00765A');
+      imp(x,'-webkit-text-fill-color','#00765A');
+    });
+  }
+
+  function lockStoreUI(){
+    var root=document.getElementById('pageRoot');
+    if(!root)return;
+
+    /* All visible Магазин / 店铺 labels */
+    root.querySelectorAll('label').forEach(function(label){
+      var txt=(label.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+      if(!(txt.includes('магазин') || txt.includes('店铺'))) return;
+      label.classList.add('sc-store-first-label');
+      imp(label,'color','#66738B');
+      imp(label,'-webkit-text-fill-color','#66738B');
+      var field=label.closest('.field,.unit-field') || label.parentElement;
+      if(field){
+        field.classList.add('sc-store-first-field');
+        imp(field,'background','transparent');
+        imp(field,'color','#112146');
+        field.querySelectorAll('select').forEach(lockSelect);
+        var owner=field.closest('.store-report-filter,.dashboard-store-filter,.fbsab-filter,.gr-filter,.form-card');
+        if(owner) owner.classList.add('sc-store-owner');
+      }
+    });
+
+    /* Known store selectors — catches sections without standard label wrappers */
+    root.querySelectorAll(
+      'select[name="storeId"],select[name="store"],#dashboardStoreSelect,[id^="storeReportSelect_"],#grStore,#returnMoneyStore,#fbsAbFilterStore,#fbsAbDailyStore'
+    ).forEach(lockSelect);
+
+    /* Selected store / store pills */
+    root.querySelectorAll(
+      '.store-report-current,.dashboard-store-filter-current,.fbsab-filter-current,.real-wb-store-pill,.real-wb-store-pill-compact,[class*="selected-store"],[class*="store-current"],[class*="store-pill"]'
+    ).forEach(lockBadge);
+  }
+
+  function boot(){
+    var root=document.getElementById('pageRoot');
+    if(!root){ setTimeout(boot,80); return; }
+    lockStoreUI();
+    var scheduled=false;
+    new MutationObserver(function(){
+      if(scheduled)return;
+      scheduled=true;
+      requestAnimationFrame(function(){
+        scheduled=false;
+        lockStoreUI();
+      });
+    }).observe(root,{childList:true,subtree:true});
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',boot,{once:true});
+  }else{
+    boot();
+  }
+})();
+</script>
+
+
+<style id="seller-control-three-form-store-skyblue-v1">
+/* ONLY these 3 form store selectors:
+   1) Аналитика прибыли -> Добавить прибыль
+   2) Финансы -> Финансовая операция
+   3) Инвестиции -> Добавить инвестицию */
+html body #pageRoot form[onsubmit*="addProfitAnalytics"] select[name="storeId"],
+html body #pageRoot #financeForm select[name="store"],
+html body #pageRoot form[onsubmit*="saveInvestment"] select[name="storeId"]{
+  background:#FFFFFF!important;
+  background-color:#FFFFFF!important;
+  background-image:none!important;
+  color:#111111!important;
+  -webkit-text-fill-color:#111111!important;
+  border:1px solid #D1D5DB!important;
+  box-shadow:0 4px 12px rgba(17,24,39,.06)!important;
+  color-scheme:light!important;
+  font-weight:850!important;
+  opacity:1!important;
+}
+
+html body #pageRoot form[onsubmit*="addProfitAnalytics"] select[name="storeId"] option,
+html body #pageRoot #financeForm select[name="store"] option,
+html body #pageRoot form[onsubmit*="saveInvestment"] select[name="storeId"] option{
+  background:#FFFFFF!important;
+  background-color:#FFFFFF!important;
+  color:#111111!important;
+  -webkit-text-fill-color:#111111!important;
+}
+
+html body #pageRoot form[onsubmit*="addProfitAnalytics"] select[name="storeId"]:focus,
+html body #pageRoot #financeForm select[name="store"]:focus,
+html body #pageRoot form[onsubmit*="saveInvestment"] select[name="storeId"]:focus{
+  background:#FFFFFF!important;
+  color:#111111!important;
+  -webkit-text-fill-color:#111111!important;
+  border-color:#9CA3AF!important;
+  box-shadow:0 0 0 4px rgba(17,24,39,.08)!important;
+}
+
+html body #pageRoot form[onsubmit*="addProfitAnalytics"] select[name="storeId"] + *,
+html body #pageRoot #financeForm select[name="store"] + *,
+html body #pageRoot form[onsubmit*="saveInvestment"] select[name="storeId"] + *{
+  color:#111111!important;
+}
+
+/* Label Магазин in these three forms is black and clearly readable */
+html body #pageRoot form[onsubmit*="addProfitAnalytics"] select[name="storeId"] ~ * ,
+html body #pageRoot #financeForm select[name="store"] ~ * ,
+html body #pageRoot form[onsubmit*="saveInvestment"] select[name="storeId"] ~ *{
+  color:#111111;
+}
+html body #pageRoot form[onsubmit*="addProfitAnalytics"] .field:has(select[name="storeId"]) label,
+html body #pageRoot #financeForm .field:has(select[name="store"]) label,
+html body #pageRoot form[onsubmit*="saveInvestment"] .field:has(select[name="storeId"]) label{
+  color:#111111!important;
+  -webkit-text-fill-color:#111111!important;
+  font-weight:900!important;
+}
+</style>
+
+<script id="seller-control-three-form-store-skyblue-runtime-v1">
+(function(){
+  function setImp(el, prop, val){
+    if(el && el.style) el.style.setProperty(prop,val,'important');
+  }
+  function paint(sel){
+    if(!sel)return;
+    setImp(sel,'background','#FFFFFF');
+    setImp(sel,'background-color','#FFFFFF');
+    setImp(sel,'background-image','none');
+    setImp(sel,'color','#111111');
+    setImp(sel,'-webkit-text-fill-color','#111111');
+    setImp(sel,'border','1px solid #D1D5DB');
+    setImp(sel,'box-shadow','0 4px 12px rgba(17,24,39,.06)');
+    setImp(sel,'color-scheme','light');
+    setImp(sel,'font-weight','850');
+    Array.from(sel.options||[]).forEach(function(o){
+      setImp(o,'background','#FFFFFF');
+      setImp(o,'background-color','#FFFFFF');
+      setImp(o,'color','#111111');
+      setImp(o,'-webkit-text-fill-color','#111111');
+    });
+    var field=sel.closest('.field');
+    var label=field && field.querySelector('label');
+    if(label){
+      setImp(label,'color','#111111');
+      setImp(label,'-webkit-text-fill-color','#111111');
+      setImp(label,'font-weight','900');
+    }
+  }
+  function apply(){
+    var root=document.getElementById('pageRoot');
+    if(!root)return;
+    [
+      'form[onsubmit*="addProfitAnalytics"] select[name="storeId"]',
+      '#financeForm select[name="store"]',
+      'form[onsubmit*="saveInvestment"] select[name="storeId"]'
+    ].forEach(function(q){
+      root.querySelectorAll(q).forEach(paint);
+    });
+  }
+  function boot(){
+    var root=document.getElementById('pageRoot');
+    if(!root){setTimeout(boot,80);return;}
+    apply();
+    var pending=false;
+    new MutationObserver(function(){
+      if(pending)return;
+      pending=true;
+      requestAnimationFrame(function(){
+        pending=false;
+        apply();
+      });
+    }).observe(root,{childList:true,subtree:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
+})();
+</script>
+
+
+<style id="seller-control-fbs-header-white-black-v1">
+/* FBS Абдурахим header only: white background + black text */
+html body #pageRoot .fbsab-main-head{
+  background:#FFFFFF!important;
+  background-image:none!important;
+  color:#111111!important;
+  border:1px solid #E0E7F4!important;
+  box-shadow:0 12px 30px rgba(17,24,39,.08)!important;
+}
+html body #pageRoot .fbsab-main-head:before,
+html body #pageRoot .fbsab-main-head:after{
+  display:none!important;
+}
+html body #pageRoot .fbsab-main-logo{
+  background:#F3F4F6!important;
+  background-image:none!important;
+  color:#111111!important;
+  -webkit-text-fill-color:#111111!important;
+  border:1px solid #D1D5DB!important;
+  box-shadow:none!important;
+}
+html body #pageRoot .fbsab-main-brand h3{
+  color:#111111!important;
+  -webkit-text-fill-color:#111111!important;
+}
+html body #pageRoot .fbsab-main-brand p{
+  color:#111111!important;
+  -webkit-text-fill-color:#111111!important;
+  opacity:1!important;
+}
+html body #pageRoot .fbsab-main-pills span{
+  background:#FFFFFF!important;
+  color:#111111!important;
+  -webkit-text-fill-color:#111111!important;
+  border:1px solid #D1D5DB!important;
+  box-shadow:none!important;
+}
+</style>
+
+
+<style id="seller-control-fbs-header-gradient-restored-v2">
+/* Restore original FBS premium header background */
+html body #pageRoot .fbsab-main-head{
+  background:
+    radial-gradient(circle at 88% -15%,rgba(100,232,200,.34),transparent 34%),
+    radial-gradient(circle at 4% 110%,rgba(116,105,255,.30),transparent 32%),
+    linear-gradient(128deg,#0C1537 0%,#253FA8 47%,#087D67 100%)!important;
+  color:#FFFFFF!important;
+  border:0!important;
+  box-shadow:0 24px 58px rgba(25,42,105,.20)!important;
+}
+html body #pageRoot .fbsab-main-head:before{
+  display:block!important;
+  content:""!important;
+  position:absolute!important;
+  inset:1px!important;
+  border-radius:25px!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  pointer-events:none!important;
+}
+html body #pageRoot .fbsab-main-head:after{
+  display:block!important;
+}
+html body #pageRoot .fbsab-main-logo{
+  background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,.09))!important;
+  color:#FFFFFF!important;
+  -webkit-text-fill-color:#FFFFFF!important;
+  border:1px solid rgba(255,255,255,.17)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.30),0 10px 24px rgba(5,18,56,.18)!important;
+}
+html body #pageRoot .fbsab-main-brand h3{
+  color:#FFFFFF!important;
+  -webkit-text-fill-color:#FFFFFF!important;
+}
+html body #pageRoot .fbsab-main-brand p{
+  color:rgba(255,255,255,.72)!important;
+  -webkit-text-fill-color:rgba(255,255,255,.72)!important;
+  opacity:1!important;
+}
 </style>
 
 </body>
