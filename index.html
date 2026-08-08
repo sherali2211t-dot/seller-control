@@ -3433,6 +3433,25 @@ body{background:
 @media(max-width:760px){.real-wb-dashboard-head{grid-template-columns:auto 1fr}.real-wb-trend-chip{grid-column:2;text-align:left;justify-self:start;min-width:0}.real-wb-store-pill b{max-width:155px}.real-wb-profit-hero{align-items:flex-start}.real-wb-profit-hero-main strong{font-size:21px}.real-wb-profit-hero-move{min-width:0}.real-wb-dashboard-stats{grid-template-columns:1fr 1fr 1fr}.real-wb-dashboard-stats>div{padding:8px}.real-wb-dashboard-stats span,.real-wb-dashboard-stats small{font-size:7.5px}.real-wb-dashboard-stats strong{font-size:12px}.real-wb-dashboard-open{display:block}.real-wb-dashboard-open>span{display:block;margin-bottom:7px}.real-wb-dashboard-open .btn{width:100%}}
 </style>
 
+
+<style id="profit-money-motivation-v1">
+.profit-money-motivation{display:flex;align-items:center;gap:16px;padding:22px 24px;overflow:hidden;position:relative;background:linear-gradient(135deg,#102A56 0%,#1F4F78 54%,#237B70 115%);color:#fff;border:1px solid rgba(255,255,255,.12);box-shadow:0 18px 42px rgba(24,42,96,.12)}
+.profit-money-motivation:after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:-55px;top:-70px;background:rgba(255,255,255,.08)}
+.profit-money-icon{flex:0 0 52px;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:25px;font-weight:950;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
+.profit-money-motivation h3{margin:0 0 5px;font-size:20px;font-weight:950;letter-spacing:-.2px;color:#fff}
+.profit-money-motivation p{margin:0;font-size:13px;line-height:1.55;color:rgba(255,255,255,.82);font-weight:700}
+@media(max-width:760px){.profit-money-motivation{padding:17px 18px;gap:12px}.profit-money-icon{width:44px;height:44px;flex-basis:44px;font-size:21px}.profit-money-motivation h3{font-size:17px}.profit-money-motivation p{font-size:12px}}
+/* Restored bottom chart + black text for money motivation */
+.profit-money-motivation{background:linear-gradient(135deg,#F8FBFF 0%,#EEF7F3 52%,#E8F1FF 100%)!important;border:1px solid #D7E3EF!important;color:#18284A!important;box-shadow:0 18px 42px rgba(24,42,96,.08)!important}
+.profit-money-motivation:after{background:rgba(50,84,182,.06)!important}
+.profit-money-icon{background:linear-gradient(135deg,#DCE8FF,#D8F3E8)!important;border:1px solid #C7D7EF!important;color:#17325D!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)!important}
+.profit-money-motivation h3{color:#18284A!important}
+.profit-money-motivation p{color:#33486E!important}
+.profit-store-chart{background:linear-gradient(180deg,#FFFFFF 0%,#F8FAFD 100%)!important}
+.profit-store-chart .section-title h3{color:#18284A!important}
+.profit-store-chart .section-title p{color:#66738B!important}
+
+</style>
 </head>
 <body>
 <div id="publicRoot"></div>
@@ -5247,18 +5266,18 @@ function analyticsProfitEntries(ws=getWorkspace()){
 }
 function renderProfitAnalytics(){
   const ws=getWorkspace(),entries=analyticsProfitEntries(ws);
-  const storeOptions=activeStores().map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
+  const stores=activeStores();
+  const storeOptions=stores.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
   document.getElementById("pageRoot").innerHTML=`
-    <section class="profit-motivation"><div class="profit-kicker">${T("ПРИБЫЛЬ · КОНТРОЛЬ · РОСТ","利润 · 控制 · 成长")}</div><h3>${T("Прибыль — результат точных решений","利润是精准决策的结果")}</h3><p>${T("Считайте честно, распределяйте справедливо и часть направляйте на рост.","如实核算，公平分配，并把一部分投入成长。")}</p></section>
     <div class="section card form-card"><div class="section-title"><h3>${T("Добавить прибыль","添加利润")}</h3></div><form onsubmit="addProfitAnalytics(event)"><div class="report-form"><div class="field"><label>${T("Дата","日期")}</label><input name="date" type="date" value="${today()}" required></div><div class="field"><label>${T("Магазин","店铺")}</label><select name="storeId" required>${storeOptions}</select></div><div class="field"><label>${T("Сумма прибыли","利润金额")} (${ws.currency})</label><input name="amount" type="number" step="0.01" required></div></div><button class="btn primary">${T("Добавить","添加")}</button></form></div>
     ${profitAnalyticsHtml(entries)}
-    <div class="section">${activeStores().map(s=>profitAnalyticsStoreBlock(s)).join("")||`<div class="card empty">${T("Добавьте магазин","请添加店铺")}</div>`}</div>`;
-  setTimeout(()=>{activeStores().forEach(s=>drawProfitAnalyticsStoreChart(s.id,entries.filter(e=>e.storeId===s.id)))},0)
+    <div class="section">${stores.map(s=>profitAnalyticsStoreBlock(s)).join("")||`<div class="card empty">${T("Добавьте магазин","请添加店铺")}</div>`}</div>`;
+  setTimeout(()=>{stores.forEach(s=>drawProfitAnalyticsStoreChart(s.id,entries.filter(e=>e.storeId===s.id)))},0)
 }
 function profitAnalyticsHtml(entries){const vals=entries.map(e=>n(e.amount)),total=vals.reduce((a,b)=>a+b,0),avg=vals.length?total/vals.length:0,best=vals.length?Math.max(...vals):0,last=vals.length?vals[vals.length-1]:0;return `<div class="grid profit-analytics-grid"><div class="card profit-analytics-card"><span>${T("Общая прибыль","总利润")}</span><strong>${money(total)}</strong><small>${entries.length} ${T("операций","笔记录")}</small></div><div class="card profit-analytics-card"><span>${T("Средняя прибыль","平均利润")}</span><strong>${money(avg)}</strong><small>${T("На одну запись","每条记录")}</small></div><div class="card profit-analytics-card"><span>${T("Лучшая прибыль","最高利润")}</span><strong class="good">${money(best)}</strong><small>${T("Максимальная запись","最高单笔")}</small></div><div class="card profit-analytics-card"><span>${T("Последняя прибыль","最近利润")}</span><strong>${money(last)}</strong><small>${T("По последней записи","按最近记录")}</small></div></div>`}
 function drawProfitAnalyticsStoreChart(storeId,entries){const c=document.getElementById("profitAnalyticsStoreChart_"+storeId),z=prepCanvas(c);if(!z)return;const{x,w,h}=z,p=36;x.clearRect(0,0,w,h);x.strokeStyle="#E7EAF1";x.lineWidth=1;for(let i=0;i<5;i++){const y=p+i*(h-2*p)/4;x.beginPath();x.moveTo(p,y);x.lineTo(w-p,y);x.stroke()}if(!entries.length){x.fillStyle="#7B8190";x.textAlign="center";x.font="12px sans-serif";x.fillText(T("Нет данных по магазину","该店铺暂无数据"),w/2,h/2);return}const rows=entries.slice().sort((a,b)=>a.date.localeCompare(b.date)),vals=rows.map(e=>n(e.amount)),mn=Math.min(0,...vals),mx=Math.max(1,...vals),range=mx-mn||1,grad=x.createLinearGradient(0,p,0,h-p);grad.addColorStop(0,"rgba(37,76,182,.24)");grad.addColorStop(1,"rgba(0,128,96,.03)");x.beginPath();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);i?x.lineTo(px,py):x.moveTo(px,py)});x.lineTo(w-p,h-p);x.lineTo(p,h-p);x.closePath();x.fillStyle=grad;x.fill();x.strokeStyle="#254CB6";x.lineWidth=3;x.beginPath();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);x.fillStyle=v>=0?"#00A67B":"#D52D58";x.beginPath();x.arc(px,py,4,0,Math.PI*2);x.fill()})}
 function analyticsStoreProfitTotal(storeId){return analyticsProfitEntries().filter(e=>e.storeId===storeId).reduce((a,e)=>a+n(e.amount),0)}
-function profitAnalyticsStoreBlock(s){const ws=getWorkspace(),total=analyticsStoreProfitTotal(s.id),parts=(ws.partners||[]).filter(p=>p.storeId===s.id);return`<div class="section profit-store-group"><div class="section-title"><div><h3>${esc(s.name)}</h3><p>${T("Курс","汇率")}: 1 CNY = ${num(ws.yuanRate)} ${ws.currency}</p></div></div><div class="grid profit-summary"><div class="card summary"><span>${T("Общая прибыль","总利润")}</span><strong>${money(total)}</strong><small>${money(total/(ws.yuanRate||1),"CNY")}</small></div>${parts.map(p=>`<div class="card summary"><span>${esc(p.name)} · ${num(p.share)}%</span><strong>${money(total*p.share/100)}</strong><small>${money(total*p.share/100/(ws.yuanRate||1),"CNY")}</small></div>`).join("")||`<div class="card summary"><span>${T("Партнёры","合作伙伴")}</span><strong>—</strong><small>${T("Добавьте в настройках","请在设置中添加")}</small></div>`}</div><div class="card profit-chart-card store-profit-chart-card" style="margin-top:14px"><div class="section-title"><div><h3>${T("Динамика прибыли","利润趋势")}</h3><p>${T("Как меняется прибыль по датам","利润随日期的变化")}</p></div></div><canvas id="profitAnalyticsStoreChart_${s.id}"></canvas></div></div>`}
+function profitAnalyticsStoreBlock(s){const ws=getWorkspace(),total=analyticsStoreProfitTotal(s.id),parts=(ws.partners||[]).filter(p=>p.storeId===s.id);return`<div class="section profit-store-group"><div class="section-title"><div><h3>${esc(s.name)}</h3><p>${T("Курс","汇率")}: 1 CNY = ${num(ws.yuanRate)} ${ws.currency}</p></div></div><div class="grid profit-summary"><div class="card summary"><span>${T("Общая прибыль","总利润")}</span><strong>${money(total)}</strong><small>${money(total/(ws.yuanRate||1),"CNY")}</small></div>${parts.map(p=>`<div class="card summary"><span>${esc(p.name)} · ${num(p.share)}%</span><strong>${money(total*p.share/100)}</strong><small>${money(total*p.share/100/(ws.yuanRate||1),"CNY")}</small></div>`).join("")||`<div class="card summary"><span>${T("Партнёры","合作伙伴")}</span><strong>—</strong><small>${T("Добавьте в настройках","请在设置中添加")}</small></div>`}</div><div class="card profit-money-motivation" style="margin-top:14px"><div class="profit-money-icon">₽</div><div><h3>${T("Деньги любят порядок","财富偏爱有秩序的人")}</h3><p>${T("Контролируй прибыль сегодня — создавай капитал завтра.","今天管好利润，明天积累资本。")}</p></div></div><div class="card chart-card premium profit-store-chart" style="margin-top:14px"><div class="section-title"><div><h3>${T("Динамика прибыли","利润趋势")}</h3><p>${T("График прибыли по датам для этого магазина","该店铺按日期的利润图表")}</p></div></div><canvas id="profitAnalyticsStoreChart_${s.id}"></canvas></div></div>`}
 function addProfitAnalytics(e){e.preventDefault();const ws=getWorkspace(),d=Object.fromEntries(new FormData(e.target).entries());ws.profitEntries.push({id:id(),date:d.date,storeId:d.storeId,amount:n(d.amount),kind:"profit_analytics"});saveWorkspace(ws);renderProfitAnalytics()}
 function deleteProfitAnalytics(pid){if(!confirm(T("Удалить запись?","确定删除记录吗？")))return;const ws=getWorkspace();ws.profitEntries=ws.profitEntries.filter(x=>x.id!==pid);saveWorkspace(ws);renderProfitAnalytics()}
 function profitAnalyticsExcelRows(entries,ws=getWorkspace()){return (entries||[]).filter(v=>!isRealWbProfitEntry(v)).map(v=>({"Дата":v.date||"","Магазин":(ws.stores||[]).find(s=>s.id===v.storeId)?.name||"—","Сумма прибыли":n(v.amount)}))}
@@ -11312,6 +11331,74 @@ body.sc-dashboard-active .topbar .sub{color:#1A2746!important}
   -webkit-text-fill-color:#111827!important;
   text-shadow:none!important;
 }
+</style>
+
+
+<style id="seller-control-profit-partner-cards-colors">
+/* Profit analytics: make total/partner cards visually different in every store block */
+.profit-store-group .profit-summary .summary{
+  border:1px solid rgba(210,221,235,.95)!important;
+  box-shadow:0 14px 30px rgba(24,42,96,.08)!important;
+  overflow:hidden;
+  position:relative;
+}
+.profit-store-group .profit-summary .summary:before{
+  content:"";
+  position:absolute;
+  left:0;right:0;top:0;
+  height:4px;
+  background:rgba(255,255,255,.6);
+}
+.profit-store-group .profit-summary .summary span,
+.profit-store-group .profit-summary .summary strong,
+.profit-store-group .profit-summary .summary small{
+  position:relative;
+  z-index:1;
+}
+.profit-store-group .profit-summary .summary:nth-child(1){
+  background:linear-gradient(145deg,#EEF4FF 0%,#E0ECFF 100%)!important;
+  border-color:#CBDCFF!important;
+}
+.profit-store-group .profit-summary .summary:nth-child(1):before{background:linear-gradient(90deg,#254CB6,#6B8CFF)!important}
+.profit-store-group .profit-summary .summary:nth-child(1) span{color:#46618D!important}
+.profit-store-group .profit-summary .summary:nth-child(1) strong{color:#162B59!important}
+.profit-store-group .profit-summary .summary:nth-child(1) small{color:#5B719B!important}
+
+.profit-store-group .profit-summary .summary:nth-child(2){
+  background:linear-gradient(145deg,#FFF6E8 0%,#FFE8C6 100%)!important;
+  border-color:#F5D7A1!important;
+}
+.profit-store-group .profit-summary .summary:nth-child(2):before{background:linear-gradient(90deg,#D99011,#FFBF4C)!important}
+.profit-store-group .profit-summary .summary:nth-child(2) span{color:#8B6410!important}
+.profit-store-group .profit-summary .summary:nth-child(2) strong{color:#5B3E06!important}
+.profit-store-group .profit-summary .summary:nth-child(2) small{color:#8D6B1C!important}
+
+.profit-store-group .profit-summary .summary:nth-child(3){
+  background:linear-gradient(145deg,#F0ECFF 0%,#E3D7FF 100%)!important;
+  border-color:#D7C5FF!important;
+}
+.profit-store-group .profit-summary .summary:nth-child(3):before{background:linear-gradient(90deg,#7647D8,#A174FF)!important}
+.profit-store-group .profit-summary .summary:nth-child(3) span{color:#6644AA!important}
+.profit-store-group .profit-summary .summary:nth-child(3) strong{color:#371D6F!important}
+.profit-store-group .profit-summary .summary:nth-child(3) small{color:#6D55A4!important}
+
+.profit-store-group .profit-summary .summary:nth-child(4){
+  background:linear-gradient(145deg,#E8F9F1 0%,#D7F2E5 100%)!important;
+  border-color:#BFE6D2!important;
+}
+.profit-store-group .profit-summary .summary:nth-child(4):before{background:linear-gradient(90deg,#00A67B,#6FD3AE)!important}
+.profit-store-group .profit-summary .summary:nth-child(4) span{color:#2E7B67!important}
+.profit-store-group .profit-summary .summary:nth-child(4) strong{color:#0F5842!important}
+.profit-store-group .profit-summary .summary:nth-child(4) small{color:#427B68!important}
+
+.profit-store-group .profit-summary .summary:nth-child(5){
+  background:linear-gradient(145deg,#FFF0F3 0%,#FFDCE5 100%)!important;
+  border-color:#F2C6D3!important;
+}
+.profit-store-group .profit-summary .summary:nth-child(5):before{background:linear-gradient(90deg,#D52D58,#FF7E9C)!important}
+.profit-store-group .profit-summary .summary:nth-child(5) span{color:#9B3C57!important}
+.profit-store-group .profit-summary .summary:nth-child(5) strong{color:#6F1831!important}
+.profit-store-group .profit-summary .summary:nth-child(5) small{color:#9B5368!important}
 </style>
 
 </body>
