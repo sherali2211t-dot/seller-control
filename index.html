@@ -3474,7 +3474,7 @@ let onboardingStep=1;
 let onboardingDraft=null;
 let currentPage="dashboard";
 let currentStoreId=null;
-let editingReportId=null;
+let editingReportId=null,editingReportStoreId=null;
 let editingPurchaseId=null;
 let editingFulfillmentId=null;
 let editingInvestmentId=null;
@@ -4109,7 +4109,7 @@ function sidebarGroupHeader(group,icon,label){
   const open=sidebarOpenGroup===group;
   return `<button type="button" class="nav-group-toggle" onclick="toggleSidebarGroup('${group}')" aria-expanded="${open?"true":"false"}"><span class="nav-group-icon">${icon}</span><span class="nav-group-label">${esc(label)}</span><span class="nav-group-chevron">⌄</span></button>`
 }
-function go(page,storeId=null){if(typeof capturePurchaseDraftNow==="function")capturePurchaseDraftNow();sidebarOpenGroup=sidebarGroupForPage(page);currentPage=page;currentStoreId=storeId;editingReportId=null;editingPurchaseId=null;editingInvestmentId=null;editingUnitId=null;editingLoanId=null;editingInstallmentId=null;editingFulfillmentId=null;renderApp();window.scrollTo({top:0,behavior:"smooth"})}
+function go(page,storeId=null){if(typeof capturePurchaseDraftNow==="function")capturePurchaseDraftNow();sidebarOpenGroup=sidebarGroupForPage(page);currentPage=page;currentStoreId=storeId;editingReportId=null;editingReportStoreId=null;editingPurchaseId=null;editingInvestmentId=null;editingUnitId=null;editingLoanId=null;editingInstallmentId=null;editingFulfillmentId=null;renderApp();window.scrollTo({top:0,behavior:"smooth"})}
 function renderApp(){
   const ws=getWorkspace(),user=getCurrentUser();const [title,sub]=pageTitle();
   if(!sidebarOpenGroup)sidebarOpenGroup=sidebarGroupForPage(currentPage);
@@ -4573,16 +4573,73 @@ function renderStore(){
     <div class="section card form-card"><div class="section-title"><div><h3>${edit?T("Изменить отчёт","修改报表"):T("Добавить ежедневный отчёт","添加每日报表")}</h3><p>${esc(s.name)}</p></div></div>
       <form onsubmit="saveReport(event)"><div class="report-form">${reportFields.map(([k,type])=>`<div class="field"><label>${fieldName(k)}${["revenue","cost","platform","promo","labeling","delivery","reverse","other"].includes(k)?" ("+ws.currency+")":""}</label><input name="${k}" type="${type}" step="${type==="number"?"0.01":"1"}" value="${edit?esc(edit[k]??""):(k==="date"?today():"")}" oninput="previewReport(this.form)"></div>`).join("")}</div>
       <div class="preview"><div><span>${T("Валовая прибыль","毛利润")}</span><strong id="pGross">0</strong></div><div><span>${T("Налог","税费")}</span><strong id="pTax">0</strong></div><div><span>${T("Банк","银行")}</span><strong id="pBank">0</strong></div><div><span>${T("Все расходы","全部费用")}</span><strong id="pExp">0</strong></div><div><span>${T("Чистая прибыль","净利润")}</span><strong id="pNet">0</strong></div></div>
-      <div class="form-actions"><button class="btn primary">${edit?T("Сохранить изменения","保存修改"):T("Добавить отчёт","添加报表")}</button>${edit?`<button type="button" class="btn" onclick="editingReportId=null;renderStore()">${T("Отмена","取消")}</button>`:""}<button type="button" class="btn shop" onclick="exportStoreCSV('${s.id}')">${T("Скачать CSV","下载CSV")}</button></div></form>
+      <div class="form-actions"><button class="btn primary">${edit?T("Сохранить изменения","保存修改"):T("Добавить отчёт","添加报表")}</button>${edit?`<button type="button" class="btn" onclick="cancelReportEdit()">${T("Отмена","取消")}</button>`:""}<button type="button" class="btn shop" onclick="exportStoreCSV('${s.id}')">${T("Скачать CSV","下载CSV")}</button></div></form>
     </div>
     <div class="section card chart-card"><div class="section-title"><h3>${T("Динамика чистой прибыли","净利润趋势")}</h3></div><canvas id="storeChart"></canvas></div>
     <div class="section card table-card"><div class="table-tools"><strong>${T("История отчётов","报表历史")}</strong><span class="muted">${rows.length}</span></div><div class="table-wrap">${rows.length?reportTable(rows):`<div class="empty">${T("Данных пока нет","暂无数据")}</div>`}</div></div>`;
   setTimeout(()=>{const f=document.querySelector(".report-form")?.closest("form");if(f)previewReport(f);drawLine("storeChart",rows.slice().reverse().map(r=>[r.date,r.net]))},0)
 }
 function previewReport(form){const c=calcReport(Object.fromEntries(new FormData(form).entries()));for(const [idv,val] of [["pGross",c.gross],["pTax",c.tax],["pBank",c.bank],["pExp",c.allExpenses],["pNet",c.net]]){const el=document.getElementById(idv);if(el)el.textContent=money(val)}}
-function saveReport(e){e.preventDefault();const ws=getWorkspace(),s=ws.stores.find(x=>x.id===currentStoreId),raw=Object.fromEntries(new FormData(e.target).entries()),r={id:editingReportId||id()};reportFields.forEach(([k,t])=>r[k]=t==="number"?n(raw[k]):raw[k]);if(editingReportId){const i=s.reports.findIndex(x=>x.id===editingReportId);s.reports[i]=r}else s.reports.push(r);editingReportId=null;saveWorkspace(ws);renderStore()}
-function editReport(rid){editingReportId=rid;renderStore();window.scrollTo({top:0,behavior:"smooth"})}
-function deleteReport(rid){if(!confirm(T("Удалить эту запись?","确定删除此记录吗？")))return;const ws=getWorkspace(),s=ws.stores.find(x=>x.id===currentStoreId);s.reports=s.reports.filter(x=>x.id!==rid);saveWorkspace(ws);renderStore()}
+function saveReport(e){
+  e.preventDefault();
+  const ws=getWorkspace();
+  const targetStoreId=editingReportStoreId||currentStoreId;
+  let s=ws.stores.find(x=>x.id===targetStoreId);
+  if(editingReportId && (!s || !(s.reports||[]).some(x=>x.id===editingReportId))){
+    s=ws.stores.find(st=>(st.reports||[]).some(x=>x.id===editingReportId))||s;
+  }
+  if(!s)return alert(T("Магазин не найден","未找到店铺"));
+  currentStoreId=s.id;
+  const raw=Object.fromEntries(new FormData(e.target).entries()),r={id:editingReportId||id()};
+  reportFields.forEach(([k,t])=>r[k]=t==="number"?n(raw[k]):raw[k]);
+  if(editingReportId){
+    const i=(s.reports||[]).findIndex(x=>x.id===editingReportId);
+    if(i>=0)s.reports[i]=r;
+    else s.reports.push(r);
+  }else{
+    s.reports=s.reports||[];
+    s.reports.push(r);
+  }
+  editingReportId=null;
+  editingReportStoreId=null;
+  saveWorkspace(ws);
+  renderStore();
+  if(typeof showSaveToast==="function")showSaveToast(T("✓ Изменения сохранены","✓ 修改已保存"));
+}
+function editReport(rid){
+  const ws=getWorkspace();
+  const target=ws?.stores?.find(st=>(st.reports||[]).some(r=>r.id===rid));
+  if(!target)return alert(T("Запись не найдена","未找到记录"));
+  currentPage="store";
+  currentStoreId=target.id;
+  editingReportStoreId=target.id;
+  editingReportId=rid;
+  /* Do not let an old unsaved add-form draft overwrite the record being edited. */
+  try{
+    const prefix="seller_control_form_state_v6_";
+    const session=typeof getSession==="function"?getSession():null;
+    const userId=String((typeof currentUserId!=="undefined"&&currentUserId)||session?.userId||"guest");
+    localStorage.removeItem(prefix+userId+"_store_"+target.id);
+  }catch(e){}
+  renderStore();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function cancelReportEdit(){
+  editingReportId=null;
+  editingReportStoreId=null;
+  renderStore();
+}
+function deleteReport(rid){
+  if(!confirm(T("Удалить эту запись?","确定删除此记录吗？")))return;
+  const ws=getWorkspace();
+  const s=ws.stores.find(st=>(st.reports||[]).some(x=>x.id===rid))||ws.stores.find(x=>x.id===currentStoreId);
+  if(!s)return;
+  currentStoreId=s.id;
+  s.reports=(s.reports||[]).filter(x=>x.id!==rid);
+  if(editingReportId===rid){editingReportId=null;editingReportStoreId=null}
+  saveWorkspace(ws);
+  renderStore();
+}
 function reportTable(rows){return`<table><thead><tr><th>${T("Дата","日期")}</th><th>${T("Выручка","营业额")}</th><th>${T("Заказы","订单")}</th><th>${T("Себестоимость","商品成本")}</th><th>${T("Комиссия","佣金")}</th><th>${T("Реклама","推广")}</th><th>${T("Маркировка","贴标")}</th><th>${T("Доставка","配送")}</th><th>${T("Возврат","退货")}</th><th>${T("Прочие","其他")}</th><th>${T("Валовая","毛利润")}</th><th>${T("Налог","税费")}</th><th>${T("Все расходы","全部费用")}</th><th>${T("Чистая","净利润")}</th><th></th></tr></thead><tbody>${rows.map(r=>`<tr><td>${fmtDate(r.date)}</td><td>${money(r.revenue)}</td><td>${num(r.orders)}</td><td>${money(r.cost)}</td><td>${money(r.platform)}</td><td>${money(r.promo)}</td><td>${money(r.labeling)}</td><td>${money(r.delivery)}</td><td>${money(r.reverse)}</td><td>${money(r.other)}</td><td class="${r.gross>=0?"good":"bad"}">${money(r.gross)}</td><td>${money(r.tax)}</td><td>${money(r.allExpenses)}</td><td class="${r.net>=0?"good":"bad"}">${money(r.net)}</td><td><button class="btn small" onclick="editReport('${r.id}')">${T("Изм.","修改")}</button> <button class="btn small danger" onclick="deleteReport('${r.id}')">${T("Удал.","删除")}</button></td></tr>`).join("")}</tbody></table>`}
 
 
@@ -11670,6 +11727,9 @@ body.sc-dashboard-active .topbar .sub{color:#1A2746!important}
     }catch(e){}
   }
   function restoreNow(){
+    try{
+      if(page()==="store" && typeof editingReportId!=="undefined" && editingReportId)return false;
+    }catch(e){}
     const d=read();if(!d)return false;
     const r=root();if(!r)return false;
     const all=fields(r);if(!all.length)return false;
@@ -12638,6 +12698,31 @@ html body #pageRoot .fbsab-main-brand p{
   opacity:1!important;
 }
 </style>
+
+
+<script id="seller-control-store-report-edit-integrity-v1">
+(function(){
+  function activeEditStore(){
+    try{
+      if(typeof editingReportId==="undefined"||!editingReportId)return null;
+      const ws=typeof getWorkspace==="function"?getWorkspace():null;
+      return ws?.stores?.find(s=>(s.reports||[]).some(r=>r.id===editingReportId))||null;
+    }catch(e){return null}
+  }
+  function protect(){
+    const s=activeEditStore();
+    if(!s)return;
+    if(typeof currentStoreId!=="undefined" && currentStoreId!==s.id)currentStoreId=s.id;
+    if(typeof editingReportStoreId!=="undefined")editingReportStoreId=s.id;
+  }
+  document.addEventListener("submit",function(e){
+    if(e.target?.matches?.('form[onsubmit*="saveReport"]'))protect();
+  },true);
+  document.addEventListener("click",function(e){
+    if(e.target?.closest?.('button[onclick*="editReport"]'))setTimeout(protect,0);
+  },true);
+})();
+</script>
 
 </body>
 
