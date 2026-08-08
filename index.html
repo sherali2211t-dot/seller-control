@@ -3481,6 +3481,7 @@ let editingInvestmentId=null;
 let editingUnitId=null;
 let editingLoanId=null;
 let editingInstallmentId=null;
+let editingProfitAnalyticsId=null;
 let installmentSearch="";
 let dashboardPeriod="all";
 let dashboardDateFrom="";
@@ -4087,7 +4088,7 @@ function pageTitle(){
   const s=ws.stores.find(x=>x.id===currentStoreId);return[s?.name||T("Магазин","店铺"),T("Ежедневный финансовый отчёт","每日财务报表")]
 }
 function navButton(page,icon,label){return`<button class="${currentPage===page?"active":""}" onclick="go('${page}')"><span class="ico">${icon}</span><span>${esc(label)}</span></button>`}
-let sidebarOpenGroup="";
+let sidebarOpenGroup="product";
 function sidebarGroupForPage(page){
   if(page==="store")return "stores";
   if(["dashboard","generalReport","profitAnalytics","profit"].includes(page))return "sales";
@@ -4102,14 +4103,18 @@ function toggleSidebarGroup(group){
     const open=el.dataset.group===sidebarOpenGroup;
     el.classList.toggle("open",open);
     const btn=el.querySelector(".nav-group-toggle");
-    if(btn)btn.setAttribute("aria-expanded",open?"true":"false")
+    if(btn){
+      btn.setAttribute("aria-expanded",open?"true":"false");
+      const state=btn.querySelector(".nav-group-state");
+      if(state)state.textContent=open?T("Скрыть","隐藏"):T("Показать","显示");
+    }
   })
 }
 function sidebarGroupHeader(group,icon,label){
   const open=sidebarOpenGroup===group;
-  return `<button type="button" class="nav-group-toggle" onclick="toggleSidebarGroup('${group}')" aria-expanded="${open?"true":"false"}"><span class="nav-group-icon">${icon}</span><span class="nav-group-label">${esc(label)}</span><span class="nav-group-chevron">⌄</span></button>`
+  return `<button type="button" class="nav-group-toggle" onclick="toggleSidebarGroup('${group}')" aria-expanded="${open?"true":"false"}"><span class="nav-group-icon">${icon}</span><span class="nav-group-label">${esc(label)}</span><span class="nav-group-state">${open?T("Скрыть","隐藏"):T("Показать","显示")}</span><span class="nav-group-chevron">⌄</span></button>`
 }
-function go(page,storeId=null){if(typeof capturePurchaseDraftNow==="function")capturePurchaseDraftNow();sidebarOpenGroup=sidebarGroupForPage(page);currentPage=page;currentStoreId=storeId;editingReportId=null;editingReportStoreId=null;editingPurchaseId=null;editingInvestmentId=null;editingUnitId=null;editingLoanId=null;editingInstallmentId=null;editingFulfillmentId=null;renderApp();window.scrollTo({top:0,behavior:"smooth"})}
+function go(page,storeId=null){if(typeof capturePurchaseDraftNow==="function")capturePurchaseDraftNow();sidebarOpenGroup=sidebarGroupForPage(page);currentPage=page;currentStoreId=storeId;editingReportId=null;editingReportStoreId=null;editingPurchaseId=null;editingInvestmentId=null;editingUnitId=null;editingLoanId=null;editingInstallmentId=null;editingProfitAnalyticsId=null;editingFulfillmentId=null;renderApp();window.scrollTo({top:0,behavior:"smooth"})}
 function renderApp(){
   const ws=getWorkspace(),user=getCurrentUser();const [title,sub]=pageTitle();
   if(!sidebarOpenGroup)sidebarOpenGroup=sidebarGroupForPage(currentPage);
@@ -4248,7 +4253,19 @@ function renderFulfillment(){
       <div class="fulfill-summary"><div><span>${T("Количество","总件数")}</span><strong id="ffPrevQuantity">0</strong></div><div><span>${T("Принято","验收")}</span><strong id="ffPrevAccepted">0</strong></div><div><span>${T("Общие расходы","总费用")}</span><strong id="ffPrevTotal">0 ₽</strong></div><div><span>${T("Расход на 1 шт","单件费用")}</span><strong id="ffPrevUnit">0 ₽</strong></div></div>
       <div class="form-actions"><button class="btn primary">${edit?T("Сохранить изменения","保存修改"):T("Добавить","添加")}</button><button type="button" class="btn excel-action" onclick="exportFulfillmentExcel()">📊 Excel</button></div></form>
     </div>
-    <div class="section card table-card"><div class="table-tools"><div><b>${T("Журнал фулфилмента","履约记录")}</b><div class="muted" style="font-size:13px;margin-top:3px">${T("Все автоматические расчёты сохраняются в браузере","所有自动计算保存在浏览器中")}</div></div><button class="btn excel-action small" onclick="exportFulfillmentExcel()">📊 ${T("Скачать Excel","下载 Excel")}</button></div><div class="table-wrap fulfill-table">${fulfillmentTable(rows)}</div></div>`;
+    <div class="section card table-card sc-history-card" data-sc-history-key="fulfillment">
+  <div class="table-tools sc-history-head">
+    <div><b>${T("Журнал фулфилмента","履约记录")}</b><div class="muted" style="font-size:13px;margin-top:3px">${T("Все автоматические расчёты сохраняются в браузере","所有自动计算保存在浏览器中")}</div></div>
+    <div class="sc-history-head-actions">
+      <button class="btn excel-action small" onclick="exportFulfillmentExcel()">📊 ${T("Скачать Excel","下载 Excel")}</button>
+      <button type="button" class="btn small sc-history-toggle" onclick="toggleSellerSectionHistory('fulfillment')">
+        <span id="scHistoryIcon_fulfillment">▼</span>
+        <span id="scHistoryText_fulfillment">${T("Показать","显示")}</span>
+      </button>
+    </div>
+  </div>
+  <div class="table-wrap fulfill-table sc-history-body hidden" id="scHistoryBody_fulfillment">${fulfillmentTable(rows)}</div>
+</div>`;
   setTimeout(previewFulfillment,0)
 }
 function previewFulfillment(){
@@ -4576,9 +4593,53 @@ function renderStore(){
       <div class="form-actions"><button class="btn primary">${edit?T("Сохранить изменения","保存修改"):T("Добавить отчёт","添加报表")}</button>${edit?`<button type="button" class="btn" onclick="cancelReportEdit()">${T("Отмена","取消")}</button>`:""}<button type="button" class="btn shop" onclick="exportStoreCSV('${s.id}')">${T("Скачать CSV","下载CSV")}</button></div></form>
     </div>
     <div class="section card chart-card"><div class="section-title"><h3>${T("Динамика чистой прибыли","净利润趋势")}</h3></div><canvas id="storeChart"></canvas></div>
-    <div class="section card table-card"><div class="table-tools"><strong>${T("История отчётов","报表历史")}</strong><span class="muted">${rows.length}</span></div><div class="table-wrap">${rows.length?reportTable(rows):`<div class="empty">${T("Данных пока нет","暂无数据")}</div>`}</div></div>`;
-  setTimeout(()=>{const f=document.querySelector(".report-form")?.closest("form");if(f)previewReport(f);drawLine("storeChart",rows.slice().reverse().map(r=>[r.date,r.net]))},0)
+    <div class="section card table-card store-report-history-card">
+      <div class="table-tools store-report-history-head">
+        <strong>${T("История отчётов","报表历史")}</strong>
+        <div class="store-report-history-tools">
+          <span class="muted">${rows.length}</span>
+          <button type="button" class="btn small store-report-history-toggle" onclick="toggleStoreReportHistory('${s.id}')">
+            <span id="storeReportHistoryIcon_${s.id}">▼</span>
+            <span id="storeReportHistoryText_${s.id}">${T("Показать","显示")}</span>
+          </button>
+        </div>
+      </div>
+      <div class="table-wrap store-report-history-body hidden" id="storeReportHistoryBody_${s.id}">
+        ${rows.length?reportTable(rows):`<div class="empty">${T("Данных пока нет","暂无数据")}</div>`}
+      </div>
+    </div>`;
+  setTimeout(()=>{
+    const f=document.querySelector(".report-form")?.closest("form");
+    if(f)previewReport(f);
+    drawLine("storeChart",rows.slice().reverse().map(r=>[r.date,r.net]));
+    restoreStoreReportHistoryState(s.id);
+  },0)
 }
+
+function storeReportHistoryKey(storeId){
+  return "seller_control_store_report_history_open_v1_"+String(storeId||"");
+}
+function toggleStoreReportHistory(storeId,forceOpen){
+  const body=document.getElementById("storeReportHistoryBody_"+storeId);
+  const textEl=document.getElementById("storeReportHistoryText_"+storeId);
+  const icon=document.getElementById("storeReportHistoryIcon_"+storeId);
+  if(!body)return;
+  const shouldOpen=forceOpen===true ? true : forceOpen===false ? false : body.classList.contains("hidden");
+  body.classList.toggle("hidden",!shouldOpen);
+  if(textEl)textEl.textContent=shouldOpen?T("Скрыть","隐藏"):T("Показать","显示");
+  if(icon)icon.textContent=shouldOpen?"▲":"▼";
+  try{localStorage.setItem(storeReportHistoryKey(storeId),shouldOpen?"1":"0")}catch(e){}
+}
+function restoreStoreReportHistoryState(storeId){
+  /* Default is hidden. State is stored separately for every shop. */
+  try{
+    const open=localStorage.getItem(storeReportHistoryKey(storeId))==="1";
+    toggleStoreReportHistory(storeId,open);
+  }catch(e){
+    toggleStoreReportHistory(storeId,false);
+  }
+}
+
 function previewReport(form){const c=calcReport(Object.fromEntries(new FormData(form).entries()));for(const [idv,val] of [["pGross",c.gross],["pTax",c.tax],["pBank",c.bank],["pExp",c.allExpenses],["pNet",c.net]]){const el=document.getElementById(idv);if(el)el.textContent=money(val)}}
 function saveReport(e){
   e.preventDefault();
@@ -4707,7 +4768,21 @@ function renderPurchases(){
       <form onsubmit="savePurchase(event)"><div class="report-form"><div class="field"><label>${T("Магазин","店铺")} *</label><select name="storeId" required onchange="autoSavePurchaseDraft(this.form)"><option value="">${T("Выберите магазин","请选择店铺")}</option>${ws.stores.filter(x=>x.enabled).map(x=>`<option value="${x.id}" ${selectedStoreId===x.id?"selected":""}>${esc(x.name)}</option>`).join("")}<option value="general" ${selectedStoreId==="general"?"selected":""}>${T("Общий расход","公共费用")}</option></select></div>${purchaseFields.map(([k,type])=>`<div class="field"><label>${purchaseFieldName(k)}</label><input name="${k}" type="${type}" ${type==="number"?'step="0.001"':''} value="${formData?esc(formData[k]??''):(k==='date'?today():k==='yuanRate'?esc(ws.yuanRate):'')}" ${['date','product'].includes(k)?'required':''} oninput="autoSavePurchaseDraft(this.form)"></div>`).join("")}</div>
       <div class="calc-preview"><div><span>${T("Всего штук","总件数")}</span><strong id="buyUnits">0</strong></div><div><span>${T("Цена 1 шт., руб","单件价格，卢布")}</span><strong id="buyUnitRub">0</strong></div><div><span>${T("Расходы в Китае, руб","中国费用，卢布")}</span><strong id="buyChinaRub">0</strong></div><div><span>${T("Доставка, руб","运费，卢布")}</span><strong id="buyDeliveryRub">0</strong></div><div><span>${T("Себестоимость 1 шт.","单件成本")}</span><strong id="buyCostUnit">0</strong></div><div><span>${T("Себестоимость общая","总成本")}</span><strong id="buyCostTotal">0</strong></div></div>
       <div class="form-actions"><button class="btn primary">${edit?T("Сохранить изменения","保存修改"):T("Добавить закупку","添加采购")}</button>${edit?`<button type="button" class="btn" onclick="cancelPurchaseEdit()">${T("Отмена","取消")}</button>`:""}<button type="button" class="btn shop" onclick="exportPurchasesCSV()">${T("Скачать CSV","下载CSV")}</button></div></form></div>
-    <div class="section card table-card"><div class="table-tools"><strong>${T("История закупок","采购历史")}</strong><span class="muted">${rows.length}</span></div><div class="table-wrap module-table">${rows.length?purchaseTable(rows):`<div class="empty">${T("Закупок пока нет","暂无采购记录")}</div>`}</div></div>`;
+    <div class="section card table-card sc-history-card" data-sc-history-key="purchases">
+  <div class="table-tools sc-history-head">
+    <strong>${T("История закупок","采购历史")}</strong>
+    <div class="sc-history-head-actions">
+      <span class="muted">${rows.length}</span>
+      <button type="button" class="btn small sc-history-toggle" onclick="toggleSellerSectionHistory('purchases')">
+        <span id="scHistoryIcon_purchases">▼</span>
+        <span id="scHistoryText_purchases">${T("Показать","显示")}</span>
+      </button>
+    </div>
+  </div>
+  <div class="table-wrap module-table sc-history-body hidden" id="scHistoryBody_purchases">
+    ${rows.length?purchaseTable(rows):`<div class="empty">${T("Закупок пока нет","暂无采购记录")}</div>`}
+  </div>
+</div>`;
   setTimeout(()=>{const f=document.querySelector('.report-form')?.closest('form');if(f)previewPurchase(f)},0)
 }
 function previewPurchase(form){const p=calcPurchase(Object.fromEntries(new FormData(form).entries()));const values={buyUnits:num(p.totalUnits),buyUnitRub:money(p.unitPriceRub),buyChinaRub:money(p.chinaExpensesRub),buyDeliveryRub:money(p.deliveryRub),buyCostUnit:money(p.costPerUnit),buyCostTotal:money(p.totalCost)};Object.entries(values).forEach(([k,v])=>{const el=document.getElementById(k);if(el)el.textContent=v})}
@@ -5317,27 +5392,251 @@ function exportIssuedLoansCSV(){
 
 
 
-/* Profit Analytics — restored from the previous Seller Control version */
+/* Profit Analytics — detailed ledger with edit/delete */
 function analyticsProfitEntries(ws=getWorkspace()){
   return (ws?.profitEntries||[]).filter(v=>!isRealWbProfitEntry(v))
+}
+function profitAnalyticsFieldValue(v){
+  return v===undefined||v===null?"":String(v)
+}
+function profitAnalyticsCalcAmount(v){
+  const hasBreakdown=[v?.revenue,v?.expenses,v?.tax].some(x=>x!==undefined&&x!==null&&String(x)!=="");
+  return hasBreakdown ? n(v.revenue)-n(v.expenses)-n(v.tax) : n(v?.amount)
+}
+function profitAnalyticsRecalc(form){
+  if(!form)return;
+  const revenue=form.elements.revenue,expenses=form.elements.expenses,tax=form.elements.tax,amount=form.elements.amount;
+  if(!amount)return;
+  const touched=[revenue?.value,expenses?.value,tax?.value].some(v=>String(v??"").trim()!=="");
+  if(touched)amount.value=round2(n(revenue?.value)-n(expenses?.value)-n(tax?.value));
 }
 function renderProfitAnalytics(){
   const ws=getWorkspace(),entries=analyticsProfitEntries(ws);
   const stores=activeStores();
-  const storeOptions=stores.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
+  const editing=editingProfitAnalyticsId ? entries.find(v=>v.id===editingProfitAnalyticsId) : null;
+  if(editingProfitAnalyticsId&&!editing)editingProfitAnalyticsId=null;
+  const edit=editing||null;
+  const selectedStoreId=edit?.storeId||"";
+  const storeOptions=stores.map(s=>`<option value="${esc(s.id)}" ${selectedStoreId===s.id?"selected":""}>${esc(s.name)}</option>`).join("");
+  const rows=entries.slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
   document.getElementById("pageRoot").innerHTML=`
-    <div class="section card form-card"><div class="section-title"><h3>${T("Добавить прибыль","添加利润")}</h3></div><form onsubmit="addProfitAnalytics(event)"><div class="report-form"><div class="field"><label>${T("Дата","日期")}</label><input name="date" type="date" value="${today()}" required></div><div class="field"><label>${T("Магазин","店铺")}</label><select name="storeId" required>${storeOptions}</select></div><div class="field"><label>${T("Сумма прибыли","利润金额")} (${ws.currency})</label><input name="amount" type="number" step="0.01" required></div></div><button class="btn primary">${T("Добавить","添加")}</button></form></div>
+    <div class="section card form-card profit-analytics-entry-form">
+      <div class="section-title">
+        <div>
+          <h3>${edit?T("Изменить запись прибыли","编辑利润记录"):T("Добавить прибыль","添加利润")}</h3>
+          <p>${T("Выручка − все расходы − налог = чистая прибыль. Каждую запись можно изменить или удалить.","营业额 − 所有费用 − 税费 = 净利润。每条记录都可以编辑或删除。")}</p>
+        </div>
+        ${edit?`<span class="auto-pill">${T("Режим редактирования","编辑模式")}</span>`:""}
+      </div>
+      <form id="profitAnalyticsForm" onsubmit="addProfitAnalytics(event)">
+        <div class="report-form profit-analytics-form-grid">
+          <div class="field">
+            <label>${T("Дата","日期")}</label>
+            <input name="date" type="date" value="${esc(edit?.date||today())}" required>
+          </div>
+          <div class="field">
+            <label>${T("Магазин","店铺")}</label>
+            <select name="storeId" required>${storeOptions}</select>
+          </div>
+          <div class="field">
+            <label>${T("Выручка","营业额")} (${ws.currency})</label>
+            <input name="revenue" type="number" step="0.01" value="${esc(profitAnalyticsFieldValue(edit?.revenue))}" oninput="profitAnalyticsRecalc(this.form)">
+          </div>
+          <div class="field">
+            <label>${T("Все расходы","所有费用")} (${ws.currency})</label>
+            <input name="expenses" type="number" step="0.01" value="${esc(profitAnalyticsFieldValue(edit?.expenses))}" oninput="profitAnalyticsRecalc(this.form)">
+          </div>
+          <div class="field">
+            <label>${T("Налог","税费")} (${ws.currency})</label>
+            <input name="tax" type="number" step="0.01" value="${esc(profitAnalyticsFieldValue(edit?.tax))}" oninput="profitAnalyticsRecalc(this.form)">
+          </div>
+          <div class="field">
+            <label>${T("Чистая прибыль","净利润")} (${ws.currency})</label>
+            <input name="amount" type="number" step="0.01" value="${esc(profitAnalyticsFieldValue(edit?.amount))}" required>
+          </div>
+          <div class="field profit-analytics-comment-field">
+            <label>${T("Комментарий","备注")}</label>
+            <input name="comment" type="text" maxlength="220" value="${esc(edit?.comment||"")}" placeholder="${T("Например: исправлена реклама / возвраты","例如：已修正广告费 / 退货")}">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn primary">${edit?T("Сохранить изменения","保存修改"):T("Добавить","添加")}</button>
+          ${edit?`<button type="button" class="btn" onclick="cancelProfitAnalyticsEdit()">${T("Отмена","取消")}</button>`:""}
+        </div>
+      </form>
+    </div>
+
     ${profitAnalyticsHtml(entries)}
+
+    <div class="section card table-card profit-analytics-ledger">
+      <div class="table-tools profit-analytics-ledger-head">
+        <div>
+          <strong>${T("Отчёт по записям прибыли","利润记录报表")}</strong>
+          <small>${T("Здесь видно, в какой записи допущена ошибка. Исправьте её или удалите.","可在此查看哪条记录有误，并进行修改或删除。")}</small>
+        </div>
+        <div class="profit-analytics-ledger-tools">
+          <span class="auto-pill">${rows.length} ${T("записей","条记录")}</span>
+          <button type="button" class="btn small profit-ledger-toggle" onclick="toggleProfitAnalyticsLedger()">
+            <span id="profitLedgerToggleIcon">▼</span>
+            <span id="profitLedgerToggleText">${T("Показать","显示")}</span>
+          </button>
+        </div>
+      </div>
+      <div class="table-wrap profit-analytics-ledger-body hidden" id="profitAnalyticsLedgerBody">
+        ${rows.length?`<table class="profit-analytics-table">
+          <thead><tr>
+            <th>${T("Дата","日期")}</th>
+            <th>${T("Магазин","店铺")}</th>
+            <th>${T("Выручка","营业额")}</th>
+            <th>${T("Все расходы","所有费用")}</th>
+            <th>${T("Налог","税费")}</th>
+            <th>${T("Чистая прибыль","净利润")}</th>
+            <th>${T("Комментарий","备注")}</th>
+            <th>${T("Действия","操作")}</th>
+          </tr></thead>
+          <tbody>${rows.map(v=>{
+            const store=ws.stores.find(s=>s.id===v.storeId);
+            const hasRevenue=v.revenue!==undefined&&v.revenue!==null&&String(v.revenue)!=="";
+            const hasExpenses=v.expenses!==undefined&&v.expenses!==null&&String(v.expenses)!=="";
+            const hasTax=v.tax!==undefined&&v.tax!==null&&String(v.tax)!=="";
+            const calculated=profitAnalyticsCalcAmount(v);
+            const mismatch=(hasRevenue||hasExpenses||hasTax)&&Math.abs(calculated-n(v.amount))>.01;
+            return `<tr class="${mismatch?"profit-analytics-row-warning":""}">
+              <td>${esc(v.date||"—")}</td>
+              <td><strong>${esc(store?.name||"—")}</strong></td>
+              <td>${hasRevenue?money(n(v.revenue)):"—"}</td>
+              <td>${hasExpenses?money(n(v.expenses)):"—"}</td>
+              <td>${hasTax?money(n(v.tax)):"—"}</td>
+              <td><strong class="${n(v.amount)>=0?"good":"bad"}">${money(n(v.amount))}</strong>${mismatch?`<small class="profit-analytics-error-note">${T("Проверьте расчёт","检查计算")}</small>`:""}</td>
+              <td class="profit-analytics-comment-cell">${esc(v.comment||"—")}</td>
+              <td>
+                <div class="profit-analytics-actions">
+                  <button class="btn small" onclick="editProfitAnalytics('${v.id}')">✏️ ${T("Изменить","编辑")}</button>
+                  <button class="btn small danger" onclick="deleteProfitAnalytics('${v.id}')">🗑 ${T("Удалить","删除")}</button>
+                </div>
+              </td>
+            </tr>`
+          }).join("")}</tbody>
+        </table>`:`<div class="empty">${T("Пока нет записей прибыли","暂无利润记录")}</div>`}
+      </div>
+    </div>
+
     <div class="section">${stores.map(s=>profitAnalyticsStoreBlock(s)).join("")||`<div class="card empty">${T("Добавьте магазин","请添加店铺")}</div>`}</div>`;
-  setTimeout(()=>{stores.forEach(s=>drawProfitAnalyticsStoreChart(s.id,entries.filter(e=>e.storeId===s.id)))},0)
+  setTimeout(()=>{
+    stores.forEach(s=>drawProfitAnalyticsStoreChart(s.id,entries.filter(e=>e.storeId===s.id)));
+    restoreProfitAnalyticsLedgerState();
+  },0)
 }
-function profitAnalyticsHtml(entries){const vals=entries.map(e=>n(e.amount)),total=vals.reduce((a,b)=>a+b,0),avg=vals.length?total/vals.length:0,best=vals.length?Math.max(...vals):0,last=vals.length?vals[vals.length-1]:0;return `<div class="grid profit-analytics-grid"><div class="card profit-analytics-card"><span>${T("Общая прибыль","总利润")}</span><strong>${money(total)}</strong><small>${entries.length} ${T("операций","笔记录")}</small></div><div class="card profit-analytics-card"><span>${T("Средняя прибыль","平均利润")}</span><strong>${money(avg)}</strong><small>${T("На одну запись","每条记录")}</small></div><div class="card profit-analytics-card"><span>${T("Лучшая прибыль","最高利润")}</span><strong class="good">${money(best)}</strong><small>${T("Максимальная запись","最高单笔")}</small></div><div class="card profit-analytics-card"><span>${T("Последняя прибыль","最近利润")}</span><strong>${money(last)}</strong><small>${T("По последней записи","按最近记录")}</small></div></div>`}
-function drawProfitAnalyticsStoreChart(storeId,entries){const c=document.getElementById("profitAnalyticsStoreChart_"+storeId),z=prepCanvas(c);if(!z)return;const{x,w,h}=z,p=36;x.clearRect(0,0,w,h);x.strokeStyle="#E7EAF1";x.lineWidth=1;for(let i=0;i<5;i++){const y=p+i*(h-2*p)/4;x.beginPath();x.moveTo(p,y);x.lineTo(w-p,y);x.stroke()}if(!entries.length){x.fillStyle="#7B8190";x.textAlign="center";x.font="12px sans-serif";x.fillText(T("Нет данных по магазину","该店铺暂无数据"),w/2,h/2);return}const rows=entries.slice().sort((a,b)=>a.date.localeCompare(b.date)),vals=rows.map(e=>n(e.amount)),mn=Math.min(0,...vals),mx=Math.max(1,...vals),range=mx-mn||1,grad=x.createLinearGradient(0,p,0,h-p);grad.addColorStop(0,"rgba(37,76,182,.24)");grad.addColorStop(1,"rgba(0,128,96,.03)");x.beginPath();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);i?x.lineTo(px,py):x.moveTo(px,py)});x.lineTo(w-p,h-p);x.lineTo(p,h-p);x.closePath();x.fillStyle=grad;x.fill();x.strokeStyle="#254CB6";x.lineWidth=3;x.beginPath();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);x.fillStyle=v>=0?"#00A67B":"#D52D58";x.beginPath();x.arc(px,py,4,0,Math.PI*2);x.fill()})}
-function analyticsStoreProfitTotal(storeId){return analyticsProfitEntries().filter(e=>e.storeId===storeId).reduce((a,e)=>a+n(e.amount),0)}
-function profitAnalyticsStoreBlock(s){const ws=getWorkspace(),total=analyticsStoreProfitTotal(s.id),parts=(ws.partners||[]).filter(p=>p.storeId===s.id);return`<div class="section profit-store-group"><div class="section-title"><div><h3>${esc(s.name)}</h3><p>${T("Курс","汇率")}: 1 CNY = ${num(ws.yuanRate)} ${ws.currency}</p></div></div><div class="grid profit-summary"><div class="card summary"><span>${T("Общая прибыль","总利润")}</span><strong>${money(total)}</strong><small>${money(total/(ws.yuanRate||1),"CNY")}</small></div>${parts.map(p=>`<div class="card summary"><span>${esc(p.name)} · ${num(p.share)}%</span><strong>${money(total*p.share/100)}</strong><small>${money(total*p.share/100/(ws.yuanRate||1),"CNY")}</small></div>`).join("")||`<div class="card summary"><span>${T("Партнёры","合作伙伴")}</span><strong>—</strong><small>${T("Добавьте в настройках","请在设置中添加")}</small></div>`}</div><div class="card profit-money-motivation" style="margin-top:14px"><div class="profit-money-icon">₽</div><div><h3>${T("Деньги любят порядок","财富偏爱有秩序的人")}</h3><p>${T("Контролируй прибыль сегодня — создавай капитал завтра.","今天管好利润，明天积累资本。")}</p></div></div><div class="card chart-card premium profit-store-chart" style="margin-top:14px"><div class="section-title"><div><h3>${T("Динамика прибыли","利润趋势")}</h3><p>${T("График прибыли по датам для этого магазина","该店铺按日期的利润图表")}</p></div></div><canvas id="profitAnalyticsStoreChart_${s.id}"></canvas></div></div>`}
-function addProfitAnalytics(e){e.preventDefault();const ws=getWorkspace(),d=Object.fromEntries(new FormData(e.target).entries());ws.profitEntries.push({id:id(),date:d.date,storeId:d.storeId,amount:n(d.amount),kind:"profit_analytics"});saveWorkspace(ws);renderProfitAnalytics()}
-function deleteProfitAnalytics(pid){if(!confirm(T("Удалить запись?","确定删除记录吗？")))return;const ws=getWorkspace();ws.profitEntries=ws.profitEntries.filter(x=>x.id!==pid);saveWorkspace(ws);renderProfitAnalytics()}
-function profitAnalyticsExcelRows(entries,ws=getWorkspace()){return (entries||[]).filter(v=>!isRealWbProfitEntry(v)).map(v=>({"Дата":v.date||"","Магазин":(ws.stores||[]).find(s=>s.id===v.storeId)?.name||"—","Сумма прибыли":n(v.amount)}))}
+
+function toggleProfitAnalyticsLedger(forceOpen){
+  const body=document.getElementById("profitAnalyticsLedgerBody");
+  const textEl=document.getElementById("profitLedgerToggleText");
+  const icon=document.getElementById("profitLedgerToggleIcon");
+  if(!body)return;
+  const shouldOpen=forceOpen===true ? true : forceOpen===false ? false : body.classList.contains("hidden");
+  body.classList.toggle("hidden",!shouldOpen);
+  if(textEl)textEl.textContent=shouldOpen?T("Скрыть","隐藏"):T("Показать","显示");
+  if(icon)icon.textContent=shouldOpen?"▲":"▼";
+  try{localStorage.setItem("seller_control_profit_ledger_open_v1",shouldOpen?"1":"0")}catch(e){}
+}
+function restoreProfitAnalyticsLedgerState(){
+  try{
+    const open=localStorage.getItem("seller_control_profit_ledger_open_v1")==="1";
+    toggleProfitAnalyticsLedger(open);
+  }catch(e){toggleProfitAnalyticsLedger(false)}
+}
+
+function profitAnalyticsHtml(entries){
+  const vals=entries.map(e=>n(e.amount)),total=vals.reduce((a,b)=>a+b,0),avg=vals.length?total/vals.length:0,best=vals.length?Math.max(...vals):0,last=vals.length?vals[vals.length-1]:0;
+  return `<div class="grid profit-analytics-grid"><div class="card profit-analytics-card"><span>${T("Общая прибыль","总利润")}</span><strong>${money(total)}</strong><small>${entries.length} ${T("операций","笔记录")}</small></div><div class="card profit-analytics-card"><span>${T("Средняя прибыль","平均利润")}</span><strong>${money(avg)}</strong><small>${T("На одну запись","每条记录")}</small></div><div class="card profit-analytics-card"><span>${T("Лучшая прибыль","最高利润")}</span><strong class="good">${money(best)}</strong><small>${T("Максимальная запись","最高单笔")}</small></div><div class="card profit-analytics-card"><span>${T("Последняя прибыль","最近利润")}</span><strong>${money(last)}</strong><small>${T("По последней записи","按最近记录")}</small></div></div>`
+}
+function drawProfitAnalyticsStoreChart(storeId,entries){
+  const c=document.getElementById("profitAnalyticsStoreChart_"+storeId),z=prepCanvas(c);if(!z)return;
+  const{x,w,h}=z,p=36;x.clearRect(0,0,w,h);x.strokeStyle="#E7EAF1";x.lineWidth=1;
+  for(let i=0;i<5;i++){const y=p+i*(h-2*p)/4;x.beginPath();x.moveTo(p,y);x.lineTo(w-p,y);x.stroke()}
+  if(!entries.length){x.fillStyle="#7B8190";x.textAlign="center";x.font="12px sans-serif";x.fillText(T("Нет данных по магазину","该店铺暂无数据"),w/2,h/2);return}
+  const rows=entries.slice().sort((a,b)=>a.date.localeCompare(b.date)),vals=rows.map(e=>n(e.amount)),mn=Math.min(0,...vals),mx=Math.max(1,...vals),range=mx-mn||1,grad=x.createLinearGradient(0,p,0,h-p);
+  grad.addColorStop(0,"rgba(37,76,182,.24)");grad.addColorStop(1,"rgba(0,128,96,.03)");
+  x.beginPath();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);i?x.lineTo(px,py):x.moveTo(px,py)});
+  x.lineTo(w-p,h-p);x.lineTo(p,h-p);x.closePath();x.fillStyle=grad;x.fill();x.strokeStyle="#254CB6";x.lineWidth=3;
+  x.beginPath();vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();
+  vals.forEach((v,i)=>{const px=p+(w-2*p)*(vals.length===1?.5:i/(vals.length-1)),py=h-p-(v-mn)/range*(h-2*p);x.fillStyle=v>=0?"#00A67B":"#D52D58";x.beginPath();x.arc(px,py,4,0,Math.PI*2);x.fill()})
+}
+function analyticsStoreProfitTotal(storeId){
+  return analyticsProfitEntries().filter(e=>e.storeId===storeId).reduce((a,e)=>a+n(e.amount),0)
+}
+function profitAnalyticsStoreBlock(s){
+  const ws=getWorkspace(),total=analyticsStoreProfitTotal(s.id),parts=(ws.partners||[]).filter(p=>p.storeId===s.id);
+  return`<div class="section profit-store-group"><div class="section-title"><div><h3>${esc(s.name)}</h3><p>${T("Курс","汇率")}: 1 CNY = ${num(ws.yuanRate)} ${ws.currency}</p></div></div><div class="grid profit-summary"><div class="card summary"><span>${T("Общая прибыль","总利润")}</span><strong>${money(total)}</strong><small>${money(total/(ws.yuanRate||1),"CNY")}</small></div>${parts.map(p=>`<div class="card summary"><span>${esc(p.name)} · ${num(p.share)}%</span><strong>${money(total*p.share/100)}</strong><small>${money(total*p.share/100/(ws.yuanRate||1),"CNY")}</small></div>`).join("")||`<div class="card summary"><span>${T("Партнёры","合作伙伴")}</span><strong>—</strong><small>${T("Добавьте в настройках","请在设置中添加")}</small></div>`}</div><div class="card profit-money-motivation" style="margin-top:14px"><div class="profit-money-icon">₽</div><div><h3>${T("Деньги любят порядок","财富偏爱有秩序的人")}</h3><p>${T("Контролируй прибыль сегодня — создавай капитал завтра.","今天管好利润，明天积累资本。")}</p></div></div><div class="card chart-card premium profit-store-chart" style="margin-top:14px"><div class="section-title"><div><h3>${T("Динамика прибыли","利润趋势")}</h3><p>${T("График прибыли по датам для этого магазина","该店铺按日期的利润图表")}</p></div></div><canvas id="profitAnalyticsStoreChart_${s.id}"></canvas></div></div>`
+}
+function addProfitAnalytics(e){
+  e.preventDefault();
+  const ws=getWorkspace(),d=Object.fromEntries(new FormData(e.target).entries());
+  const hasBreakdown=[d.revenue,d.expenses,d.tax].some(v=>String(v??"").trim()!=="");
+  const entry={
+    id:editingProfitAnalyticsId||id(),
+    date:d.date,
+    storeId:d.storeId,
+    revenue:String(d.revenue??"").trim()===""?null:n(d.revenue),
+    expenses:String(d.expenses??"").trim()===""?null:n(d.expenses),
+    tax:String(d.tax??"").trim()===""?null:n(d.tax),
+    amount:hasBreakdown?round2(n(d.revenue)-n(d.expenses)-n(d.tax)):n(d.amount),
+    comment:String(d.comment||"").trim(),
+    kind:"profit_analytics"
+  };
+  if(editingProfitAnalyticsId){
+    const i=(ws.profitEntries||[]).findIndex(x=>x.id===editingProfitAnalyticsId);
+    if(i>=0)ws.profitEntries[i]={...ws.profitEntries[i],...entry};
+    else ws.profitEntries.push(entry);
+  }else{
+    ws.profitEntries.push(entry);
+  }
+  editingProfitAnalyticsId=null;
+  saveWorkspace(ws);
+  renderProfitAnalytics();
+  if(typeof showSaveToast==="function")showSaveToast(T("✓ Прибыль сохранена","✓ 利润已保存"));
+}
+function editProfitAnalytics(pid){
+  const ws=getWorkspace(),entry=(ws.profitEntries||[]).find(x=>x.id===pid&&!isRealWbProfitEntry(x));
+  if(!entry)return alert(T("Запись не найдена","未找到记录"));
+  editingProfitAnalyticsId=pid;
+  if(window.sectionStoreFilters&&window.sectionStoreFilters.profitAnalytics!=="all"){
+    window.sectionStoreFilters.profitAnalytics=entry.storeId||"all";
+  }
+  try{
+    const prefix="seller_control_form_state_v6_";
+    const session=typeof getSession==="function"?getSession():null;
+    const userId=String((typeof currentUserId!=="undefined"&&currentUserId)||session?.userId||"guest");
+    localStorage.removeItem(prefix+userId+"_profitAnalytics_all");
+    localStorage.removeItem(prefix+userId+"_profitAnalytics_"+String(entry.storeId||"all"));
+  }catch(e){}
+  renderProfitAnalytics();
+  setTimeout(()=>document.getElementById("profitAnalyticsForm")?.scrollIntoView({behavior:"smooth",block:"start"}),20)
+}
+function cancelProfitAnalyticsEdit(){
+  editingProfitAnalyticsId=null;
+  renderProfitAnalytics()
+}
+function deleteProfitAnalytics(pid){
+  if(!confirm(T("Удалить эту запись прибыли?","确定删除这条利润记录吗？")))return;
+  const ws=getWorkspace();
+  ws.profitEntries=(ws.profitEntries||[]).filter(x=>x.id!==pid);
+  if(editingProfitAnalyticsId===pid)editingProfitAnalyticsId=null;
+  saveWorkspace(ws);
+  renderProfitAnalytics();
+  if(typeof showSaveToast==="function")showSaveToast(T("✓ Запись удалена","✓ 记录已删除"));
+}
+function profitAnalyticsExcelRows(entries,ws=getWorkspace()){
+  return (entries||[]).filter(v=>!isRealWbProfitEntry(v)).map(v=>({
+    "Дата":v.date||"",
+    "Магазин":(ws.stores||[]).find(s=>s.id===v.storeId)?.name||"—",
+    "Выручка":v.revenue??"",
+    "Все расходы":v.expenses??"",
+    "Налог":v.tax??"",
+    "Чистая прибыль":n(v.amount),
+    "Комментарий":v.comment||""
+  }))
+}
 
 /* Profit — Real WB · RUB only */
 function isRealWbProfitEntry(v){return !!(v&&v.kind==="real_wb_rub")}
@@ -5583,7 +5882,18 @@ function renderFinance(){
   <div class="card panel"><div class="section-title"><div><h3>${T("Финансовая аналитика","财务分析")}</h3><p>${T("Главные выводы по деньгам, расходам и балансу","关于资金、支出与余额的关键结论")}</p></div></div><div class="finance-analysis">${financeAnalysisHtml(rows,t,latest)}</div></div>
  </div>
  <div class="section"><div class="card finance-chart"><div class="section-title"><div><h3>${T("Главные статьи расходов","按类别支出")}</h3><p>${T("Какие расходы занимают самую большую долю","哪些支出占比最高")}</p></div></div><canvas id="financeExpenseChart"></canvas></div></div>
- <div class="section"><div class="section-title"><div><h3>${T("Журнал финансов","财务历史")}</h3><p>${T("Все операции в одном аккуратном журнале","所有操作都集中在一个整洁的记录中")}</p></div></div><div class="card table-card finance-table"><div class="table-wrap"><table><thead><tr><th>№</th><th>Дата</th><th>Магазин</th><th>Ответственный / имя</th><th>Остаток до, ₽</th><th>Пополнение, ₽</th><th>Расход, ₽</th><th>Для чего</th><th>Комментарий</th><th>Остаток после, ₽</th><th></th></tr></thead><tbody>${rows.length?rows.map((r,i)=>`<tr><td>${i+1}</td><td>${financeDateLabel(r.date)}</td><td>${esc(r.store)}</td><td>${esc(r.person)}</td><td>${money(r.opening)}</td><td class="good">${money(r.topup)}</td><td class="bad">${money(r.expense)}</td><td>${esc(r.purpose||'—')}</td><td>${esc(r.comment||'—')}</td><td><b>${money(r.balance)}</b></td><td><button class="btn danger small" onclick="deleteFinanceRow('${r.id}')">✕</button></td></tr>`).join(''):`<tr><td colspan="11" class="empty">${T("Операций пока нет","暂无操作")}</td></tr>`}</tbody></table></div></div></div>`;
+ <div class="section sc-history-card" data-sc-history-key="finance">
+  <div class="section-title sc-history-title">
+    <div><h3>${T("Журнал финансов","财务历史")}</h3><p>${T("Все операции в одном аккуратном журнале","所有操作都集中在一个整洁的记录中")}</p></div>
+    <button type="button" class="btn small sc-history-toggle" onclick="toggleSellerSectionHistory('finance')">
+      <span id="scHistoryIcon_finance">▼</span>
+      <span id="scHistoryText_finance">${T("Показать","显示")}</span>
+    </button>
+  </div>
+  <div class="card table-card finance-table sc-history-body hidden" id="scHistoryBody_finance">
+    <div class="table-wrap"><table><thead><tr><th>№</th><th>Дата</th><th>Магазин</th><th>Ответственный / имя</th><th>Остаток до, ₽</th><th>Пополнение, ₽</th><th>Расход, ₽</th><th>Для чего</th><th>Комментарий</th><th>Остаток после, ₽</th><th></th></tr></thead><tbody>${rows.length?rows.map((r,i)=>`<tr><td>${i+1}</td><td>${financeDateLabel(r.date)}</td><td>${esc(r.store)}</td><td>${esc(r.person)}</td><td>${money(r.opening)}</td><td class="good">${money(r.topup)}</td><td class="bad">${money(r.expense)}</td><td>${esc(r.purpose||'—')}</td><td>${esc(r.comment||'—')}</td><td><b>${money(r.balance)}</b></td><td><button class="btn danger small" onclick="deleteFinanceRow('${r.id}')">✕</button></td></tr>`).join(''):`<tr><td colspan="11" class="empty">${T("Операций пока нет","暂无操作")}</td></tr>`}</tbody></table></div>
+  </div>
+</div>`;
  requestAnimationFrame(()=>drawFinanceCharts(rows));
 }
 function previewFinanceBalance(){const f=document.getElementById('financeForm');if(!f)return;const v=financeNum(f.opening.value)+financeNum(f.topup.value)-financeNum(f.expense.value);document.getElementById('financePreview').textContent=money(v)}
@@ -6725,6 +7035,7 @@ window.addEventListener("DOMContentLoaded",boot);
     if(page==="installments")editingInstallmentId=null;
     if(page==="investments")editingInvestmentId=null;
     if(page==="loans")editingLoanId=null;
+    if(page==="profitAnalytics")editingProfitAnalyticsId=null;
     renderApp();
   };
 
@@ -9659,8 +9970,31 @@ body.sc-access-expired-lock .sc-access-overlay{background:rgba(8,18,40,.72)!impo
         <div class="form-actions"><button class="btn primary">${edit?T('Сохранить изменения','保存修改'):T('Сохранить FBS','保存 FBS')}</button></div></form>
       </div>
 
-      <div class="section card table-card fbsab-history-card"><div class="table-tools"><div><b>${T('История FBS','FBS 历史')}</b><div class="muted" style="font-size:13px;margin-top:3px">${esc(filterLabel(ws))}</div></div><span class="auto-pill">AUTO</span></div><div class="table-wrap fbsab-table">${dailyTable(ws,history)}</div></div>
-      <div class="section card table-card fbsab-receipt-history-card"><div class="table-tools"><div><b>${T('История поступлений на склад','入库历史')}</b><div class="muted" style="font-size:13px;margin-top:3px">${T('Отдельный журнал начального склада и новых поступлений','初始库存和新增入库的独立记录')}</div></div></div><div class="table-wrap fbsab-table">${receiptTable(ws)}</div></div>`;
+      <div class="section card table-card fbsab-history-card sc-history-card" data-sc-history-key="fbsDaily">
+  <div class="table-tools sc-history-head">
+    <div><b>${T('История FBS','FBS 历史')}</b><div class="muted" style="font-size:13px;margin-top:3px">${esc(filterLabel(ws))}</div></div>
+    <div class="sc-history-head-actions">
+      <span class="auto-pill">AUTO</span>
+      <button type="button" class="btn small sc-history-toggle" onclick="toggleSellerSectionHistory('fbsDaily')">
+        <span id="scHistoryIcon_fbsDaily">▼</span>
+        <span id="scHistoryText_fbsDaily">${T('Показать','显示')}</span>
+      </button>
+    </div>
+  </div>
+  <div class="table-wrap fbsab-table sc-history-body hidden" id="scHistoryBody_fbsDaily">${dailyTable(ws,history)}</div>
+</div>
+      <div class="section card table-card fbsab-receipt-history-card sc-history-card" data-sc-history-key="fbsReceipts">
+  <div class="table-tools sc-history-head">
+    <div><b>${T('История поступлений на склад','入库历史')}</b><div class="muted" style="font-size:13px;margin-top:3px">${T('Отдельный журнал начального склада и новых поступлений','初始库存和新增入库的独立记录')}</div></div>
+    <div class="sc-history-head-actions">
+      <button type="button" class="btn small sc-history-toggle" onclick="toggleSellerSectionHistory('fbsReceipts')">
+        <span id="scHistoryIcon_fbsReceipts">▼</span>
+        <span id="scHistoryText_fbsReceipts">${T('Показать','显示')}</span>
+      </button>
+    </div>
+  </div>
+  <div class="table-wrap fbsab-table sc-history-body hidden" id="scHistoryBody_fbsReceipts">${receiptTable(ws)}</div>
+</div>`;
     setTimeout(()=>{previewFbsAb();if(typeof moveSearchBelowSectionHeader==='function')moveSearchBelowSectionHeader()},0)
   };
 
@@ -11729,6 +12063,7 @@ body.sc-dashboard-active .topbar .sub{color:#1A2746!important}
   function restoreNow(){
     try{
       if(page()==="store" && typeof editingReportId!=="undefined" && editingReportId)return false;
+      if(page()==="profitAnalytics" && typeof editingProfitAnalyticsId!=="undefined" && editingProfitAnalyticsId)return false;
     }catch(e){}
     const d=read();if(!d)return false;
     const r=root();if(!r)return false;
@@ -12721,6 +13056,271 @@ html body #pageRoot .fbsab-main-brand p{
   document.addEventListener("click",function(e){
     if(e.target?.closest?.('button[onclick*="editReport"]'))setTimeout(protect,0);
   },true);
+})();
+</script>
+
+
+<style id="seller-control-profit-analytics-ledger-v1">
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-entry-form .section-title p{
+  margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.45
+}
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-form-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-comment-field{
+  grid-column:span 2;
+}
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-ledger{
+  margin-top:20px;
+}
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-ledger .table-tools>div{
+  display:grid;gap:4px
+}
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-ledger .table-tools small{
+  color:var(--muted);font-size:12px
+}
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-table{
+  min-width:1180px;
+}
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-table th,
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-table td{
+  vertical-align:middle;
+}
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-table th:nth-child(1),
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-table td:nth-child(1),
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-table th:nth-child(2),
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-table td:nth-child(2),
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-table th:nth-child(7),
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-table td:nth-child(7),
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-table th:nth-child(8),
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-table td:nth-child(8){
+  text-align:left;
+}
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-comment-cell{
+  max-width:260px;white-space:normal;line-height:1.35;color:#526078
+}
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-actions{
+  display:flex;gap:7px;align-items:center;flex-wrap:nowrap
+}
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-row-warning{
+  background:#FFF8E7!important;
+}
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-error-note{
+  display:block;margin-top:4px;color:#B97600;font-weight:900;font-size:10px
+}
+@media(max-width:1100px){
+  #pageRoot[data-page="profitAnalytics"] .profit-analytics-form-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important
+  }
+}
+@media(max-width:760px){
+  #pageRoot[data-page="profitAnalytics"] .profit-analytics-form-grid{
+    grid-template-columns:1fr!important
+  }
+  #pageRoot[data-page="profitAnalytics"] .profit-analytics-comment-field{
+    grid-column:auto
+  }
+}
+</style>
+
+
+<style id="seller-control-profit-ledger-collapsible-v1">
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-ledger-head{
+  cursor:default;
+}
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-ledger-tools{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+#pageRoot[data-page="profitAnalytics"] .profit-ledger-toggle{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-width:104px;
+  background:#EEF2FF;
+  color:#263A78;
+  border:1px solid #DCE4FF;
+  font-weight:900;
+}
+#pageRoot[data-page="profitAnalytics"] .profit-ledger-toggle:hover{
+  background:#E5EBFF;
+}
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-ledger-body.hidden{
+  display:none!important;
+}
+@media(max-width:760px){
+  #pageRoot[data-page="profitAnalytics"] .profit-analytics-ledger-head{
+    align-items:flex-start;
+  }
+  #pageRoot[data-page="profitAnalytics"] .profit-analytics-ledger-tools{
+    width:100%;
+    justify-content:space-between;
+  }
+}
+</style>
+
+
+<style id="seller-control-store-report-history-collapsible-v1">
+#pageRoot[data-page="store"] .store-report-history-head{
+  align-items:center;
+}
+#pageRoot[data-page="store"] .store-report-history-tools{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+#pageRoot[data-page="store"] .store-report-history-toggle{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-width:104px;
+  background:#EEF2FF;
+  color:#263A78;
+  border:1px solid #DCE4FF;
+  font-weight:900;
+}
+#pageRoot[data-page="store"] .store-report-history-toggle:hover{
+  background:#E5EBFF;
+}
+#pageRoot[data-page="store"] .store-report-history-body.hidden{
+  display:none!important;
+}
+@media(max-width:760px){
+  #pageRoot[data-page="store"] .store-report-history-head{
+    align-items:center;
+  }
+  #pageRoot[data-page="store"] .store-report-history-tools{
+    gap:7px;
+  }
+}
+</style>
+
+
+<style id="seller-control-sidebar-product-toggle-visible-v1">
+.sidebar .nav-group-toggle .nav-group-state{
+  margin-left:auto;
+  padding:4px 7px;
+  border-radius:999px;
+  font-size:9px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.15px;
+  color:rgba(255,255,255,.78);
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.10);
+  white-space:nowrap;
+}
+.sidebar .nav-group-toggle[aria-expanded="true"] .nav-group-state{
+  color:#fff;
+  background:rgba(255,255,255,.16);
+}
+.sidebar .nav-group-toggle .nav-group-chevron{
+  flex:0 0 auto;
+}
+@media(max-width:1100px){
+  .sidebar .nav-group-toggle .nav-group-state{
+    display:none!important;
+  }
+}
+</style>
+
+
+<style id="seller-control-module-history-collapsible-v1">
+#pageRoot .sc-history-head-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+#pageRoot .sc-history-toggle{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-width:104px;
+  background:#EEF2FF;
+  color:#263A78;
+  border:1px solid #DCE4FF;
+  font-weight:900;
+  white-space:nowrap;
+}
+#pageRoot .sc-history-toggle:hover{background:#E5EBFF}
+#pageRoot .sc-history-body.hidden{display:none!important}
+#pageRoot .sc-history-title{align-items:center}
+@media(max-width:760px){
+  #pageRoot .sc-history-head{
+    align-items:flex-start;
+  }
+  #pageRoot .sc-history-head-actions{
+    width:100%;
+    justify-content:space-between;
+  }
+  #pageRoot .sc-history-title{
+    align-items:flex-start;
+  }
+}
+</style>
+
+<script id="seller-control-module-history-collapsible-v1">
+(function(){
+  const PREFIX="seller_control_module_history_open_v1_";
+
+  window.toggleSellerSectionHistory=function(key,forceOpen){
+    const body=document.getElementById("scHistoryBody_"+key);
+    const textEl=document.getElementById("scHistoryText_"+key);
+    const icon=document.getElementById("scHistoryIcon_"+key);
+    if(!body)return;
+
+    const open=forceOpen===true ? true :
+               forceOpen===false ? false :
+               body.classList.contains("hidden");
+
+    body.classList.toggle("hidden",!open);
+    if(textEl)textEl.textContent=open?T("Скрыть","隐藏"):T("Показать","显示");
+    if(icon)icon.textContent=open?"▲":"▼";
+
+    try{localStorage.setItem(PREFIX+key,open?"1":"0")}catch(e){}
+  };
+
+  window.restoreSellerSectionHistory=function(key){
+    /* First time = hidden. Each block keeps its own state afterwards. */
+    let open=false;
+    try{open=localStorage.getItem(PREFIX+key)==="1"}catch(e){}
+    window.toggleSellerSectionHistory(key,open);
+  };
+
+  function syncAll(){
+    document.querySelectorAll("[data-sc-history-key]").forEach(function(card){
+      const key=card.getAttribute("data-sc-history-key");
+      if(key)window.restoreSellerSectionHistory(key);
+    });
+  }
+
+  let queued=false;
+  function queueSync(){
+    if(queued)return;
+    queued=true;
+    requestAnimationFrame(function(){
+      queued=false;
+      syncAll();
+    });
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",function(){
+      syncAll();
+      const root=document.getElementById("pageRoot");
+      if(root)new MutationObserver(queueSync).observe(root,{childList:true,subtree:true});
+    },{once:true});
+  }else{
+    syncAll();
+    const root=document.getElementById("pageRoot");
+    if(root)new MutationObserver(queueSync).observe(root,{childList:true,subtree:true});
+  }
 })();
 </script>
 
