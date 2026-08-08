@@ -5392,23 +5392,9 @@ function exportIssuedLoansCSV(){
 
 
 
-/* Profit Analytics — detailed ledger with edit/delete */
+/* Profit Analytics — simple manual profit summary */
 function analyticsProfitEntries(ws=getWorkspace()){
   return (ws?.profitEntries||[]).filter(v=>!isRealWbProfitEntry(v))
-}
-function profitAnalyticsFieldValue(v){
-  return v===undefined||v===null?"":String(v)
-}
-function profitAnalyticsCalcAmount(v){
-  const hasBreakdown=[v?.revenue,v?.expenses,v?.tax].some(x=>x!==undefined&&x!==null&&String(x)!=="");
-  return hasBreakdown ? n(v.revenue)-n(v.expenses)-n(v.tax) : n(v?.amount)
-}
-function profitAnalyticsRecalc(form){
-  if(!form)return;
-  const revenue=form.elements.revenue,expenses=form.elements.expenses,tax=form.elements.tax,amount=form.elements.amount;
-  if(!amount)return;
-  const touched=[revenue?.value,expenses?.value,tax?.value].some(v=>String(v??"").trim()!=="");
-  if(touched)amount.value=round2(n(revenue?.value)-n(expenses?.value)-n(tax?.value));
 }
 function renderProfitAnalytics(){
   const ws=getWorkspace(),entries=analyticsProfitEntries(ws);
@@ -5419,17 +5405,18 @@ function renderProfitAnalytics(){
   const selectedStoreId=edit?.storeId||"";
   const storeOptions=stores.map(s=>`<option value="${esc(s.id)}" ${selectedStoreId===s.id?"selected":""}>${esc(s.name)}</option>`).join("");
   const rows=entries.slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+
   document.getElementById("pageRoot").innerHTML=`
     <div class="section card form-card profit-analytics-entry-form">
       <div class="section-title">
         <div>
-          <h3>${edit?T("Изменить запись прибыли","编辑利润记录"):T("Добавить прибыль","添加利润")}</h3>
-          <p>${T("Выручка − все расходы − налог = чистая прибыль. Каждую запись можно изменить или удалить.","营业额 − 所有费用 − 税费 = 净利润。每条记录都可以编辑或删除。")}</p>
+          <h3>${edit?T("Изменить прибыль","编辑利润"):T("Добавить прибыль","添加利润")}</h3>
+          <p>${T("Прибыль уже рассчитана в магазине. Здесь сохраняется только итоговая сумма по магазину.","利润已在店铺中计算。此处只保存店铺最终利润。")}</p>
         </div>
         ${edit?`<span class="auto-pill">${T("Режим редактирования","编辑模式")}</span>`:""}
       </div>
       <form id="profitAnalyticsForm" onsubmit="addProfitAnalytics(event)">
-        <div class="report-form profit-analytics-form-grid">
+        <div class="report-form profit-analytics-simple-form">
           <div class="field">
             <label>${T("Дата","日期")}</label>
             <input name="date" type="date" value="${esc(edit?.date||today())}" required>
@@ -5439,24 +5426,8 @@ function renderProfitAnalytics(){
             <select name="storeId" required>${storeOptions}</select>
           </div>
           <div class="field">
-            <label>${T("Выручка","营业额")} (${ws.currency})</label>
-            <input name="revenue" type="number" step="0.01" value="${esc(profitAnalyticsFieldValue(edit?.revenue))}" oninput="profitAnalyticsRecalc(this.form)">
-          </div>
-          <div class="field">
-            <label>${T("Все расходы","所有费用")} (${ws.currency})</label>
-            <input name="expenses" type="number" step="0.01" value="${esc(profitAnalyticsFieldValue(edit?.expenses))}" oninput="profitAnalyticsRecalc(this.form)">
-          </div>
-          <div class="field">
-            <label>${T("Налог","税费")} (${ws.currency})</label>
-            <input name="tax" type="number" step="0.01" value="${esc(profitAnalyticsFieldValue(edit?.tax))}" oninput="profitAnalyticsRecalc(this.form)">
-          </div>
-          <div class="field">
             <label>${T("Чистая прибыль","净利润")} (${ws.currency})</label>
-            <input name="amount" type="number" step="0.01" value="${esc(profitAnalyticsFieldValue(edit?.amount))}" required>
-          </div>
-          <div class="field profit-analytics-comment-field">
-            <label>${T("Комментарий","备注")}</label>
-            <input name="comment" type="text" maxlength="220" value="${esc(edit?.comment||"")}" placeholder="${T("Например: исправлена реклама / возвраты","例如：已修正广告费 / 退货")}">
+            <input name="amount" type="number" step="0.01" value="${esc(edit?.amount??"")}" required>
           </div>
         </div>
         <div class="form-actions">
@@ -5472,7 +5443,7 @@ function renderProfitAnalytics(){
       <div class="table-tools profit-analytics-ledger-head">
         <div>
           <strong>${T("Отчёт по записям прибыли","利润记录报表")}</strong>
-          <small>${T("Здесь видно, в какой записи допущена ошибка. Исправьте её или удалите.","可在此查看哪条记录有误，并进行修改或删除。")}</small>
+          <small>${T("История итоговой прибыли по магазинам.","各店铺最终利润记录。")}</small>
         </div>
         <div class="profit-analytics-ledger-tools">
           <span class="auto-pill">${rows.length} ${T("записей","条记录")}</span>
@@ -5483,32 +5454,19 @@ function renderProfitAnalytics(){
         </div>
       </div>
       <div class="table-wrap profit-analytics-ledger-body hidden" id="profitAnalyticsLedgerBody">
-        ${rows.length?`<table class="profit-analytics-table">
+        ${rows.length?`<table class="profit-analytics-table profit-analytics-table-simple">
           <thead><tr>
             <th>${T("Дата","日期")}</th>
             <th>${T("Магазин","店铺")}</th>
-            <th>${T("Выручка","营业额")}</th>
-            <th>${T("Все расходы","所有费用")}</th>
-            <th>${T("Налог","税费")}</th>
             <th>${T("Чистая прибыль","净利润")}</th>
-            <th>${T("Комментарий","备注")}</th>
             <th>${T("Действия","操作")}</th>
           </tr></thead>
           <tbody>${rows.map(v=>{
             const store=ws.stores.find(s=>s.id===v.storeId);
-            const hasRevenue=v.revenue!==undefined&&v.revenue!==null&&String(v.revenue)!=="";
-            const hasExpenses=v.expenses!==undefined&&v.expenses!==null&&String(v.expenses)!=="";
-            const hasTax=v.tax!==undefined&&v.tax!==null&&String(v.tax)!=="";
-            const calculated=profitAnalyticsCalcAmount(v);
-            const mismatch=(hasRevenue||hasExpenses||hasTax)&&Math.abs(calculated-n(v.amount))>.01;
-            return `<tr class="${mismatch?"profit-analytics-row-warning":""}">
+            return `<tr>
               <td>${esc(v.date||"—")}</td>
               <td><strong>${esc(store?.name||"—")}</strong></td>
-              <td>${hasRevenue?money(n(v.revenue)):"—"}</td>
-              <td>${hasExpenses?money(n(v.expenses)):"—"}</td>
-              <td>${hasTax?money(n(v.tax)):"—"}</td>
-              <td><strong class="${n(v.amount)>=0?"good":"bad"}">${money(n(v.amount))}</strong>${mismatch?`<small class="profit-analytics-error-note">${T("Проверьте расчёт","检查计算")}</small>`:""}</td>
-              <td class="profit-analytics-comment-cell">${esc(v.comment||"—")}</td>
+              <td><strong class="${n(v.amount)>=0?"good":"bad"}">${money(n(v.amount))}</strong></td>
               <td>
                 <div class="profit-analytics-actions">
                   <button class="btn small" onclick="editProfitAnalytics('${v.id}')">✏️ ${T("Изменить","编辑")}</button>
@@ -5522,12 +5480,12 @@ function renderProfitAnalytics(){
     </div>
 
     <div class="section">${stores.map(s=>profitAnalyticsStoreBlock(s)).join("")||`<div class="card empty">${T("Добавьте магазин","请添加店铺")}</div>`}</div>`;
+
   setTimeout(()=>{
     stores.forEach(s=>drawProfitAnalyticsStoreChart(s.id,entries.filter(e=>e.storeId===s.id)));
     restoreProfitAnalyticsLedgerState();
   },0)
 }
-
 function toggleProfitAnalyticsLedger(forceOpen){
   const body=document.getElementById("profitAnalyticsLedgerBody");
   const textEl=document.getElementById("profitLedgerToggleText");
@@ -5545,7 +5503,6 @@ function restoreProfitAnalyticsLedgerState(){
     toggleProfitAnalyticsLedger(open);
   }catch(e){toggleProfitAnalyticsLedger(false)}
 }
-
 function profitAnalyticsHtml(entries){
   const vals=entries.map(e=>n(e.amount)),total=vals.reduce((a,b)=>a+b,0),avg=vals.length?total/vals.length:0,best=vals.length?Math.max(...vals):0,last=vals.length?vals[vals.length-1]:0;
   return `<div class="grid profit-analytics-grid"><div class="card profit-analytics-card"><span>${T("Общая прибыль","总利润")}</span><strong>${money(total)}</strong><small>${entries.length} ${T("операций","笔记录")}</small></div><div class="card profit-analytics-card"><span>${T("Средняя прибыль","平均利润")}</span><strong>${money(avg)}</strong><small>${T("На одну запись","每条记录")}</small></div><div class="card profit-analytics-card"><span>${T("Лучшая прибыль","最高利润")}</span><strong class="good">${money(best)}</strong><small>${T("Максимальная запись","最高单笔")}</small></div><div class="card profit-analytics-card"><span>${T("Последняя прибыль","最近利润")}</span><strong>${money(last)}</strong><small>${T("По последней записи","按最近记录")}</small></div></div>`
@@ -5572,16 +5529,11 @@ function profitAnalyticsStoreBlock(s){
 function addProfitAnalytics(e){
   e.preventDefault();
   const ws=getWorkspace(),d=Object.fromEntries(new FormData(e.target).entries());
-  const hasBreakdown=[d.revenue,d.expenses,d.tax].some(v=>String(v??"").trim()!=="");
   const entry={
     id:editingProfitAnalyticsId||id(),
     date:d.date,
     storeId:d.storeId,
-    revenue:String(d.revenue??"").trim()===""?null:n(d.revenue),
-    expenses:String(d.expenses??"").trim()===""?null:n(d.expenses),
-    tax:String(d.tax??"").trim()===""?null:n(d.tax),
-    amount:hasBreakdown?round2(n(d.revenue)-n(d.expenses)-n(d.tax)):n(d.amount),
-    comment:String(d.comment||"").trim(),
+    amount:n(d.amount),
     kind:"profit_analytics"
   };
   if(editingProfitAnalyticsId){
@@ -5630,11 +5582,7 @@ function profitAnalyticsExcelRows(entries,ws=getWorkspace()){
   return (entries||[]).filter(v=>!isRealWbProfitEntry(v)).map(v=>({
     "Дата":v.date||"",
     "Магазин":(ws.stores||[]).find(s=>s.id===v.storeId)?.name||"—",
-    "Выручка":v.revenue??"",
-    "Все расходы":v.expenses??"",
-    "Налог":v.tax??"",
-    "Чистая прибыль":n(v.amount),
-    "Комментарий":v.comment||""
+    "Чистая прибыль":n(v.amount)
   }))
 }
 
@@ -13324,6 +13272,25 @@ html body #pageRoot .fbsab-main-brand p{
 })();
 </script>
 
+
+<style id="seller-control-profit-analytics-simple-v1">
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-simple-form{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-table-simple{
+  min-width:760px!important;
+}
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-table-simple th,
+#pageRoot[data-page="profitAnalytics"] .profit-analytics-table-simple td{
+  text-align:left!important;
+  vertical-align:middle!important;
+}
+@media(max-width:760px){
+  #pageRoot[data-page="profitAnalytics"] .profit-analytics-simple-form{
+    grid-template-columns:1fr!important;
+  }
+}
+</style>
 </body>
 
 
